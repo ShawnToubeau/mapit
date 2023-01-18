@@ -1,0 +1,14 @@
+{
+  "name": "mapit",
+  "version": "1.0.0",
+  "repository": "https://github.com/ShawnToubeau/mapit.git",
+  "author": "Shawn Toubeau <shawntoubeau@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "gen-proto": "rm -rf ./**/*pb.{ts,go} && buf generate"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^1.0.0",
+    "@bufbuild/protoc-gen-es": "^1.0.0"
+  }
+}
