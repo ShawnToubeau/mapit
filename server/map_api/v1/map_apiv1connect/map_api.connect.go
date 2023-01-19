@@ -30,6 +30,7 @@ type MapEventServiceClient interface {
 	CreateMapEvent(context.Context, *connect_go.Request[v1.CreateMapEventRequest]) (*connect_go.Response[v1.CreateMapEventResponse], error)
 	GetMapEvent(context.Context, *connect_go.Request[v1.GetMapEventRequest]) (*connect_go.Response[v1.GetMapEventResponse], error)
 	UpdateMapEvent(context.Context, *connect_go.Request[v1.UpdateMapEventRequest]) (*connect_go.Response[v1.UpdateMapEventResponse], error)
+	DeleteMapEvent(context.Context, *connect_go.Request[v1.DeleteMapEventRequest]) (*connect_go.Response[v1.DeleteMapEventResponse], error)
 }
 
 // NewMapEventServiceClient constructs a client for the map_api.v1.MapEventService service. By
@@ -57,6 +58,11 @@ func NewMapEventServiceClient(httpClient connect_go.HTTPClient, baseURL string, 
 			baseURL+"/map_api.v1.MapEventService/UpdateMapEvent",
 			opts...,
 		),
+		deleteMapEvent: connect_go.NewClient[v1.DeleteMapEventRequest, v1.DeleteMapEventResponse](
+			httpClient,
+			baseURL+"/map_api.v1.MapEventService/DeleteMapEvent",
+			opts...,
+		),
 	}
 }
 
@@ -65,6 +71,7 @@ type mapEventServiceClient struct {
 	createMapEvent *connect_go.Client[v1.CreateMapEventRequest, v1.CreateMapEventResponse]
 	getMapEvent    *connect_go.Client[v1.GetMapEventRequest, v1.GetMapEventResponse]
 	updateMapEvent *connect_go.Client[v1.UpdateMapEventRequest, v1.UpdateMapEventResponse]
+	deleteMapEvent *connect_go.Client[v1.DeleteMapEventRequest, v1.DeleteMapEventResponse]
 }
 
 // CreateMapEvent calls map_api.v1.MapEventService.CreateMapEvent.
@@ -82,11 +89,17 @@ func (c *mapEventServiceClient) UpdateMapEvent(ctx context.Context, req *connect
 	return c.updateMapEvent.CallUnary(ctx, req)
 }
 
+// DeleteMapEvent calls map_api.v1.MapEventService.DeleteMapEvent.
+func (c *mapEventServiceClient) DeleteMapEvent(ctx context.Context, req *connect_go.Request[v1.DeleteMapEventRequest]) (*connect_go.Response[v1.DeleteMapEventResponse], error) {
+	return c.deleteMapEvent.CallUnary(ctx, req)
+}
+
 // MapEventServiceHandler is an implementation of the map_api.v1.MapEventService service.
 type MapEventServiceHandler interface {
 	CreateMapEvent(context.Context, *connect_go.Request[v1.CreateMapEventRequest]) (*connect_go.Response[v1.CreateMapEventResponse], error)
 	GetMapEvent(context.Context, *connect_go.Request[v1.GetMapEventRequest]) (*connect_go.Response[v1.GetMapEventResponse], error)
 	UpdateMapEvent(context.Context, *connect_go.Request[v1.UpdateMapEventRequest]) (*connect_go.Response[v1.UpdateMapEventResponse], error)
+	DeleteMapEvent(context.Context, *connect_go.Request[v1.DeleteMapEventRequest]) (*connect_go.Response[v1.DeleteMapEventResponse], error)
 }
 
 // NewMapEventServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -111,6 +124,11 @@ func NewMapEventServiceHandler(svc MapEventServiceHandler, opts ...connect_go.Ha
 		svc.UpdateMapEvent,
 		opts...,
 	))
+	mux.Handle("/map_api.v1.MapEventService/DeleteMapEvent", connect_go.NewUnaryHandler(
+		"/map_api.v1.MapEventService/DeleteMapEvent",
+		svc.DeleteMapEvent,
+		opts...,
+	))
 	return "/map_api.v1.MapEventService/", mux
 }
 
@@ -127,4 +145,8 @@ func (UnimplementedMapEventServiceHandler) GetMapEvent(context.Context, *connect
 
 func (UnimplementedMapEventServiceHandler) UpdateMapEvent(context.Context, *connect_go.Request[v1.UpdateMapEventRequest]) (*connect_go.Response[v1.UpdateMapEventResponse], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("map_api.v1.MapEventService.UpdateMapEvent is not implemented"))
+}
+
+func (UnimplementedMapEventServiceHandler) DeleteMapEvent(context.Context, *connect_go.Request[v1.DeleteMapEventRequest]) (*connect_go.Response[v1.DeleteMapEventResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("map_api.v1.MapEventService.DeleteMapEvent is not implemented"))
 }

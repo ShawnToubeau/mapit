@@ -31,7 +31,7 @@ func (s *MapEventServer) CreateMapEvent(
 			Status: pgtype.Present,
 		}).Save(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed creating event: %w", err)
+		return nil, fmt.Errorf("error creating event: %w", err)
 	}
 
 	res := connect.NewResponse(&mapapiv1.CreateMapEventResponse{
@@ -52,7 +52,7 @@ func (s *MapEventServer) GetMapEvent(
 
 	queried, err := db.Client.Event.Query().Where(event.ID(eventId)).Only(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed querying event: %w", err)
+		return nil, fmt.Errorf("error querying event: %w", err)
 	}
 
 	res := connect.NewResponse(&mapapiv1.GetMapEventResponse{
@@ -91,10 +91,31 @@ func (s *MapEventServer) UpdateMapEvent(
 			Status: pgtype.Present,
 		}).Save(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed updating event: %w", err)
+		return nil, fmt.Errorf("error updating event: %w", err)
 	}
 
 	res := connect.NewResponse(&mapapiv1.UpdateMapEventResponse{})
 	res.Header().Set("UpdateMapEvent-Version", "v1")
+	return res, nil
+}
+
+func (s *MapEventServer) DeleteMapEvent(
+	ctx context.Context,
+	req *connect.Request[mapapiv1.DeleteMapEventRequest],
+) (*connect.Response[mapapiv1.DeleteMapEventResponse], error) {
+	eventId, err := uuid.Parse(req.Msg.Id)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing event ID: %w", err)
+	}
+
+	err = db.Client.Event.
+		DeleteOneID(eventId).
+		Exec(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error deleting event: %w", err)
+	}
+
+	res := connect.NewResponse(&mapapiv1.DeleteMapEventResponse{})
+	res.Header().Set("DeleteMapEvent-Version", "v1")
 	return res, nil
 }

@@ -41,8 +41,15 @@ message UpdateMapEventRequest {
 
 message UpdateMapEventResponse {}
 
+message DeleteMapEventRequest {
+  string id = 1;
+}
+
+message DeleteMapEventResponse {}
+
 service MapEventService {
   rpc CreateMapEvent(CreateMapEventRequest) returns (CreateMapEventResponse) {}
   rpc GetMapEvent(GetMapEventRequest) returns (GetMapEventResponse) {}
   rpc UpdateMapEvent(UpdateMapEventRequest) returns (UpdateMapEventResponse) {}
+  rpc DeleteMapEvent(DeleteMapEventRequest) returns (DeleteMapEventResponse) {}
 }

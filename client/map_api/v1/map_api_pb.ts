@@ -324,3 +324,71 @@ export class UpdateMapEventResponse extends Message<UpdateMapEventResponse> {
   }
 }
 
+/**
+ * @generated from message map_api.v1.DeleteMapEventRequest
+ */
+export class DeleteMapEventRequest extends Message<DeleteMapEventRequest> {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id = "";
+
+  constructor(data?: PartialMessage<DeleteMapEventRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime = proto3;
+  static readonly typeName = "map_api.v1.DeleteMapEventRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteMapEventRequest {
+    return new DeleteMapEventRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DeleteMapEventRequest {
+    return new DeleteMapEventRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DeleteMapEventRequest {
+    return new DeleteMapEventRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DeleteMapEventRequest | PlainMessage<DeleteMapEventRequest> | undefined, b: DeleteMapEventRequest | PlainMessage<DeleteMapEventRequest> | undefined): boolean {
+    return proto3.util.equals(DeleteMapEventRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message map_api.v1.DeleteMapEventResponse
+ */
+export class DeleteMapEventResponse extends Message<DeleteMapEventResponse> {
+  constructor(data?: PartialMessage<DeleteMapEventResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime = proto3;
+  static readonly typeName = "map_api.v1.DeleteMapEventResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteMapEventResponse {
+    return new DeleteMapEventResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DeleteMapEventResponse {
+    return new DeleteMapEventResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DeleteMapEventResponse {
+    return new DeleteMapEventResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DeleteMapEventResponse | PlainMessage<DeleteMapEventResponse> | undefined, b: DeleteMapEventResponse | PlainMessage<DeleteMapEventResponse> | undefined): boolean {
+    return proto3.util.equals(DeleteMapEventResponse, a, b);
+  }
+}
+
