@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateMapEventRequest, CreateMapEventResponse } from "./map_api_pb.js";
+import { CreateMapEventRequest, CreateMapEventResponse, GetMapEventRequest, GetMapEventResponse } from "./map_api_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -19,6 +19,15 @@ export const MapEventService = {
       name: "CreateMapEvent",
       I: CreateMapEventRequest,
       O: CreateMapEventResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc map_api.v1.MapEventService.GetMapEvent
+     */
+    getMapEvent: {
+      name: "GetMapEvent",
+      I: GetMapEventRequest,
+      O: GetMapEventResponse,
       kind: MethodKind.Unary,
     },
   }

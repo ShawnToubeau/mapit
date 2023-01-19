@@ -110,3 +110,113 @@ export class CreateMapEventResponse extends Message<CreateMapEventResponse> {
   }
 }
 
+/**
+ * @generated from message map_api.v1.GetMapEventRequest
+ */
+export class GetMapEventRequest extends Message<GetMapEventRequest> {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id = "";
+
+  constructor(data?: PartialMessage<GetMapEventRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime = proto3;
+  static readonly typeName = "map_api.v1.GetMapEventRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetMapEventRequest {
+    return new GetMapEventRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetMapEventRequest {
+    return new GetMapEventRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetMapEventRequest {
+    return new GetMapEventRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetMapEventRequest | PlainMessage<GetMapEventRequest> | undefined, b: GetMapEventRequest | PlainMessage<GetMapEventRequest> | undefined): boolean {
+    return proto3.util.equals(GetMapEventRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message map_api.v1.GetMapEventResponse
+ */
+export class GetMapEventResponse extends Message<GetMapEventResponse> {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id = "";
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name = "";
+
+  /**
+   * @generated from field: int64 start_time = 3;
+   */
+  startTime = protoInt64.zero;
+
+  /**
+   * @generated from field: int64 end_time = 4;
+   */
+  endTime = protoInt64.zero;
+
+  /**
+   * @generated from field: double latitude = 5;
+   */
+  latitude = 0;
+
+  /**
+   * @generated from field: double longitude = 6;
+   */
+  longitude = 0;
+
+  /**
+   * @generated from field: string description = 7;
+   */
+  description = "";
+
+  constructor(data?: PartialMessage<GetMapEventResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime = proto3;
+  static readonly typeName = "map_api.v1.GetMapEventResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "start_time", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 4, name: "end_time", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 5, name: "latitude", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 6, name: "longitude", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 7, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetMapEventResponse {
+    return new GetMapEventResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetMapEventResponse {
+    return new GetMapEventResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetMapEventResponse {
+    return new GetMapEventResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetMapEventResponse | PlainMessage<GetMapEventResponse> | undefined, b: GetMapEventResponse | PlainMessage<GetMapEventResponse> | undefined): boolean {
+    return proto3.util.equals(GetMapEventResponse, a, b);
+  }
+}
+
