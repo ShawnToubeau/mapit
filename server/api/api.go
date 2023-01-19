@@ -68,6 +68,35 @@ func (s *MapEventServer) GetMapEvent(
 	return res, nil
 }
 
+func (s *MapEventServer) GetAllMapEvents(
+	ctx context.Context,
+	req *connect.Request[mapapiv1.GetAllMapEventsRequest],
+) (*connect.Response[mapapiv1.GetAllMapEventsResponse], error) {
+	queried, err := db.Client.Event.Query().All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error querying events: %w", err)
+	}
+
+	var events []*mapapiv1.GetMapEventResponse
+	for _, eventIter := range queried {
+		events = append(events, &mapapiv1.GetMapEventResponse{
+			Id:          eventIter.ID.String(),
+			Name:        eventIter.Name,
+			StartTime:   eventIter.StartTime.UnixMilli(),
+			EndTime:     eventIter.EndTime.UnixMilli(),
+			Latitude:    eventIter.Point.P.X,
+			Longitude:   eventIter.Point.P.Y,
+			Description: eventIter.Description,
+		})
+	}
+
+	res := connect.NewResponse(&mapapiv1.GetAllMapEventsResponse{
+		Events: events,
+	})
+	res.Header().Set("GetAllMapEvents-Version", "v1")
+	return res, nil
+}
+
 func (s *MapEventServer) UpdateMapEvent(
 	ctx context.Context,
 	req *connect.Request[mapapiv1.UpdateMapEventRequest],

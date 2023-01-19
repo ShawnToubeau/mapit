@@ -221,6 +221,74 @@ export class GetMapEventResponse extends Message<GetMapEventResponse> {
 }
 
 /**
+ * @generated from message map_api.v1.GetAllMapEventsRequest
+ */
+export class GetAllMapEventsRequest extends Message<GetAllMapEventsRequest> {
+  constructor(data?: PartialMessage<GetAllMapEventsRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime = proto3;
+  static readonly typeName = "map_api.v1.GetAllMapEventsRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetAllMapEventsRequest {
+    return new GetAllMapEventsRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetAllMapEventsRequest {
+    return new GetAllMapEventsRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetAllMapEventsRequest {
+    return new GetAllMapEventsRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetAllMapEventsRequest | PlainMessage<GetAllMapEventsRequest> | undefined, b: GetAllMapEventsRequest | PlainMessage<GetAllMapEventsRequest> | undefined): boolean {
+    return proto3.util.equals(GetAllMapEventsRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message map_api.v1.GetAllMapEventsResponse
+ */
+export class GetAllMapEventsResponse extends Message<GetAllMapEventsResponse> {
+  /**
+   * @generated from field: repeated map_api.v1.GetMapEventResponse events = 1;
+   */
+  events: GetMapEventResponse[] = [];
+
+  constructor(data?: PartialMessage<GetAllMapEventsResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime = proto3;
+  static readonly typeName = "map_api.v1.GetAllMapEventsResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "events", kind: "message", T: GetMapEventResponse, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetAllMapEventsResponse {
+    return new GetAllMapEventsResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetAllMapEventsResponse {
+    return new GetAllMapEventsResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetAllMapEventsResponse {
+    return new GetAllMapEventsResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetAllMapEventsResponse | PlainMessage<GetAllMapEventsResponse> | undefined, b: GetAllMapEventsResponse | PlainMessage<GetAllMapEventsResponse> | undefined): boolean {
+    return proto3.util.equals(GetAllMapEventsResponse, a, b);
+  }
+}
+
+/**
  * @generated from message map_api.v1.UpdateMapEventRequest
  */
 export class UpdateMapEventRequest extends Message<UpdateMapEventRequest> {

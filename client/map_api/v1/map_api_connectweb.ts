@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateMapEventRequest, CreateMapEventResponse, DeleteMapEventRequest, DeleteMapEventResponse, GetMapEventRequest, GetMapEventResponse, UpdateMapEventRequest, UpdateMapEventResponse } from "./map_api_pb.js";
+import { CreateMapEventRequest, CreateMapEventResponse, DeleteMapEventRequest, DeleteMapEventResponse, GetAllMapEventsRequest, GetAllMapEventsResponse, GetMapEventRequest, GetMapEventResponse, UpdateMapEventRequest, UpdateMapEventResponse } from "./map_api_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -28,6 +28,15 @@ export const MapEventService = {
       name: "GetMapEvent",
       I: GetMapEventRequest,
       O: GetMapEventResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc map_api.v1.MapEventService.GetAllMapEvents
+     */
+    getAllMapEvents: {
+      name: "GetAllMapEvents",
+      I: GetAllMapEventsRequest,
+      O: GetAllMapEventsResponse,
       kind: MethodKind.Unary,
     },
     /**
