@@ -67,3 +67,34 @@ func (s *MapEventServer) GetMapEvent(
 	res.Header().Set("GetMapEvent-Version", "v1")
 	return res, nil
 }
+
+func (s *MapEventServer) UpdateMapEvent(
+	ctx context.Context,
+	req *connect.Request[mapapiv1.UpdateMapEventRequest],
+) (*connect.Response[mapapiv1.UpdateMapEventResponse], error) {
+	eventId, err := uuid.Parse(req.Msg.Id)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing event ID: %w", err)
+	}
+
+	_, err = db.Client.Event.
+		UpdateOneID(eventId).
+		SetName(req.Msg.Name).
+		SetStartTime(time.UnixMilli(req.Msg.StartTime)).
+		SetEndTime(time.UnixMilli(req.Msg.EndTime)).
+		SetDescription(req.Msg.Description).
+		SetPoint(&pgtype.Point{
+			P: pgtype.Vec2{
+				X: req.Msg.Latitude,
+				Y: req.Msg.Longitude,
+			},
+			Status: pgtype.Present,
+		}).Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed updating event: %w", err)
+	}
+
+	res := connect.NewResponse(&mapapiv1.UpdateMapEventResponse{})
+	res.Header().Set("UpdateMapEvent-Version", "v1")
+	return res, nil
+}

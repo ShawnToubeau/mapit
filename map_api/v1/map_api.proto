@@ -29,7 +29,20 @@ message GetMapEventResponse {
   string description = 7;
 }
 
+message UpdateMapEventRequest {
+  string id = 1;
+  string name = 2;
+  int64 start_time = 3;
+  int64 end_time = 4;
+  double latitude = 5;
+  double longitude = 6;
+  string description = 7;
+}
+
+message UpdateMapEventResponse {}
+
 service MapEventService {
   rpc CreateMapEvent(CreateMapEventRequest) returns (CreateMapEventResponse) {}
   rpc GetMapEvent(GetMapEventRequest) returns (GetMapEventResponse) {}
+  rpc UpdateMapEvent(UpdateMapEventRequest) returns (UpdateMapEventResponse) {}
 }

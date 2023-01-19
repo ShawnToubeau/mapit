@@ -29,6 +29,7 @@ const (
 type MapEventServiceClient interface {
 	CreateMapEvent(context.Context, *connect_go.Request[v1.CreateMapEventRequest]) (*connect_go.Response[v1.CreateMapEventResponse], error)
 	GetMapEvent(context.Context, *connect_go.Request[v1.GetMapEventRequest]) (*connect_go.Response[v1.GetMapEventResponse], error)
+	UpdateMapEvent(context.Context, *connect_go.Request[v1.UpdateMapEventRequest]) (*connect_go.Response[v1.UpdateMapEventResponse], error)
 }
 
 // NewMapEventServiceClient constructs a client for the map_api.v1.MapEventService service. By
@@ -51,6 +52,11 @@ func NewMapEventServiceClient(httpClient connect_go.HTTPClient, baseURL string, 
 			baseURL+"/map_api.v1.MapEventService/GetMapEvent",
 			opts...,
 		),
+		updateMapEvent: connect_go.NewClient[v1.UpdateMapEventRequest, v1.UpdateMapEventResponse](
+			httpClient,
+			baseURL+"/map_api.v1.MapEventService/UpdateMapEvent",
+			opts...,
+		),
 	}
 }
 
@@ -58,6 +64,7 @@ func NewMapEventServiceClient(httpClient connect_go.HTTPClient, baseURL string, 
 type mapEventServiceClient struct {
 	createMapEvent *connect_go.Client[v1.CreateMapEventRequest, v1.CreateMapEventResponse]
 	getMapEvent    *connect_go.Client[v1.GetMapEventRequest, v1.GetMapEventResponse]
+	updateMapEvent *connect_go.Client[v1.UpdateMapEventRequest, v1.UpdateMapEventResponse]
 }
 
 // CreateMapEvent calls map_api.v1.MapEventService.CreateMapEvent.
@@ -70,10 +77,16 @@ func (c *mapEventServiceClient) GetMapEvent(ctx context.Context, req *connect_go
 	return c.getMapEvent.CallUnary(ctx, req)
 }
 
+// UpdateMapEvent calls map_api.v1.MapEventService.UpdateMapEvent.
+func (c *mapEventServiceClient) UpdateMapEvent(ctx context.Context, req *connect_go.Request[v1.UpdateMapEventRequest]) (*connect_go.Response[v1.UpdateMapEventResponse], error) {
+	return c.updateMapEvent.CallUnary(ctx, req)
+}
+
 // MapEventServiceHandler is an implementation of the map_api.v1.MapEventService service.
 type MapEventServiceHandler interface {
 	CreateMapEvent(context.Context, *connect_go.Request[v1.CreateMapEventRequest]) (*connect_go.Response[v1.CreateMapEventResponse], error)
 	GetMapEvent(context.Context, *connect_go.Request[v1.GetMapEventRequest]) (*connect_go.Response[v1.GetMapEventResponse], error)
+	UpdateMapEvent(context.Context, *connect_go.Request[v1.UpdateMapEventRequest]) (*connect_go.Response[v1.UpdateMapEventResponse], error)
 }
 
 // NewMapEventServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -93,6 +106,11 @@ func NewMapEventServiceHandler(svc MapEventServiceHandler, opts ...connect_go.Ha
 		svc.GetMapEvent,
 		opts...,
 	))
+	mux.Handle("/map_api.v1.MapEventService/UpdateMapEvent", connect_go.NewUnaryHandler(
+		"/map_api.v1.MapEventService/UpdateMapEvent",
+		svc.UpdateMapEvent,
+		opts...,
+	))
 	return "/map_api.v1.MapEventService/", mux
 }
 
@@ -105,4 +123,8 @@ func (UnimplementedMapEventServiceHandler) CreateMapEvent(context.Context, *conn
 
 func (UnimplementedMapEventServiceHandler) GetMapEvent(context.Context, *connect_go.Request[v1.GetMapEventRequest]) (*connect_go.Response[v1.GetMapEventResponse], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("map_api.v1.MapEventService.GetMapEvent is not implemented"))
+}
+
+func (UnimplementedMapEventServiceHandler) UpdateMapEvent(context.Context, *connect_go.Request[v1.UpdateMapEventRequest]) (*connect_go.Response[v1.UpdateMapEventResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("map_api.v1.MapEventService.UpdateMapEvent is not implemented"))
 }
