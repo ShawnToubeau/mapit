@@ -16,9 +16,17 @@
     "@types/react-dom": "18.0.10",
     "eslint": "8.31.0",
     "eslint-config-next": "13.1.1",
+    "eslint-config-prettier": "^8.6.0",
+    "formik": "^2.2.9",
     "next": "13.1.1",
+    "prettier": "^2.8.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "typescript": "4.9.4"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.48.2",
+    "@typescript-eslint/parser": "^5.48.2",
+    "eslint-plugin-unused-imports": "^2.0.0"
   }
 }
