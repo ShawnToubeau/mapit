@@ -1,5 +1,4 @@
 import EventsList from "./EventsList";
-import EventCreator from "./EventCreator";
 import dynamic from "next/dynamic";
 
 export default async function Page() {
@@ -10,7 +9,6 @@ export default async function Page() {
 	return (
 		<div>
 			<EventsList />
-			<EventCreator />
 			<div
 				id="map"
 				style={{

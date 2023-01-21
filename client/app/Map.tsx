@@ -1,11 +1,19 @@
 "use client";
 
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import {
+	MapContainer,
+	Marker,
+	Popup,
+	TileLayer,
+	useMap,
+	useMapEvents,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
 import { useEffect, useState } from "react";
 import { LatLng } from "leaflet";
+import EventForm from "./EventForm";
 
 export default function Map() {
 	return (
@@ -20,6 +28,7 @@ export default function Map() {
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
 			<LocationMarker />
+			<NewEventPopup />
 		</MapContainer>
 	);
 }
@@ -45,5 +54,24 @@ function LocationMarker() {
 				{`Longitude: ${position.lng}`}
 			</Popup>
 		</Marker>
+	);
+}
+
+function NewEventPopup() {
+	const [position, setPosition] = useState<LatLng | null>(null);
+	useMapEvents({
+		click(e) {
+			setPosition(e.latlng);
+		},
+	});
+
+	if (!position) {
+		return null;
+	}
+
+	return (
+		<Popup position={position}>
+			<EventForm latLng={position} close={() => setPosition(null)} />
+		</Popup>
 	);
 }
