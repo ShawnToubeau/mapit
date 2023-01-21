@@ -11,9 +11,16 @@ import {
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { LatLng } from "leaflet";
 import EventForm from "./EventForm";
+import { useClient } from "../hooks/use-client";
+import { MapEventService } from "../map_api/v1/map_api_connectweb";
+import useSWR from "swr";
+
+export enum SwrKeys {
+	EVENT_MARKERS = "event-markers",
+}
 
 export default function Map() {
 	return (
@@ -29,6 +36,7 @@ export default function Map() {
 			/>
 			<LocationMarker />
 			<NewEventPopup />
+			<EventMarkers />
 		</MapContainer>
 	);
 }
@@ -73,5 +81,37 @@ function NewEventPopup() {
 		<Popup position={position}>
 			<EventForm latLng={position} close={() => setPosition(null)} />
 		</Popup>
+	);
+}
+
+function EventMarkers() {
+	const client = useClient(MapEventService);
+	const { data, error } = useSWR(SwrKeys.EVENT_MARKERS, () =>
+		client.getAllMapEvents({}).then((res) => {
+			return res.events;
+		}),
+	);
+
+	if (!data || error) {
+		return null;
+	}
+
+	return (
+		<Fragment>
+			{data.map((event) => (
+				<Marker
+					key={event.id}
+					position={{
+						lat: event.latitude,
+						lng: event.longitude,
+					}}
+				>
+					<Popup>
+						{event.name}
+						{event.description}
+					</Popup>
+				</Marker>
+			))}
+		</Fragment>
 	);
 }

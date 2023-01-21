@@ -8,6 +8,8 @@ import { FieldProps } from "formik/dist/Field";
 import { FC } from "react";
 import { MapEventService } from "../map_api/v1/map_api_connectweb";
 import { useClient } from "../hooks/use-client";
+import { useSWRConfig } from "swr";
+import { SwrKeys } from "./Map";
 
 const ValidationSchema = Yup.object().shape({
 	name: Yup.string().required("Required"),
@@ -24,7 +26,9 @@ interface EventFormProps {
 }
 
 export default function EventForm(props: EventFormProps) {
+	const { mutate } = useSWRConfig();
 	const client = useClient(MapEventService);
+
 	return (
 		<div>
 			<Formik<Partial<CreateMapEventRequest>>
@@ -48,6 +52,8 @@ export default function EventForm(props: EventFormProps) {
 						})
 						.then(() => {
 							setSubmitting(false);
+							// re-fetch events shown on the map
+							mutate(SwrKeys.EVENT_MARKERS);
 							props.close();
 						})
 						.catch((error) => {
