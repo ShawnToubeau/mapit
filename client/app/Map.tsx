@@ -1,6 +1,6 @@
 "use client";
 
-import { Popup as LeafletPopup } from "leaflet";
+import { Popup as LeafletPopup, Icon, circle } from "leaflet";
 import {
 	MapContainer,
 	Marker,
@@ -20,6 +20,11 @@ import { MapEventService } from "../map_api/v1/map_api_connectweb";
 import useSWR, { mutate } from "swr";
 import Image from "next/image";
 import { GetMapEventResponse } from "../map_api/v1/map_api_pb";
+
+const userLocationIcon = new Icon({
+	iconSize: [24, 24],
+	iconUrl: "/circle-icon.svg",
+});
 
 export enum SwrKeys {
 	EVENT_MARKERS = "event-markers",
@@ -51,6 +56,7 @@ function LocationMarker() {
 	useEffect(() => {
 		map.locate().on("locationfound", function (event) {
 			setPosition(event.latlng);
+			circle(event.latlng, event.accuracy).addTo(map);
 			map.setView({
 				lat: event.latlng.lat,
 				lng: event.latlng.lng,
@@ -59,7 +65,7 @@ function LocationMarker() {
 	}, [map]);
 
 	return position === null ? null : (
-		<Marker position={position}>
+		<Marker position={position} icon={userLocationIcon}>
 			<Popup>
 				{`Latitude: ${position.lat}`} <br />
 				{`Longitude: ${position.lng}`}
