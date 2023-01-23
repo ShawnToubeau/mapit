@@ -2,7 +2,6 @@
 
 import { CreateMapEventRequest } from "../map_api/v1/map_api_pb";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import * as Yup from "yup";
 import { LatLng } from "leaflet";
 import { FieldProps } from "formik/dist/Field";
 import { FC } from "react";
@@ -10,19 +9,29 @@ import { MapEventService } from "../map_api/v1/map_api_connectweb";
 import { useClient } from "../hooks/use-client";
 import { useSWRConfig } from "swr";
 import { SwrKeys } from "./Map";
+import { number, object, string } from "yup";
 
-const ValidationSchema = Yup.object().shape({
-	name: Yup.string().required("Required"),
-	startTime: Yup.number().required("Required"),
-	endTime: Yup.number().required("Required"),
-	latitude: Yup.number().required("Required"),
-	longitude: Yup.number().required("Required"),
-	description: Yup.string().required("Required"),
+type FormFields = Pick<
+	CreateMapEventRequest,
+	"name" | "startTime" | "endTime" | "description"
+>;
+
+type EditData = {
+	eventId: string;
+	initialValues: FormFields;
+};
+
+const validationSchema = object({
+	name: string().required("Required"),
+	startTime: number().required("Required"),
+	endTime: number().required("Required"),
+	description: string().required("Required"),
 });
 
 interface EventFormProps {
 	latLng: LatLng;
 	close: () => void;
+	eventData?: EditData;
 }
 
 export default function EventForm(props: EventFormProps) {
@@ -31,34 +40,60 @@ export default function EventForm(props: EventFormProps) {
 
 	return (
 		<div>
-			<Formik<Partial<CreateMapEventRequest>>
+			<Formik<FormFields>
 				validateOnBlur
 				validateOnMount
 				validateOnChange
-				initialValues={{
-					latitude: props.latLng.lat,
-					longitude: props.latLng.lng,
-				}}
-				validationSchema={ValidationSchema}
+				initialValues={
+					props.eventData?.initialValues ?? {
+						name: "",
+						startTime: BigInt(0),
+						endTime: BigInt(0),
+						description: "",
+					}
+				}
+				validationSchema={validationSchema}
 				onSubmit={(values, { setSubmitting }) => {
-					client
-						.createMapEvent({
-							name: values.name,
-							startTime: values.startTime,
-							endTime: values.endTime,
-							latitude: values.latitude,
-							longitude: values.longitude,
-							description: values.description,
-						})
-						.then(() => {
-							setSubmitting(false);
-							// re-fetch events shown on the map
-							mutate(SwrKeys.EVENT_MARKERS);
-							props.close();
-						})
-						.catch((error) => {
-							console.error("Error creating map event", error);
-						});
+					if (props.eventData) {
+						client
+							.updateMapEvent({
+								id: props.eventData.eventId,
+								name: values.name,
+								startTime: values.startTime,
+								endTime: values.endTime,
+								latitude: props.latLng.lat,
+								longitude: props.latLng.lng,
+								description: values.description,
+							})
+							.then(() => {
+								setSubmitting(false);
+								// re-fetch events shown on the map
+								mutate(SwrKeys.EVENT_MARKERS);
+								props.close();
+							})
+							.catch((error) => {
+								console.error("Error updating map event", error);
+							});
+					} else {
+						client
+							.createMapEvent({
+								name: values.name,
+								startTime: values.startTime,
+								endTime: values.endTime,
+								latitude: props.latLng.lat,
+								longitude: props.latLng.lng,
+								description: values.description,
+							})
+							.then(() => {
+								setSubmitting(false);
+								// re-fetch events shown on the map
+								mutate(SwrKeys.EVENT_MARKERS);
+								props.close();
+							})
+							.catch((error) => {
+								console.error("Error creating map event", error);
+							});
+					}
 				}}
 			>
 				{({ isSubmitting, isValid }) => (
@@ -85,7 +120,7 @@ export default function EventForm(props: EventFormProps) {
 						<ErrorMessage name="description" component="div" />
 
 						<button type="submit" disabled={isSubmitting || !isValid}>
-							Submit
+							{props.eventData ? "Update" : "Create"}
 						</button>
 					</Form>
 				)}
@@ -94,21 +129,23 @@ export default function EventForm(props: EventFormProps) {
 	);
 }
 
-const DateTimeInput: FC<FieldProps<bigint | undefined>> = ({ field, form }) => {
+const DateTimeInput: FC<FieldProps<bigint>> = ({ field, form }) => {
 	return (
 		<input
 			type="datetime-local"
+			// pass undefined so the input displays empty instead of the unix epoch
 			value={
-				field.value ? unixMilliToDateTimeLocal(Number(field.value)) : undefined
+				field.value === BigInt(0)
+					? undefined
+					: unixMilliToDateTimeLocal(Number(field.value))
 			}
 			onChange={(event) => {
-				// set value to undefined when the input is cleared
 				if (event.target.value.length === 0) {
-					form.setFieldValue(field.name, undefined);
+					form.setFieldValue(field.name, BigInt(0));
 				} else {
 					form.setFieldValue(
 						field.name,
-						new Date(event.target.value).getTime(),
+						BigInt(new Date(event.target.value).getTime()),
 					);
 				}
 			}}

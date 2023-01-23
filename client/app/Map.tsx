@@ -203,7 +203,21 @@ function EventPopupContent(props: EventPopupProps) {
 	}
 
 	if (props.showEdit) {
-		return <Popup>Edit</Popup>;
+		return (
+			<Popup>
+				<EventForm
+					eventData={{
+						eventId: props.event.id,
+						initialValues: { ...props.event },
+					}}
+					latLng={new LatLng(props.event.latitude, props.event.longitude)}
+					close={() => {
+						// switch back to the detail view when the form submission completes
+						props.setShowEdit(false);
+					}}
+				/>
+			</Popup>
+		);
 	}
 
 	return (
