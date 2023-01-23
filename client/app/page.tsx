@@ -10,7 +10,7 @@ export default async function Page() {
 			<div
 				id="map"
 				style={{
-					height: 400,
+					height: "100vh",
 				}}
 			>
 				<MapWithNoSSR />
