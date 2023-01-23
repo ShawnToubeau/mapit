@@ -1,5 +1,6 @@
 "use client";
 
+import { Popup as LeafletPopup } from "leaflet";
 import {
 	MapContainer,
 	Marker,
@@ -11,12 +12,14 @@ import {
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { LatLng } from "leaflet";
 import EventForm from "./EventForm";
 import { useClient } from "../hooks/use-client";
 import { MapEventService } from "../map_api/v1/map_api_connectweb";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
+import Image from "next/image";
+import { GetMapEventResponse } from "../map_api/v1/map_api_pb";
 
 export enum SwrKeys {
 	EVENT_MARKERS = "event-markers",
@@ -99,19 +102,143 @@ function EventMarkers() {
 	return (
 		<Fragment>
 			{data.map((event) => (
-				<Marker
-					key={event.id}
-					position={{
-						lat: event.latitude,
-						lng: event.longitude,
-					}}
-				>
-					<Popup>
-						{event.name}
-						{event.description}
-					</Popup>
-				</Marker>
+				<EventMarker key={event.id} event={event} />
 			))}
 		</Fragment>
+	);
+}
+
+interface EventMarkerProps {
+	event: GetMapEventResponse;
+}
+
+function EventMarker(props: EventMarkerProps) {
+	const [showDelete, setShowDelete] = useState(false);
+	const [showEdit, setShowEdit] = useState(false);
+
+	return (
+		<Marker
+			position={{
+				lat: props.event.latitude,
+				lng: props.event.longitude,
+			}}
+			// popups have the same event handlers prop, but they don't seem to work
+			// handling the events on the marker allows us to reset state but requires prop drilling
+			eventHandlers={{
+				// this is actually being used even though IDEs will say it isn't
+				popupclose: () => {
+					// wait for the popup to close before resetting state
+					setTimeout(() => {
+						setShowEdit(false);
+						setShowDelete(false);
+					}, 200);
+				},
+			}}
+		>
+			<EventPopupContent
+				event={props.event}
+				showEdit={showEdit}
+				showDelete={showDelete}
+				setShowEdit={setShowEdit}
+				setShowDelete={setShowDelete}
+			/>
+		</Marker>
+	);
+}
+
+function formatDate(unixMilli: bigint): string {
+	return new Date(Number(unixMilli)).toLocaleString([], {
+		dateStyle: "short",
+		timeStyle: "short",
+	});
+}
+
+interface EventPopupProps extends EventMarkerProps {
+	showEdit: boolean;
+	showDelete: boolean;
+	setShowEdit: (showEdit: boolean) => void;
+	setShowDelete: (showDelete: boolean) => void;
+}
+
+function EventPopupContent(props: EventPopupProps) {
+	const client = useClient(MapEventService);
+	const mapRef = useRef<LeafletPopup | null>(null);
+
+	if (props.showDelete) {
+		return (
+			<Popup ref={mapRef}>
+				<div className="flex flex-col">
+					<div>Are you sure you wish to delete this event?</div>
+					<div>
+						<button
+							onClick={(event) => {
+								event.stopPropagation();
+								props.setShowDelete(false);
+							}}
+						>
+							Cancel
+						</button>
+						<button
+							onClick={() => {
+								client
+									.deleteMapEvent({
+										id: props.event.id,
+									})
+									.then(() => {
+										// re-fetch events shown on the map
+										mutate(SwrKeys.EVENT_MARKERS);
+										mapRef.current?.close();
+									})
+									.catch((error) => {
+										console.error("Error deleting map event", error);
+									});
+							}}
+						>
+							Delete
+						</button>
+					</div>
+				</div>
+			</Popup>
+		);
+	}
+
+	if (props.showEdit) {
+		return <Popup>Edit</Popup>;
+	}
+
+	return (
+		<Popup>
+			<div className="flex flex-col">
+				<div>{`Name: ${props.event.name}`}</div>
+				<div>{`Start: ${formatDate(props.event.startTime)}`}</div>
+				<div>{`End: ${formatDate(props.event.endTime)}`}</div>
+				<div>{`Description: ${props.event.description}`}</div>
+
+				<div className="flex justify-around mt-4">
+					<Image
+						className="icon"
+						src="/edit-icon.svg"
+						alt="Edit"
+						width={18}
+						height={18}
+						onClick={(event) => {
+							event.stopPropagation();
+							props.setShowEdit(true);
+						}}
+					/>
+					<Image
+						className="icon"
+						src="/delete-icon.svg"
+						alt="Delete"
+						width={18}
+						height={18}
+						onClick={(event) => {
+							event.stopPropagation();
+							props.setShowDelete(true);
+						}}
+					/>
+				</div>
+			</div>
+		</Popup>
 	);
 }
