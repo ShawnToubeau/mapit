@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"mapit/server/ent/event"
-	"mapit/server/ent/schema"
+	"server/ent/event"
+	"server/ent/schema"
 
 	"github.com/google/uuid"
 )

@@ -6,9 +6,9 @@ import (
 	"github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
 	"github.com/jackc/pgtype"
-	"mapit/server/db"
-	"mapit/server/ent/event"
-	mapapiv1 "mapit/server/map_api/v1"
+	"server/db"
+	"server/ent/event"
+	mapapiv1 "server/map_api/v1"
 	"time"
 )
 

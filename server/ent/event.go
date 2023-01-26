@@ -4,7 +4,7 @@ package ent
 
 import (
 	"fmt"
-	"mapit/server/ent/event"
+	"server/ent/event"
 	"strings"
 	"time"
 

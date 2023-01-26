@@ -6,8 +6,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"mapit/server/ent/event"
 	"reflect"
+	"server/ent/event"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

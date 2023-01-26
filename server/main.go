@@ -3,19 +3,13 @@ package main
 import (
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	"log"
-	"mapit/server/db"
-	"mapit/server/www"
+	"server/db"
+	"server/www"
 )
 
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("error loading .env file")
-	}
-}
-
 func main() {
+	_ = godotenv.Load()
+
 	db.Connect()
 	defer db.Client.Close()
 

@@ -5,9 +5,9 @@ package ent
 import (
 	"context"
 	"fmt"
-	"mapit/server/ent/event"
-	"mapit/server/ent/predicate"
 	"math"
+	"server/ent/event"
+	"server/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

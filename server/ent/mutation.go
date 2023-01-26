@@ -6,8 +6,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"mapit/server/ent/event"
-	"mapit/server/ent/predicate"
+	"server/ent/event"
+	"server/ent/predicate"
 	"sync"
 	"time"
 

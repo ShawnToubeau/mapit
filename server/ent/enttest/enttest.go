@@ -4,11 +4,11 @@ package enttest
 
 import (
 	"context"
-	"mapit/server/ent"
+	"server/ent"
 	// required by schema hooks.
-	_ "mapit/server/ent/runtime"
+	_ "server/ent/runtime"
 
-	"mapit/server/ent/migrate"
+	"server/ent/migrate"
 
 	"entgo.io/ent/dialect/sql/schema"
 )

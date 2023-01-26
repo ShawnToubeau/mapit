@@ -5,7 +5,7 @@ package hook
 import (
 	"context"
 	"fmt"
-	"mapit/server/ent"
+	"server/ent"
 )
 
 // The EventFunc type is an adapter to allow the use of ordinary

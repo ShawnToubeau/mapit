@@ -3,7 +3,7 @@
 package event
 
 import (
-	"mapit/server/ent/predicate"
+	"server/ent/predicate"
 	"time"
 
 	"entgo.io/ent/dialect/sql"

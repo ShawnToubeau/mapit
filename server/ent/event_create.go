@@ -6,7 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"mapit/server/ent/event"
+	"server/ent/event"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"

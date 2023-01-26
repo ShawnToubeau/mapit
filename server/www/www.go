@@ -4,9 +4,10 @@ import (
 	"github.com/rs/cors"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
-	"mapit/server/api"
-	"mapit/server/map_api/v1/map_apiv1connect"
+	"log"
 	"net/http"
+	"server/api"
+	"server/map_api/v1/map_apiv1connect"
 )
 
 func Serve() {
@@ -17,6 +18,7 @@ func Serve() {
 
 	corsHandler := cors.AllowAll()
 
+	log.Println("listening on", 8080)
 	http.ListenAndServe(
 		"localhost:8080",
 		// Use h2c so we can serve HTTP/2 without TLS.

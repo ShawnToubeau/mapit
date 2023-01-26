@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"log"
 
-	"mapit/server/ent/migrate"
+	"server/ent/migrate"
 
-	"mapit/server/ent/event"
+	"server/ent/event"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
