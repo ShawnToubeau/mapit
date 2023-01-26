@@ -1,5 +1,3 @@
-"use client";
-
 import { CreateMapEventRequest } from "../map_api/v1/map_api_pb";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { LatLng } from "leaflet";

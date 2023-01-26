@@ -1,5 +1,3 @@
-"use client";
-
 import { Popup as LeafletPopup, Icon, circle } from "leaflet";
 import {
 	MapContainer,

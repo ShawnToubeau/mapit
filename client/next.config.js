@@ -2,7 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  experimental: { appDir: true },
   /**
    * this fixes an issue where the generated connect-web code imports protobuffer definitions
    * with a .js extension even though they are .ts files.
