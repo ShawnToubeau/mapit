@@ -11,7 +11,7 @@ func main() {
 	_ = godotenv.Load()
 
 	db.Connect()
-	defer db.Client.Close()
+	defer db.EntClient.Close()
 
 	www.Serve()
 }

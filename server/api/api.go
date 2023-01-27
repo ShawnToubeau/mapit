@@ -18,7 +18,7 @@ func (s *MapEventServer) CreateMapEvent(
 	ctx context.Context,
 	req *connect.Request[mapapiv1.CreateMapEventRequest],
 ) (*connect.Response[mapapiv1.CreateMapEventResponse], error) {
-	created, err := db.Client.Event.Create().
+	created, err := db.EntClient.Event.Create().
 		SetName(req.Msg.Name).
 		SetStartTime(time.UnixMilli(req.Msg.StartTime)).
 		SetEndTime(time.UnixMilli(req.Msg.EndTime)).
@@ -50,7 +50,7 @@ func (s *MapEventServer) GetMapEvent(
 		return nil, fmt.Errorf("error parsing event ID: %w", err)
 	}
 
-	queried, err := db.Client.Event.Query().Where(event.ID(eventId)).Only(ctx)
+	queried, err := db.EntClient.Event.Query().Where(event.ID(eventId)).Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error querying event: %w", err)
 	}
@@ -72,7 +72,7 @@ func (s *MapEventServer) GetAllMapEvents(
 	ctx context.Context,
 	req *connect.Request[mapapiv1.GetAllMapEventsRequest],
 ) (*connect.Response[mapapiv1.GetAllMapEventsResponse], error) {
-	queried, err := db.Client.Event.Query().All(ctx)
+	queried, err := db.EntClient.Event.Query().All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error querying events: %w", err)
 	}
@@ -106,7 +106,7 @@ func (s *MapEventServer) UpdateMapEvent(
 		return nil, fmt.Errorf("error parsing event ID: %w", err)
 	}
 
-	_, err = db.Client.Event.
+	_, err = db.EntClient.Event.
 		UpdateOneID(eventId).
 		SetName(req.Msg.Name).
 		SetStartTime(time.UnixMilli(req.Msg.StartTime)).
@@ -137,7 +137,7 @@ func (s *MapEventServer) DeleteMapEvent(
 		return nil, fmt.Errorf("error parsing event ID: %w", err)
 	}
 
-	err = db.Client.Event.
+	err = db.EntClient.Event.
 		DeleteOneID(eventId).
 		Exec(ctx)
 	if err != nil {

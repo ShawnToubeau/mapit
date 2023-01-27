@@ -1,14 +1,19 @@
 package www
 
 import (
-	"github.com/rs/cors"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"server/api"
 	"server/map_api/v1/map_apiv1connect"
+
+	"github.com/rs/cors"
 )
+
+func getRoot(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, "Hello world!\n")
+}
 
 func Serve() {
 	mapEventServer := &api.MapEventServer{}
@@ -18,10 +23,15 @@ func Serve() {
 
 	corsHandler := cors.AllowAll()
 
-	log.Println("listening on", 8080)
+	// for testing
+	mux.HandleFunc("/", getRoot)
+
+	log.Println("server listening on", os.Getenv("PORT"))
 	http.ListenAndServe(
-		"localhost:8080",
+		":"+os.Getenv("PORT"),
+		// TODO handle this on an environment basis
 		// Use h2c so we can serve HTTP/2 without TLS.
-		h2c.NewHandler(corsHandler.Handler(mux), &http2.Server{}),
+		//h2c.NewHandler(, &http2.Server{}),
+		corsHandler.Handler(mux),
 	)
 }
