@@ -14,6 +14,7 @@ RUN apk update && apk add --no-cache git ca-certificates && update-ca-certificat
 
 WORKDIR /
 COPY --from=build /build/mapit-api mapit-api
+COPY ./db/migrations ./db/migrations
 
 EXPOSE 4444
 ENTRYPOINT ["/mapit-api"]
