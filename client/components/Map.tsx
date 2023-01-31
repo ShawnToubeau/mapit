@@ -34,7 +34,7 @@ export default function Map() {
 			scrollWheelZoom
 			zoom={16}
 			center={[40.8054, -74.0241]}
-			style={{ height: "100%", width: "100%" }}
+			style={{ height: "100%", width: "100%", zIndex: 0 }}
 		>
 			<TileLayer
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

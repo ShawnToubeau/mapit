@@ -10,8 +10,8 @@ services:
       - '1100:1100' # POP3
   auth:
     environment:
-      - GOTRUE_SMTP_USER=
-      - GOTRUE_SMTP_PASS=
+      - GOTRUE_SMTP_USER=shawn
+      - GOTRUE_SMTP_PASS=password
   meta:
     ports:
       - 5555:8080

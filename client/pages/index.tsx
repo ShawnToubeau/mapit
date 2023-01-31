@@ -1,6 +1,6 @@
-// import dynamic from "next/dynamic";
 import dynamic from "next/dynamic";
 import Head from "next/head";
+import Header from "../components/Header";
 
 export default function Page() {
 	const MapWithNoSSR = dynamic(() => import("../components/Map"), {
@@ -17,11 +17,14 @@ export default function Page() {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<div
-				id="map"
+				className="grid"
 				style={{
 					height: "100vh",
+					gridTemplateRows: "90px auto",
 				}}
 			>
+				<Header />
+
 				<MapWithNoSSR />
 			</div>
 		</div>
