@@ -8,11 +8,11 @@
       <jdbc-url>jdbc:postgresql://localhost:5432/mapit</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="Supabase Local" uuid="60d6ee97-100c-4ba9-a340-91fb992bd1bf">
-      <driver-ref>postgresql</driver-ref>
+    <data-source source="LOCAL" name="Redis - Upstash" uuid="43ce4fbc-8ef6-4c56-b292-a77f6555e7ea">
+      <driver-ref>redis</driver-ref>
       <synchronize>true</synchronize>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/postgres</jdbc-url>
+      <jdbc-driver>jdbc.RedisDriver</jdbc-driver>
+      <jdbc-url>jdbc:redis://us1-gentle-bonefish-39485.upstash.io:39485</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
