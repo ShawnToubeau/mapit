@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"server/api"
-	"server/map_api/v1/map_apiv1connect"
+	"server/api/map_event"
+	"server/gen/map_event_api/v1/map_event_apiv1connect"
 
 	"github.com/rs/cors"
 )
@@ -16,9 +16,9 @@ func getRoot(w http.ResponseWriter, r *http.Request) {
 }
 
 func Serve() {
-	mapEventServer := &api.MapEventServer{}
+	mapEventServer := &map_event.MapEventServer{}
 	mux := http.NewServeMux()
-	path, handler := map_apiv1connect.NewMapEventServiceHandler(mapEventServer)
+	path, handler := map_event_apiv1connect.NewMapEventServiceHandler(mapEventServer)
 	mux.Handle(path, handler)
 
 	corsHandler := cors.AllowAll()

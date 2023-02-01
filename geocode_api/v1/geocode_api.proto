@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package geocode_api.v1;
+
+message GeocodeSearchRequest {
+  string query = 1;
+}
+
+message GeocodeSearchResponse {
+  string id = 1;
+}
+
+service GeocodeService {
+  rpc SearchAddress(GeocodeSearchRequest) returns (GeocodeSearchResponse) {}
+}

@@ -1,13 +1,13 @@
-import { CreateMapEventRequest } from "../map_api/v1/map_api_pb";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { LatLng } from "leaflet";
 import { FieldProps } from "formik/dist/Field";
 import { FC } from "react";
-import { MapEventService } from "../map_api/v1/map_api_connectweb";
 import { useClient } from "../hooks/use-client";
 import { useSWRConfig } from "swr";
 import { SwrKeys } from "./Map";
 import { number, object, string } from "yup";
+import { CreateMapEventRequest } from "../gen/map_event_api/v1/map_event_api_pb";
+import { MapEventService } from "../gen/map_event_api/v1/map_event_api_connectweb";
 
 type FormFields = Pick<
 	CreateMapEventRequest,

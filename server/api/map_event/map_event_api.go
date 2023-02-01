@@ -1,4 +1,4 @@
-package api
+package map_event
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgtype"
 	"server/db"
 	"server/ent/event"
-	mapapiv1 "server/map_api/v1"
+	mapapiv1 "server/gen/map_event_api/v1"
 	"time"
 )
 

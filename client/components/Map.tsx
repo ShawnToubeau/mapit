@@ -14,10 +14,10 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { LatLng } from "leaflet";
 import EventForm from "./EventForm";
 import { useClient } from "../hooks/use-client";
-import { MapEventService } from "../map_api/v1/map_api_connectweb";
 import useSWR, { mutate } from "swr";
 import Image from "next/image";
-import { GetMapEventResponse } from "../map_api/v1/map_api_pb";
+import { GetMapEventResponse } from "../gen/map_event_api/v1/map_event_api_pb";
+import { MapEventService } from "../gen/map_event_api/v1/map_event_api_connectweb";
 
 const userLocationIcon = new Icon({
 	iconSize: [24, 24],
