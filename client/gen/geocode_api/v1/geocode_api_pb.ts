@@ -7,76 +7,88 @@ import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialM
 import { Message, proto3 } from "@bufbuild/protobuf";
 
 /**
- * @generated from message geocode_api.v1.GeocodeSearchRequest
+ * @generated from message geocode_api.v1.SearchAddressRequest
  */
-export class GeocodeSearchRequest extends Message<GeocodeSearchRequest> {
+export class SearchAddressRequest extends Message<SearchAddressRequest> {
   /**
    * @generated from field: string query = 1;
    */
   query = "";
 
-  constructor(data?: PartialMessage<GeocodeSearchRequest>) {
+  constructor(data?: PartialMessage<SearchAddressRequest>) {
     super();
     proto3.util.initPartial(data, this);
   }
 
   static readonly runtime = proto3;
-  static readonly typeName = "geocode_api.v1.GeocodeSearchRequest";
+  static readonly typeName = "geocode_api.v1.SearchAddressRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "query", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GeocodeSearchRequest {
-    return new GeocodeSearchRequest().fromBinary(bytes, options);
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SearchAddressRequest {
+    return new SearchAddressRequest().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GeocodeSearchRequest {
-    return new GeocodeSearchRequest().fromJson(jsonValue, options);
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SearchAddressRequest {
+    return new SearchAddressRequest().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GeocodeSearchRequest {
-    return new GeocodeSearchRequest().fromJsonString(jsonString, options);
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SearchAddressRequest {
+    return new SearchAddressRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: GeocodeSearchRequest | PlainMessage<GeocodeSearchRequest> | undefined, b: GeocodeSearchRequest | PlainMessage<GeocodeSearchRequest> | undefined): boolean {
-    return proto3.util.equals(GeocodeSearchRequest, a, b);
+  static equals(a: SearchAddressRequest | PlainMessage<SearchAddressRequest> | undefined, b: SearchAddressRequest | PlainMessage<SearchAddressRequest> | undefined): boolean {
+    return proto3.util.equals(SearchAddressRequest, a, b);
   }
 }
 
 /**
- * @generated from message geocode_api.v1.GeocodeSearchResponse
+ * @generated from message geocode_api.v1.SearchAddressResponse
  */
-export class GeocodeSearchResponse extends Message<GeocodeSearchResponse> {
+export class SearchAddressResponse extends Message<SearchAddressResponse> {
   /**
-   * @generated from field: string id = 1;
+   * @generated from field: string address = 1;
    */
-  id = "";
+  address = "";
 
-  constructor(data?: PartialMessage<GeocodeSearchResponse>) {
+  /**
+   * @generated from field: double latitude = 2;
+   */
+  latitude = 0;
+
+  /**
+   * @generated from field: double longitude = 3;
+   */
+  longitude = 0;
+
+  constructor(data?: PartialMessage<SearchAddressResponse>) {
     super();
     proto3.util.initPartial(data, this);
   }
 
   static readonly runtime = proto3;
-  static readonly typeName = "geocode_api.v1.GeocodeSearchResponse";
+  static readonly typeName = "geocode_api.v1.SearchAddressResponse";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "address", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "latitude", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 3, name: "longitude", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GeocodeSearchResponse {
-    return new GeocodeSearchResponse().fromBinary(bytes, options);
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SearchAddressResponse {
+    return new SearchAddressResponse().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GeocodeSearchResponse {
-    return new GeocodeSearchResponse().fromJson(jsonValue, options);
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SearchAddressResponse {
+    return new SearchAddressResponse().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GeocodeSearchResponse {
-    return new GeocodeSearchResponse().fromJsonString(jsonString, options);
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SearchAddressResponse {
+    return new SearchAddressResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: GeocodeSearchResponse | PlainMessage<GeocodeSearchResponse> | undefined, b: GeocodeSearchResponse | PlainMessage<GeocodeSearchResponse> | undefined): boolean {
-    return proto3.util.equals(GeocodeSearchResponse, a, b);
+  static equals(a: SearchAddressResponse | PlainMessage<SearchAddressResponse> | undefined, b: SearchAddressResponse | PlainMessage<SearchAddressResponse> | undefined): boolean {
+    return proto3.util.equals(SearchAddressResponse, a, b);
   }
 }
 

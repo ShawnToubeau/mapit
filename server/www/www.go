@@ -5,7 +5,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"server/api/geocode"
 	"server/api/map_event"
+	"server/gen/geocode_api/v1/geocode_apiv1connect"
 	"server/gen/map_event_api/v1/map_event_apiv1connect"
 
 	"github.com/rs/cors"
@@ -17,9 +19,12 @@ func getRoot(w http.ResponseWriter, r *http.Request) {
 
 func Serve() {
 	mapEventServer := &map_event.MapEventServer{}
+	geocodeServer := &geocode.GeocoderServer{}
 	mux := http.NewServeMux()
-	path, handler := map_event_apiv1connect.NewMapEventServiceHandler(mapEventServer)
-	mux.Handle(path, handler)
+	mapEventPath, mapEventHandler := map_event_apiv1connect.NewMapEventServiceHandler(mapEventServer)
+	geocoderPath, geocodeHandler := geocode_apiv1connect.NewGeocodeServiceHandler(geocodeServer)
+	mux.Handle(mapEventPath, mapEventHandler)
+	mux.Handle(geocoderPath, geocodeHandler)
 
 	corsHandler := cors.AllowAll()
 

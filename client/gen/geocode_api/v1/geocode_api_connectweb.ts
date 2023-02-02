@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { GeocodeSearchRequest, GeocodeSearchResponse } from "./geocode_api_pb.js";
+import { SearchAddressRequest, SearchAddressResponse } from "./geocode_api_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -17,8 +17,8 @@ export const GeocodeService = {
      */
     searchAddress: {
       name: "SearchAddress",
-      I: GeocodeSearchRequest,
-      O: GeocodeSearchResponse,
+      I: SearchAddressRequest,
+      O: SearchAddressResponse,
       kind: MethodKind.Unary,
     },
   }

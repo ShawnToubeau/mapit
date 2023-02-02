@@ -27,7 +27,7 @@ const (
 
 // GeocodeServiceClient is a client for the geocode_api.v1.GeocodeService service.
 type GeocodeServiceClient interface {
-	SearchAddress(context.Context, *connect_go.Request[v1.GeocodeSearchRequest]) (*connect_go.Response[v1.GeocodeSearchResponse], error)
+	SearchAddress(context.Context, *connect_go.Request[v1.SearchAddressRequest]) (*connect_go.Response[v1.SearchAddressResponse], error)
 }
 
 // NewGeocodeServiceClient constructs a client for the geocode_api.v1.GeocodeService service. By
@@ -40,7 +40,7 @@ type GeocodeServiceClient interface {
 func NewGeocodeServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) GeocodeServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &geocodeServiceClient{
-		searchAddress: connect_go.NewClient[v1.GeocodeSearchRequest, v1.GeocodeSearchResponse](
+		searchAddress: connect_go.NewClient[v1.SearchAddressRequest, v1.SearchAddressResponse](
 			httpClient,
 			baseURL+"/geocode_api.v1.GeocodeService/SearchAddress",
 			opts...,
@@ -50,17 +50,17 @@ func NewGeocodeServiceClient(httpClient connect_go.HTTPClient, baseURL string, o
 
 // geocodeServiceClient implements GeocodeServiceClient.
 type geocodeServiceClient struct {
-	searchAddress *connect_go.Client[v1.GeocodeSearchRequest, v1.GeocodeSearchResponse]
+	searchAddress *connect_go.Client[v1.SearchAddressRequest, v1.SearchAddressResponse]
 }
 
 // SearchAddress calls geocode_api.v1.GeocodeService.SearchAddress.
-func (c *geocodeServiceClient) SearchAddress(ctx context.Context, req *connect_go.Request[v1.GeocodeSearchRequest]) (*connect_go.Response[v1.GeocodeSearchResponse], error) {
+func (c *geocodeServiceClient) SearchAddress(ctx context.Context, req *connect_go.Request[v1.SearchAddressRequest]) (*connect_go.Response[v1.SearchAddressResponse], error) {
 	return c.searchAddress.CallUnary(ctx, req)
 }
 
 // GeocodeServiceHandler is an implementation of the geocode_api.v1.GeocodeService service.
 type GeocodeServiceHandler interface {
-	SearchAddress(context.Context, *connect_go.Request[v1.GeocodeSearchRequest]) (*connect_go.Response[v1.GeocodeSearchResponse], error)
+	SearchAddress(context.Context, *connect_go.Request[v1.SearchAddressRequest]) (*connect_go.Response[v1.SearchAddressResponse], error)
 }
 
 // NewGeocodeServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -81,6 +81,6 @@ func NewGeocodeServiceHandler(svc GeocodeServiceHandler, opts ...connect_go.Hand
 // UnimplementedGeocodeServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedGeocodeServiceHandler struct{}
 
-func (UnimplementedGeocodeServiceHandler) SearchAddress(context.Context, *connect_go.Request[v1.GeocodeSearchRequest]) (*connect_go.Response[v1.GeocodeSearchResponse], error) {
+func (UnimplementedGeocodeServiceHandler) SearchAddress(context.Context, *connect_go.Request[v1.SearchAddressRequest]) (*connect_go.Response[v1.SearchAddressResponse], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("geocode_api.v1.GeocodeService.SearchAddress is not implemented"))
 }

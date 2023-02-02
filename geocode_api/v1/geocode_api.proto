@@ -2,14 +2,16 @@ syntax = "proto3";
 
 package geocode_api.v1;
 
-message GeocodeSearchRequest {
+message SearchAddressRequest {
   string query = 1;
 }
 
-message GeocodeSearchResponse {
-  string id = 1;
+message SearchAddressResponse {
+  string address = 1;
+  double latitude = 2;
+  double longitude = 3;
 }
 
 service GeocodeService {
-  rpc SearchAddress(GeocodeSearchRequest) returns (GeocodeSearchResponse) {}
+  rpc SearchAddress(SearchAddressRequest) returns (SearchAddressResponse) {}
 }

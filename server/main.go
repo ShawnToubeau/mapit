@@ -12,6 +12,7 @@ func main() {
 
 	db.Connect()
 	defer db.EntClient.Close()
+	defer db.RedisClient.Close()
 
 	www.Serve()
 }
