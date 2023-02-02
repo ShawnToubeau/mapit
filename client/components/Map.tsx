@@ -1,4 +1,4 @@
-import { Popup as LeafletPopup, Icon, circle } from "leaflet";
+import { Popup as LeafletPopup, Icon, circle, Circle } from "leaflet";
 import {
 	MapContainer,
 	Marker,
@@ -6,6 +6,7 @@ import {
 	TileLayer,
 	useMap,
 	useMapEvents,
+	ScaleControl,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
@@ -18,6 +19,7 @@ import useSWR, { mutate } from "swr";
 import Image from "next/image";
 import { GetMapEventResponse } from "../gen/map_event_api/v1/map_event_api_pb";
 import { MapEventService } from "../gen/map_event_api/v1/map_event_api_connectweb";
+import Control from "react-leaflet-custom-control";
 
 const userLocationIcon = new Icon({
 	iconSize: [24, 24],
@@ -43,6 +45,7 @@ export default function Map() {
 			<LocationMarker />
 			<NewEventPopup />
 			<EventMarkers />
+			<ScaleControl />
 		</MapContainer>
 	);
 }
@@ -50,11 +53,14 @@ export default function Map() {
 function LocationMarker() {
 	const map = useMap();
 	const [position, setPosition] = useState<LatLng | null>(null);
+	const [positionAccuracy, setPositionAccuracy] = useState<number | null>(null);
+	const [areaCircle, setAreaCircle] = useState<Circle | null>(null);
 
 	useEffect(() => {
-		map.locate().on("locationfound", function (event) {
+		map.locate().on("locationfound", (event) => {
 			setPosition(event.latlng);
-			circle(event.latlng, event.accuracy).addTo(map);
+			setPositionAccuracy(event.accuracy);
+			map.setZoom(16);
 			map.setView({
 				lat: event.latlng.lat,
 				lng: event.latlng.lng,
@@ -62,13 +68,46 @@ function LocationMarker() {
 		});
 	}, [map]);
 
-	return position === null ? null : (
-		<Marker position={position} icon={userLocationIcon}>
-			<Popup>
-				{`Latitude: ${position.lat}`} <br />
-				{`Longitude: ${position.lng}`}
-			</Popup>
-		</Marker>
+	useEffect(() => {
+		if (position && positionAccuracy) {
+			if (!areaCircle) {
+				// a circle drawn on the user's location representing the immediate area
+				const area = circle(position, positionAccuracy);
+				setAreaCircle(area);
+				area.addTo(map);
+			} else {
+				areaCircle.setLatLng(position);
+				areaCircle.redraw();
+			}
+		}
+	}, [position, areaCircle, map, positionAccuracy]);
+
+	return (
+		<div>
+			{position && (
+				<Marker position={position} icon={userLocationIcon}>
+					<Popup>
+						{`Latitude: ${position.lat}`} <br />
+						{`Longitude: ${position.lng}`}
+					</Popup>
+				</Marker>
+			)}
+			<Control position="topright">
+				<div className="p-2 rounded-sm bg-white map-control-border">
+					<Image
+						className="icon"
+						src="/location-crosshairs-icon.svg"
+						alt="Locate me"
+						width={18}
+						height={18}
+						onClick={(event) => {
+							event.stopPropagation();
+							map.locate();
+						}}
+					/>
+				</div>
+			</Control>
+		</div>
 	);
 }
 
