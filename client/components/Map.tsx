@@ -7,6 +7,7 @@ import {
 	useMap,
 	useMapEvents,
 	ScaleControl,
+	ZoomControl,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
@@ -20,6 +21,8 @@ import Image from "next/image";
 import { GetMapEventResponse } from "../gen/map_event_api/v1/map_event_api_pb";
 import { MapEventService } from "../gen/map_event_api/v1/map_event_api_connectweb";
 import Control from "react-leaflet-custom-control";
+import { GeocodeService } from "../gen/geocode_api/v1/geocode_api_connectweb";
+import { SearchAddressResponse } from "../gen/geocode_api/v1/geocode_api_pb";
 
 const userLocationIcon = new Icon({
 	iconSize: [24, 24],
@@ -35,6 +38,7 @@ export default function Map() {
 		<MapContainer
 			scrollWheelZoom
 			zoom={16}
+			zoomControl={false}
 			center={[40.8054, -74.0241]}
 			style={{ height: "100%", width: "100%", zIndex: 0 }}
 		>
@@ -46,6 +50,8 @@ export default function Map() {
 			<NewEventPopup />
 			<EventMarkers />
 			<ScaleControl />
+			<ZoomControl position="topright" />
+			<AddressSearch />
 		</MapContainer>
 	);
 }
@@ -93,13 +99,13 @@ function LocationMarker() {
 				</Marker>
 			)}
 			<Control position="topright">
-				<div className="p-2 rounded-sm bg-white map-control-border">
+				<div className="p-1 rounded-sm bg-white map-control-border">
 					<Image
 						className="icon"
 						src="/location-crosshairs-icon.svg"
 						alt="Locate me"
-						width={18}
-						height={18}
+						width={22}
+						height={22}
 						onClick={(event) => {
 							event.stopPropagation();
 							map.locate();
@@ -297,5 +303,88 @@ function EventPopupContent(props: EventPopupProps) {
 				</div>
 			</div>
 		</Popup>
+	);
+}
+
+function AddressSearch() {
+	const map = useMap();
+	const [address, setAddress] = useState<SearchAddressResponse | null>(null);
+	const [latLng, setLatLng] = useState<LatLng | null>(null);
+	const [searchTerm, setSearchTerm] = useState<string>("");
+
+	// the input is within its own function because when wrapped with Control, it
+	// loses focus after every keystroke
+	function AddressInput() {
+		const client = useClient(GeocodeService);
+
+		function searchAddress() {
+			client
+				.searchAddress({
+					query: searchTerm.replaceAll(" ", "+"),
+				})
+				.then((res) => {
+					setAddress(res);
+					setLatLng(new LatLng(res.latitude, res.longitude));
+					console.log("set view address search");
+					map.setZoom(18);
+					map.setView({
+						lat: res.latitude,
+						lng: res.longitude,
+					});
+				})
+				.catch((error) => console.error("error searching for address", error));
+		}
+
+		return (
+			<div className="flex">
+				<input
+					type="text"
+					className="p-1 mr-1 map-control-border"
+					placeholder="Search for an address"
+					value={searchTerm}
+					onChange={(e) => {
+						e.stopPropagation();
+						e.preventDefault();
+						setSearchTerm(e.target.value);
+					}}
+					style={{
+						width: 200,
+					}}
+				/>
+				<div
+					className="bg-white flex justify-center map-control-border"
+					style={{
+						width: 30,
+						height: 30,
+					}}
+				>
+					<Image
+						className="icon"
+						src="/magnifying-glass-icon.svg"
+						alt="Search"
+						width={14}
+						height={14}
+						onClick={(event) => {
+							event.stopPropagation();
+							searchAddress();
+						}}
+					/>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div>
+			<Control position={"topleft"}>
+				<AddressInput />
+			</Control>
+
+			{address && latLng && (
+				<Popup position={latLng}>
+					<EventForm latLng={latLng} close={() => setAddress(null)} />
+				</Popup>
+			)}
+		</div>
 	);
 }
