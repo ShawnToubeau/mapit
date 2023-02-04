@@ -1,4 +1,11 @@
-import { Popup as LeafletPopup, Icon, circle, Circle } from "leaflet";
+import {
+	Popup as LeafletPopup,
+	Icon,
+	circle,
+	Circle,
+	Marker as LeafletMarker,
+	Map as LeafletMap,
+} from "leaflet";
 import {
 	MapContainer,
 	Marker,
@@ -34,7 +41,12 @@ export enum SwrKeys {
 	EVENT_MARKERS = "event-markers",
 }
 
-export default function Map() {
+// global references to the map and event markers
+export let MapRef: LeafletMap | null = null;
+// MarkerMap is keyed by event ID
+export const MarkerMap = new Map<string, LeafletMarker>();
+
+export default function EventMap() {
 	return (
 		<MapContainer
 			scrollWheelZoom
@@ -64,6 +76,8 @@ function LocationMarker() {
 	const [areaCircle, setAreaCircle] = useState<Circle | null>(null);
 
 	useEffect(() => {
+		MapRef = map;
+
 		map.locate().on("locationfound", (event) => {
 			setPosition(event.latlng);
 			setPositionAccuracy(event.accuracy);
@@ -145,6 +159,12 @@ function EventMarkers() {
 		}),
 	);
 
+	useEffect(() => {
+		// clear the marker map when our marker data changes
+		// to ensure we always work with up-to-date data
+		MarkerMap.clear();
+	}, [data]);
+
 	if (!data || error) {
 		return null;
 	}
@@ -165,9 +185,17 @@ interface EventMarkerProps {
 function EventMarker(props: EventMarkerProps) {
 	const [showDelete, setShowDelete] = useState(false);
 	const [showEdit, setShowEdit] = useState(false);
+	const markerRef = useRef<LeafletMarker | null>(null);
+
+	useEffect(() => {
+		if (markerRef.current) {
+			MarkerMap.set(props.event.id, markerRef.current);
+		}
+	}, [markerRef, props.event.id]);
 
 	return (
 		<Marker
+			ref={markerRef}
 			position={{
 				lat: props.event.latitude,
 				lng: props.event.longitude,
@@ -205,11 +233,11 @@ interface EventPopupProps extends EventMarkerProps {
 
 function EventPopupContent(props: EventPopupProps) {
 	const client = useClient(MapEventService);
-	const mapRef = useRef<LeafletPopup | null>(null);
+	const popupRef = useRef<LeafletPopup | null>(null);
 
 	if (props.showDelete) {
 		return (
-			<Popup ref={mapRef}>
+			<Popup ref={popupRef}>
 				<div className="flex flex-col">
 					<div>Are you sure you wish to delete this event?</div>
 					<div>
@@ -230,7 +258,7 @@ function EventPopupContent(props: EventPopupProps) {
 									.then(() => {
 										// re-fetch events shown on the map
 										mutate(SwrKeys.EVENT_MARKERS);
-										mapRef.current?.close();
+										popupRef.current?.close();
 									})
 									.catch((error) => {
 										console.error("Error deleting map event", error);
@@ -319,7 +347,6 @@ function AddressSearch() {
 				.then((res) => {
 					setAddress(res);
 					setLatLng(new LatLng(res.latitude, res.longitude));
-					console.log("set view address search");
 					map.setZoom(18);
 					map.setView({
 						lat: res.latitude,

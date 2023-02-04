@@ -9,7 +9,7 @@ export default function Page() {
 			ssr: false,
 		},
 	);
-	const MapWithNoSSR = dynamic(() => import("../components/Map"), {
+	const EventMapWithNoSSR = dynamic(() => import("../components/EventMap"), {
 		ssr: false,
 	});
 
@@ -33,7 +33,7 @@ export default function Page() {
 
 				<div className="flex">
 					<EventsListWithNoSSR />
-					<MapWithNoSSR />
+					<EventMapWithNoSSR />
 				</div>
 			</div>
 		</div>

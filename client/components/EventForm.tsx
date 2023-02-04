@@ -4,7 +4,7 @@ import { FieldProps } from "formik/dist/Field";
 import { FC } from "react";
 import { useClient } from "../hooks/use-client";
 import { useSWRConfig } from "swr";
-import { SwrKeys } from "./Map";
+import { SwrKeys } from "./EventMap";
 import { number, object, string } from "yup";
 import { CreateMapEventRequest } from "../gen/map_event_api/v1/map_event_api_pb";
 import { MapEventService } from "../gen/map_event_api/v1/map_event_api_connectweb";

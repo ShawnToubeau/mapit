@@ -1,11 +1,12 @@
 import { useClient } from "../hooks/use-client";
 import { MapEventService } from "../gen/map_event_api/v1/map_event_api_connectweb";
 import useSWR from "swr";
-import { SwrKeys } from "./Map";
+import { MapRef, MarkerMap, SwrKeys } from "./EventMap";
 import { GetMapEventResponse } from "../gen/map_event_api/v1/map_event_api_pb";
 import { Fragment, useState } from "react";
 import { clsx } from "clsx";
 import FormatDate from "../utils/format-date";
+import Image from "next/image";
 
 enum SortOrder {
 	ALPHABETICAL_ASCENDING = "alphabetical_ascending",
@@ -128,9 +129,38 @@ interface EventCardProps {
 function EventCard(props: EventCardProps) {
 	return (
 		<Fragment>
-			<div>{`Name: ${props.event.name}`}</div>
-			<div>{`Start: ${FormatDate(props.event.startTime)}`}</div>
-			<div>{`End: ${FormatDate(props.event.endTime)}`}</div>
+			<div className="flex">
+				<div>
+					<div>{`Name: ${props.event.name}`}</div>
+					<div>{`Start: ${FormatDate(props.event.startTime)}`}</div>
+					<div>{`End: ${FormatDate(props.event.endTime)}`}</div>
+				</div>
+				<div className="flex ml-auto h-fit mt-1 mr-5">
+					<Image
+						className="icon"
+						src="/location-dot-icon.svg"
+						alt="Edit"
+						width={12}
+						height={12}
+						onClick={(event) => {
+							const marker = MarkerMap.get(props.event.id);
+
+							if (MapRef && marker) {
+								MapRef.flyTo(marker.getLatLng(), 17);
+								marker.openPopup();
+							}
+						}}
+					/>
+					<Image
+						className="icon ml-2"
+						src="/ellipsis-vertical-icon.svg"
+						alt="Edit"
+						width={6}
+						height={6}
+						// onClick={(event) => {}}
+					/>
+				</div>
+			</div>
 			<div>{`Description: ${props.event.description}`}</div>
 		</Fragment>
 	);
