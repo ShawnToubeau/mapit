@@ -23,6 +23,7 @@ import { MapEventService } from "../gen/map_event_api/v1/map_event_api_connectwe
 import Control from "react-leaflet-custom-control";
 import { GeocodeService } from "../gen/geocode_api/v1/geocode_api_connectweb";
 import { SearchAddressResponse } from "../gen/geocode_api/v1/geocode_api_pb";
+import FormatDate from "../utils/format-date";
 
 const userLocationIcon = new Icon({
 	iconSize: [24, 24],
@@ -195,13 +196,6 @@ function EventMarker(props: EventMarkerProps) {
 	);
 }
 
-function formatDate(unixMilli: bigint): string {
-	return new Date(Number(unixMilli)).toLocaleString([], {
-		dateStyle: "short",
-		timeStyle: "short",
-	});
-}
-
 interface EventPopupProps extends EventMarkerProps {
 	showEdit: boolean;
 	showDelete: boolean;
@@ -273,8 +267,8 @@ function EventPopupContent(props: EventPopupProps) {
 		<Popup>
 			<div className="flex flex-col">
 				<div>{`Name: ${props.event.name}`}</div>
-				<div>{`Start: ${formatDate(props.event.startTime)}`}</div>
-				<div>{`End: ${formatDate(props.event.endTime)}`}</div>
+				<div>{`Start: ${FormatDate(props.event.startTime)}`}</div>
+				<div>{`End: ${FormatDate(props.event.endTime)}`}</div>
 				<div>{`Description: ${props.event.description}`}</div>
 
 				<div className="flex justify-around mt-4">

@@ -3,6 +3,12 @@ import Head from "next/head";
 import Header from "../components/Header";
 
 export default function Page() {
+	const EventsListWithNoSSR = dynamic(
+		() => import("../components/EventsList"),
+		{
+			ssr: false,
+		},
+	);
 	const MapWithNoSSR = dynamic(() => import("../components/Map"), {
 		ssr: false,
 	});
@@ -25,7 +31,10 @@ export default function Page() {
 			>
 				<Header />
 
-				<MapWithNoSSR />
+				<div className="flex">
+					<EventsListWithNoSSR />
+					<MapWithNoSSR />
+				</div>
 			</div>
 		</div>
 	);
