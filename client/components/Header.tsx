@@ -8,6 +8,7 @@ import {
 import Link from "next/link";
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 import AccountDropdown from "./AccountDropdown";
+import Image from "next/image";
 
 const solutions = [
 	{
@@ -25,15 +26,11 @@ export default function Header() {
 	return (
 		<Popover className="relative bg-white">
 			<div className="flex items-center justify-between p-6 md:justify-start md:space-x-10">
-				<div>
-					<a href="#" className="flex">
-						<span className="sr-only">Your Company</span>
-						<img
-							className="h-8 w-auto sm:h-10"
-							src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-							alt=""
-						/>
-					</a>
+				<div className="flex">
+					<Image src="/header-icon.svg" alt="Logo" width={38} height={38} />
+					<span className="flex self-center text-2xl ml-2 font-bold cursor-default">
+						Mapit
+					</span>
 				</div>
 				<div className="-my-2 -mr-2 md:hidden">
 					<Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
@@ -73,12 +70,16 @@ export default function Header() {
 					<div className="divide-y-2 divide-gray-50 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
 						<div className="px-5 pt-5 pb-6">
 							<div className="flex items-center justify-between">
-								<div>
-									<img
-										className="h-8 w-auto"
-										src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-										alt="Your Company"
+								<div className="flex">
+									<Image
+										src="/header-icon.svg"
+										alt="Logo"
+										width={38}
+										height={38}
 									/>
+									<span className="flex self-center text-2xl ml-2 font-bold cursor-default">
+										Mapit
+									</span>
 								</div>
 								<div className="-mr-2">
 									<Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
