@@ -342,16 +342,20 @@ function EventPopupContent(props: EventPopupProps) {
 
 function AddressSearch() {
 	const map = useMap();
+	// this helps persist the searched term once a user performs the search
+	const [persistentSearch, setPersistentSearch] = useState<string>("");
 	const [address, setAddress] = useState<SearchAddressResponse | null>(null);
 	const [latLng, setLatLng] = useState<LatLng | null>(null);
-	const [searchTerm, setSearchTerm] = useState<string>("");
 
 	// the input is within its own function because when wrapped with Control, it
 	// loses focus after every keystroke
-	function AddressInput() {
+	function AddressInput({ search }: { search: string }) {
+		// this state must stay in this component to ensure we don't lose focus when it updates
+		const [searchTerm, setSearchTerm] = useState<string>(search);
 		const client = useClient(GeocodeService);
 
 		function searchAddress() {
+			setPersistentSearch(searchTerm);
 			client
 				.searchAddress({
 					query: searchTerm.replaceAll(" ", "+"),
@@ -409,8 +413,8 @@ function AddressSearch() {
 
 	return (
 		<div>
-			<Control position={"topleft"}>
-				<AddressInput />
+			<Control position="topleft">
+				<AddressInput search={persistentSearch} />
 			</Control>
 
 			{address && latLng && (
