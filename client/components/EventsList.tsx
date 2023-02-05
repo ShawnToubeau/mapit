@@ -7,12 +7,27 @@ import { Fragment, useState } from "react";
 import { clsx } from "clsx";
 import FormatDate from "../utils/format-date";
 import Image from "next/image";
+import { Listbox, Transition } from "@headlessui/react";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 enum SortOrder {
 	ALPHABETICAL_ASCENDING = "alphabetical_ascending",
 	ALPHABETICAL_DESCENDING = "alphabetical_descending",
 	CHRONOLOGICAL_ASCENDING = "chronological_ascending",
 	CHRONOLOGICAL_DESCENDING = "chronological_descending",
+}
+
+function sortOrderToString(sortOrder: SortOrder): string {
+	switch (sortOrder) {
+		case SortOrder.ALPHABETICAL_ASCENDING:
+			return "Alphabetical Asc";
+		case SortOrder.ALPHABETICAL_DESCENDING:
+			return "Alphabetical Desc";
+		case SortOrder.CHRONOLOGICAL_ASCENDING:
+			return "Chronological Asc";
+		case SortOrder.CHRONOLOGICAL_DESCENDING:
+			return "Chronological Desc";
+	}
 }
 
 export default function EventsList() {
@@ -38,32 +53,15 @@ export default function EventsList() {
 				<div>{"Org > Project"}</div>
 				<div className="text-2xl mt-1">Events</div>
 				<input
-					className="w-full mt-1"
+					className="w-full my-1"
 					placeholder="Search events"
 					value={searchTerm}
 					onChange={(event) => setSearchTerm(event.target.value)}
 				/>
-				<select
-					className="w-full mt-2"
-					value={sortOrder}
-					onChange={(event) => setSortOrder(event.target.value as SortOrder)}
-				>
-					<option value={SortOrder.ALPHABETICAL_ASCENDING}>
-						Alphabetical Asc
-					</option>
-					<option value={SortOrder.ALPHABETICAL_DESCENDING}>
-						Alphabetical Desc
-					</option>
-					<option value={SortOrder.CHRONOLOGICAL_ASCENDING}>
-						Chronological Asc
-					</option>
-					<option value={SortOrder.CHRONOLOGICAL_DESCENDING}>
-						Chronological Desc
-					</option>
-				</select>
+				<SortOrderDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} />
 			</div>
 
-			<div className="overflow-auto mt-1">
+			<div className="overflow-auto mt-2">
 				{data &&
 					sortEvents(filterEvents(data, searchTerm), sortOrder).map(
 						(event, index) => (
@@ -163,5 +161,81 @@ function EventCard(props: EventCardProps) {
 			</div>
 			<div>{`Description: ${props.event.description}`}</div>
 		</Fragment>
+	);
+}
+
+interface SortOrderDropdownProps {
+	sortOrder: SortOrder;
+	setSortOrder: (sortOrder: SortOrder) => void;
+}
+
+function SortOrderDropdown(props: SortOrderDropdownProps) {
+	return (
+		<Listbox value={props.sortOrder} onChange={props.setSortOrder}>
+			{({ open }) => (
+				<>
+					<div className="relative mt-1">
+						<Listbox.Button className="relative w-full cursor-default rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm">
+							<span className="block truncate">
+								{sortOrderToString(props.sortOrder)}
+							</span>
+							<span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+								<ChevronUpDownIcon
+									className="h-5 w-5 text-gray-400"
+									aria-hidden="true"
+								/>
+							</span>
+						</Listbox.Button>
+
+						<Transition
+							show={open}
+							as={Fragment}
+							leave="transition ease-in duration-100"
+							leaveFrom="opacity-100"
+							leaveTo="opacity-0"
+						>
+							<Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+								{Object.values(SortOrder).map((sortOrderOpt) => (
+									<Listbox.Option
+										key={sortOrderOpt}
+										className={({ active }) =>
+											clsx(
+												active ? "text-white bg-indigo-600" : "text-gray-900",
+												"relative cursor-default select-none py-2 pl-3 pr-9",
+											)
+										}
+										value={sortOrderOpt}
+									>
+										{({ selected, active }) => (
+											<>
+												<span
+													className={clsx(
+														selected ? "font-semibold" : "font-normal",
+														"block truncate",
+													)}
+												>
+													{sortOrderToString(sortOrderOpt)}
+												</span>
+
+												{selected ? (
+													<span
+														className={clsx(
+															active ? "text-white" : "text-indigo-600",
+															"absolute inset-y-0 right-0 flex items-center pr-4",
+														)}
+													>
+														<CheckIcon className="h-5 w-5" aria-hidden="true" />
+													</span>
+												) : null}
+											</>
+										)}
+									</Listbox.Option>
+								))}
+							</Listbox.Options>
+						</Transition>
+					</div>
+				</>
+			)}
+		</Listbox>
 	);
 }
