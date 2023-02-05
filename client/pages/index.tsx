@@ -32,7 +32,9 @@ export default function Page() {
 				<Header />
 
 				<div className="flex">
-					<EventsListWithNoSSR />
+					<div className="w-2/6 hidden lg:block">
+						<EventsListWithNoSSR />
+					</div>
 					<EventMapWithNoSSR />
 				</div>
 			</div>

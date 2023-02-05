@@ -27,7 +27,7 @@ export default function EventsList() {
 
 	return (
 		<div
-			className="grid py-2 px-6 w-1/5"
+			className="grid py-2 px-6"
 			style={{
 				height: "calc(100vh - 90px)",
 				borderTop: "1px solid #e9e9ed",
