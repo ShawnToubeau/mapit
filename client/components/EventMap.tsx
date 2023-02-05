@@ -251,9 +251,15 @@ function EventPopupContent(props: EventPopupProps) {
 		return (
 			<Popup ref={popupRef}>
 				<div className="flex flex-col">
-					<div>Are you sure you wish to delete this event?</div>
-					<div>
+					<div className="text-lg">
+						Are you sure you wish to delete this event?
+						<div className="font-bold inline-block ml-1">
+							{props.event.name}
+						</div>
+					</div>
+					<div className="flex justify-center gap-2 mt-2">
 						<button
+							className="w-full inline-flex justify-center rounded-md border border-transparent py-2 px-4 text-sm font-medium text-white shadow-sm bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 							onClick={(event) => {
 								event.stopPropagation();
 								props.setShowDelete(false);
@@ -262,6 +268,7 @@ function EventPopupContent(props: EventPopupProps) {
 							Cancel
 						</button>
 						<button
+							className="w-full inline-flex justify-center rounded-md border border-transparent py-2 px-4 text-sm font-medium text-white shadow-sm bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
 							onClick={() => {
 								client
 									.deleteMapEvent({
@@ -306,12 +313,22 @@ function EventPopupContent(props: EventPopupProps) {
 	return (
 		<Popup>
 			<div className="flex flex-col">
-				<div>{`Name: ${props.event.name}`}</div>
-				<div>{`Start: ${FormatDate(props.event.startTime)}`}</div>
-				<div>{`End: ${FormatDate(props.event.endTime)}`}</div>
-				<div>{`Description: ${props.event.description}`}</div>
+				<div className="text-lg">{props.event.name}</div>
 
-				<div className="flex justify-around mt-4">
+				<div className="mt-1">{props.event.description}</div>
+
+				<div className="flex mt-2">
+					<div className="mr-2 flex">
+						<div className="font-bold mr-1">Start:</div>
+						<div>{FormatDate(props.event.startTime)}</div>
+					</div>
+					<div className="flex">
+						<div className="font-bold mr-1">End:</div>
+						<div>{FormatDate(props.event.endTime)}</div>
+					</div>
+				</div>
+
+				<div className="flex justify-around mt-2">
 					<Image
 						className="icon"
 						src="/edit-icon.svg"
