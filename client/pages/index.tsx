@@ -25,8 +25,7 @@ export default function Page() {
 			<div
 				className="grid"
 				style={{
-					height: "100vh",
-					maxHeight: "100%",
+					height: "100dvh",
 					gridTemplateRows: "90px auto",
 				}}
 			>
