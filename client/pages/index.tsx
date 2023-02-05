@@ -26,6 +26,7 @@ export default function Page() {
 				className="grid"
 				style={{
 					height: "100vh",
+					maxHeight: "100%",
 					gridTemplateRows: "90px auto",
 				}}
 			>
