@@ -31,6 +31,7 @@ import Control from "react-leaflet-custom-control";
 import { GeocodeService } from "../gen/geocode_api/v1/geocode_api_connectweb";
 import { SearchAddressResponse } from "../gen/geocode_api/v1/geocode_api_pb";
 import FormatDate from "../utils/format-date";
+import useWindowDimensions from "../hooks/use-window-dimensions";
 
 const userLocationIcon = new Icon({
 	iconSize: [24, 24],
@@ -63,10 +64,21 @@ export default function EventMap() {
 			<NewEventPopup />
 			<EventMarkers />
 			<ScaleControl />
-			<ZoomControl position="topright" />
+			<DynamicZoomControl />
 			<AddressSearch />
 		</MapContainer>
 	);
+}
+
+function DynamicZoomControl() {
+	const { width } = useWindowDimensions();
+
+	// matches the value used by the 'lg' breakpoint in tailwindcss
+	if (width < 1024) {
+		return null;
+	}
+
+	return <ZoomControl position="bottomright" />;
 }
 
 function LocationMarker() {
@@ -113,7 +125,7 @@ function LocationMarker() {
 					</Popup>
 				</Marker>
 			)}
-			<Control position="topright">
+			<Control prepend position="bottomright">
 				<div className="p-1 rounded-sm bg-white map-control-border">
 					<Image
 						className="icon"
