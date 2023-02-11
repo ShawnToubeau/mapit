@@ -53,9 +53,12 @@ export default function EventsList() {
 				<div>{"Org > Project"}</div>
 				<div className="text-2xl mt-1">Events</div>
 				<input
-					className="w-full my-1"
+					className="mt-1 mb-1.5 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 					placeholder="Search events"
 					value={searchTerm}
+					style={{
+						height: 30,
+					}}
 					onChange={(event) => setSearchTerm(event.target.value)}
 				/>
 				<SortOrderDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} />

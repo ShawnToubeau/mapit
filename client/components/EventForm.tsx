@@ -168,7 +168,7 @@ const NameInput: FC<FieldProps<string>> = ({ field, form }) => {
 			value={field.value}
 			placeholder="Event name"
 			onChange={(event) => form.setFieldValue(field.name, event.target.value)}
-			className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm mt-0.5"
+			className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 		/>
 	);
 };
@@ -180,7 +180,7 @@ const DescriptionInput: FC<FieldProps<string>> = ({ field, form }) => {
 			value={field.value}
 			placeholder="Event description"
 			onChange={(event) => form.setFieldValue(field.name, event.target.value)}
-			className="border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm mt-0.5"
+			className="border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 			style={{
 				width: 300,
 			}}
@@ -192,7 +192,7 @@ const DateTimeInput: FC<FieldProps<bigint>> = ({ field, form }) => {
 	return (
 		<input
 			type="datetime-local"
-			className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm mt-0.5"
+			className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 			// pass undefined so the input displays empty instead of the unix epoch
 			value={
 				field.value === BigInt(0)

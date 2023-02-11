@@ -126,9 +126,8 @@ function LocationMarker() {
 				</Marker>
 			)}
 			<Control prepend position="bottomright">
-				<div className="p-1 rounded-sm bg-white map-control-border">
+				<div className="p-1 rounded-md bg-white map-control-border hover:bg-zinc-100">
 					<Image
-						className="icon"
 						src="/location-crosshairs-icon.svg"
 						alt="Locate me"
 						width={22}
@@ -393,7 +392,7 @@ function AddressSearch() {
 			<div className="flex">
 				<input
 					type="text"
-					className="p-1 mr-1 map-control-border"
+					className="mr-1 map-control-border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 					placeholder="Search for an address"
 					value={searchTerm}
 					onChange={(e) => {
@@ -406,21 +405,22 @@ function AddressSearch() {
 					}}
 				/>
 				<div
-					className="bg-white flex justify-center map-control-border"
+					className="bg-white flex justify-center map-control-border rounded-md hover:bg-zinc-100"
 					style={{
 						width: 30,
 						height: 30,
 					}}
 				>
 					<Image
-						className="icon"
 						src="/magnifying-glass-icon.svg"
 						alt="Search"
 						width={14}
 						height={14}
 						onClick={(event) => {
 							event.stopPropagation();
-							searchAddress();
+							if (searchTerm.length > 0) {
+								searchAddress();
+							}
 						}}
 					/>
 				</div>
