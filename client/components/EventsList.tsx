@@ -3,12 +3,14 @@ import { MapEventService } from "../gen/map_event_api/v1/map_event_api_connectwe
 import useSWR from "swr";
 import { MapRef, MarkerMap, SwrKeys } from "./EventMap";
 import { GetMapEventResponse } from "../gen/map_event_api/v1/map_event_api_pb";
-import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { clsx } from "clsx";
 import FormatDate from "../utils/format-date";
 import Image from "next/image";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import useWindowDimensions from "../hooks/use-window-dimensions";
+import { FooterHeight, HeaderHeight, MobileLayoutBreakpoint } from "../pages";
 
 enum SortOrder {
 	ALPHABETICAL_ASCENDING = "alphabetical_ascending",
@@ -32,6 +34,7 @@ function sortOrderToString(sortOrder: SortOrder): string {
 
 export default function EventsList() {
 	const client = useClient(MapEventService);
+	const { width } = useWindowDimensions();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [sortOrder, setSortOrder] = useState(SortOrder.ALPHABETICAL_ASCENDING);
 	const { data } = useSWR(SwrKeys.EVENT_MARKERS, () =>
@@ -40,18 +43,26 @@ export default function EventsList() {
 		}),
 	);
 
+	// the amount of height we need to subtract to size the event list
+	const subtractedListHeight = useMemo(() => {
+		if (width > MobileLayoutBreakpoint) {
+			return HeaderHeight;
+		}
+
+		return HeaderHeight + FooterHeight;
+	}, [width]);
+
 	return (
 		<div
-			className="grid py-2 px-6"
+			className="grid px-6"
 			style={{
-				height: "calc(100vh - 90px)",
+				height: `calc(100dvh - ${subtractedListHeight}px)`,
 				borderTop: "1px solid #e9e9ed",
 				gridTemplateRows: "min-content auto",
 			}}
 		>
 			<div>
-				<div>{"Org > Project"}</div>
-				<div className="text-2xl mt-1">Events</div>
+				<div className="text-2xl">Events</div>
 				<input
 					className="mt-1 mb-1.5 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 					placeholder="Search events"

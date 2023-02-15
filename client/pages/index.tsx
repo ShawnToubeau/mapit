@@ -1,17 +1,19 @@
-import dynamic from "next/dynamic";
 import Head from "next/head";
 import Header from "../components/Header";
+import dynamic from "next/dynamic";
+
+export const HeaderHeight = 90;
+export const FooterHeight = 60;
+// corresponds to the 'lg' breakpoint defined by tailwindcss
+export const MobileLayoutBreakpoint = 1024;
 
 export default function Page() {
-	const EventsListWithNoSSR = dynamic(
-		() => import("../components/EventsList"),
+	const ResponsiveEventMapWithNoSSR = dynamic(
+		() => import("../components/ResponsiveEventMap"),
 		{
 			ssr: false,
 		},
 	);
-	const EventMapWithNoSSR = dynamic(() => import("../components/EventMap"), {
-		ssr: false,
-	});
 
 	return (
 		<div>
@@ -26,17 +28,11 @@ export default function Page() {
 				className="grid"
 				style={{
 					height: "100dvh",
-					gridTemplateRows: "90px auto",
+					gridTemplateRows: `${HeaderHeight}px auto ${FooterHeight}px`,
 				}}
 			>
 				<Header />
-
-				<div className="flex">
-					<div className="w-2/6 hidden lg:block">
-						<EventsListWithNoSSR />
-					</div>
-					<EventMapWithNoSSR />
-				</div>
+				<ResponsiveEventMapWithNoSSR />
 			</div>
 		</div>
 	);
