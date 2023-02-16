@@ -170,12 +170,6 @@ function EventMarkers() {
 		}),
 	);
 
-	useEffect(() => {
-		// clear the marker map when our marker data changes
-		// to ensure we always work with up-to-date data
-		MarkerMap.clear();
-	}, [data]);
-
 	if (!data || error) {
 		return null;
 	}

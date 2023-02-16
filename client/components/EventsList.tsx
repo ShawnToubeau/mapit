@@ -32,7 +32,11 @@ function sortOrderToString(sortOrder: SortOrder): string {
 	}
 }
 
-export default function EventsList() {
+interface EventsListProps {
+	onEventLocationSelect?: () => void;
+}
+
+export default function EventsList(props: EventsListProps) {
 	const client = useClient(MapEventService);
 	const { width } = useWindowDimensions();
 	const [searchTerm, setSearchTerm] = useState("");
@@ -86,7 +90,7 @@ export default function EventsList() {
 									"bg-slate-200": index % 2 === 0, // alternating background colors
 								})}
 							>
-								<EventCard event={event} />
+								<EventCard {...props} event={event} />
 							</div>
 						),
 					)}
@@ -134,7 +138,7 @@ function sortEvents(events: GetMapEventResponse[], sortOrder: SortOrder) {
 	}
 }
 
-interface EventCardProps {
+interface EventCardProps extends EventsListProps {
 	event: GetMapEventResponse;
 }
 
@@ -160,6 +164,7 @@ function EventCard(props: EventCardProps) {
 							if (MapRef && marker) {
 								MapRef.flyTo(marker.getLatLng(), 17);
 								marker.openPopup();
+								props.onEventLocationSelect?.();
 							}
 						}}
 					/>

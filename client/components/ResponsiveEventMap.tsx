@@ -33,8 +33,17 @@ function MobileLayout() {
 
 	return (
 		<>
-			{/*TODO show the list on top of the map so we don't unmount it*/}
-			{mobileView === MobileView.MAP ? <EventMap /> : <EventsList />}
+			<div>
+				{mobileView === MobileView.MAP ? null : (
+					<div className="absolute w-full bg-white z-10">
+						<EventsList
+							onEventLocationSelect={() => setMobileView(MobileView.MAP)}
+						/>
+					</div>
+				)}
+
+				<EventMap />
+			</div>
 
 			<NavigationFooter mobileView={mobileView} setMobileView={setMobileView} />
 		</>
