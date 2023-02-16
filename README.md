@@ -14,26 +14,21 @@ Mapit can use any Redis instance. We currently use an [Upstash](https://upstash.
 
 The `./client` directory contains a `.env.local` file which holds Supabase connection info for authentication.
 
-### gRPC Client
+### Root
 
-This give you the latest client code based on the protobuf files.
-```shell
-// within the root directory
-yarn gen-proto
-```
+| Command          | Description                                                 |
+|------------------|-------------------------------------------------------------|
+| `yarn gen-proto` | Generate the latest client code based on the protobuf files |
 
 ### Server
 
-This will start the server on port 8080.
-```shell
-// within the server directory
-go run main.go
-```
+| Command             | Description                                |
+|---------------------|--------------------------------------------|
+| `go generate ./ent` | Generates DB client and applies migrations |
+| `go run main.go`    | Starts the server on port 8080             |
 
 ### Client
 
-This will start the client on port 3000.
-```shell
-// within the client directory
-yarn dev
-```
+| Command          | Description                    |
+|------------------|--------------------------------|
+| `yarn dev`       | Starts the client on port 3000 |
