@@ -4,6 +4,7 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { User, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { clsx } from "clsx";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface AccountDropdownProps {
 	user: User;
@@ -34,7 +35,7 @@ export default function AccountDropdown(props: AccountDropdownProps) {
 					<div className="py-1">
 						<Menu.Item>
 							{() => (
-								<a
+								<Link
 									href="#"
 									className={clsx(
 										"block px-4 py-2 text-sm text-gray-700 cursor-default",
@@ -42,14 +43,14 @@ export default function AccountDropdown(props: AccountDropdownProps) {
 								>
 									<div>My Account</div>
 									<div className="text-gray-400">({props.user.email})</div>
-								</a>
+								</Link>
 							)}
 						</Menu.Item>
 					</div>
 					<div className="py-1">
 						<Menu.Item>
 							{({ active }) => (
-								<a
+								<Link
 									href="/maps"
 									className={clsx(
 										active ? "bg-gray-100 text-gray-900" : "text-gray-700",
@@ -57,7 +58,7 @@ export default function AccountDropdown(props: AccountDropdownProps) {
 									)}
 								>
 									My maps
-								</a>
+								</Link>
 							)}
 						</Menu.Item>
 						<Menu.Item>
