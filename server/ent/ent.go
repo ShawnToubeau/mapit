@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"reflect"
 	"server/ent/event"
+	"server/ent/eventmap"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -38,7 +39,8 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		event.Table: event.ValidColumn,
+		event.Table:    event.ValidColumn,
+		eventmap.Table: eventmap.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

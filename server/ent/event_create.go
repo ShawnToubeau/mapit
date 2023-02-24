@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"server/ent/event"
+	"server/ent/eventmap"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -66,6 +67,17 @@ func (ec *EventCreate) SetNillableID(u *uuid.UUID) *EventCreate {
 	return ec
 }
 
+// SetParentMapID sets the "parent_map" edge to the EventMap entity by ID.
+func (ec *EventCreate) SetParentMapID(id uuid.UUID) *EventCreate {
+	ec.mutation.SetParentMapID(id)
+	return ec
+}
+
+// SetParentMap sets the "parent_map" edge to the EventMap entity.
+func (ec *EventCreate) SetParentMap(e *EventMap) *EventCreate {
+	return ec.SetParentMapID(e.ID)
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (ec *EventCreate) Mutation() *EventMutation {
 	return ec.mutation
@@ -123,6 +135,9 @@ func (ec *EventCreate) check() error {
 	}
 	if _, ok := ec.mutation.Description(); !ok {
 		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Event.description"`)}
+	}
+	if _, ok := ec.mutation.ParentMapID(); !ok {
+		return &ValidationError{Name: "parent_map", err: errors.New(`ent: missing required edge "Event.parent_map"`)}
 	}
 	return nil
 }
@@ -184,6 +199,26 @@ func (ec *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 	if value, ok := ec.mutation.Description(); ok {
 		_spec.SetField(event.FieldDescription, field.TypeString, value)
 		_node.Description = value
+	}
+	if nodes := ec.mutation.ParentMapIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.ParentMapTable,
+			Columns: []string{event.ParentMapColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: eventmap.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.event_map_events = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

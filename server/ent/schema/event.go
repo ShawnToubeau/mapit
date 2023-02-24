@@ -3,6 +3,7 @@ package schema
 import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/jackc/pgtype"
@@ -24,5 +25,14 @@ func (Event) Fields() []ent.Field {
 			dialect.Postgres: "point",
 		}),
 		field.String("description"),
+	}
+}
+
+// Edges of the Event.
+func (Event) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.From("parent_map", EventMap.Type).
+			Ref("events").
+			Unique().Required(),
 	}
 }

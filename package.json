@@ -5,12 +5,12 @@
   "author": "Shawn Toubeau <shawntoubeau@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "gen-proto": "rm -rf ./**/*pb.{ts,go} && rm -rf ./**/*connect.go && rm -rf ./**/*_connectweb.ts && buf generate"
+    "gen-proto": "rm -rf ./**/gen && buf generate"
   },
   "dependencies": {
-    "@bufbuild/connect-web": "^0.6.0",
-    "@bufbuild/protobuf": "^1.0.0",
-    "@bufbuild/protoc-gen-connect-web": "^0.6.0",
-    "@bufbuild/protoc-gen-es": "^1.0.0"
+    "@bufbuild/connect-web": "0.6.0",
+    "@bufbuild/protobuf": "1.0.0",
+    "@bufbuild/protoc-gen-connect-web": "0.6.0",
+    "@bufbuild/protoc-gen-es": "1.0.0"
   }
 }

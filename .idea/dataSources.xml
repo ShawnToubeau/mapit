@@ -15,5 +15,12 @@
       <jdbc-url>jdbc:redis://us1-gentle-bonefish-39485.upstash.io:39485</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="mapit@supabase" uuid="b2d3977d-96e7-4377-88a9-7a33a12b1b9d">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://db.mulrzypwzzlleiordckm.supabase.co:5432/postgres</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

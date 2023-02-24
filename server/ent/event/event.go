@@ -21,8 +21,17 @@ const (
 	FieldPoint = "point"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// EdgeParentMap holds the string denoting the parent_map edge name in mutations.
+	EdgeParentMap = "parent_map"
 	// Table holds the table name of the event in the database.
 	Table = "events"
+	// ParentMapTable is the table that holds the parent_map relation/edge.
+	ParentMapTable = "events"
+	// ParentMapInverseTable is the table name for the EventMap entity.
+	// It exists in this package in order to avoid circular dependency with the "eventmap" package.
+	ParentMapInverseTable = "event_maps"
+	// ParentMapColumn is the table column denoting the parent_map relation/edge.
+	ParentMapColumn = "event_map_events"
 )
 
 // Columns holds all SQL columns for event fields.
@@ -35,10 +44,21 @@ var Columns = []string{
 	FieldDescription,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the "events"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"event_map_events",
+}
+
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}

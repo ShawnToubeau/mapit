@@ -7,12 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"server/ent/event"
+	"server/ent/eventmap"
 	"server/ent/predicate"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/jackc/pgtype"
 )
 
@@ -59,9 +61,26 @@ func (eu *EventUpdate) SetDescription(s string) *EventUpdate {
 	return eu
 }
 
+// SetParentMapID sets the "parent_map" edge to the EventMap entity by ID.
+func (eu *EventUpdate) SetParentMapID(id uuid.UUID) *EventUpdate {
+	eu.mutation.SetParentMapID(id)
+	return eu
+}
+
+// SetParentMap sets the "parent_map" edge to the EventMap entity.
+func (eu *EventUpdate) SetParentMap(e *EventMap) *EventUpdate {
+	return eu.SetParentMapID(e.ID)
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (eu *EventUpdate) Mutation() *EventMutation {
 	return eu.mutation
+}
+
+// ClearParentMap clears the "parent_map" edge to the EventMap entity.
+func (eu *EventUpdate) ClearParentMap() *EventUpdate {
+	eu.mutation.ClearParentMap()
+	return eu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -91,7 +110,18 @@ func (eu *EventUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (eu *EventUpdate) check() error {
+	if _, ok := eu.mutation.ParentMapID(); eu.mutation.ParentMapCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Event.parent_map"`)
+	}
+	return nil
+}
+
 func (eu *EventUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := eu.check(); err != nil {
+		return n, err
+	}
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table:   event.Table,
@@ -123,6 +153,41 @@ func (eu *EventUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := eu.mutation.Description(); ok {
 		_spec.SetField(event.FieldDescription, field.TypeString, value)
+	}
+	if eu.mutation.ParentMapCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.ParentMapTable,
+			Columns: []string{event.ParentMapColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: eventmap.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := eu.mutation.ParentMapIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.ParentMapTable,
+			Columns: []string{event.ParentMapColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: eventmap.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, eu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -174,9 +239,26 @@ func (euo *EventUpdateOne) SetDescription(s string) *EventUpdateOne {
 	return euo
 }
 
+// SetParentMapID sets the "parent_map" edge to the EventMap entity by ID.
+func (euo *EventUpdateOne) SetParentMapID(id uuid.UUID) *EventUpdateOne {
+	euo.mutation.SetParentMapID(id)
+	return euo
+}
+
+// SetParentMap sets the "parent_map" edge to the EventMap entity.
+func (euo *EventUpdateOne) SetParentMap(e *EventMap) *EventUpdateOne {
+	return euo.SetParentMapID(e.ID)
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (euo *EventUpdateOne) Mutation() *EventMutation {
 	return euo.mutation
+}
+
+// ClearParentMap clears the "parent_map" edge to the EventMap entity.
+func (euo *EventUpdateOne) ClearParentMap() *EventUpdateOne {
+	euo.mutation.ClearParentMap()
+	return euo
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -213,7 +295,18 @@ func (euo *EventUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (euo *EventUpdateOne) check() error {
+	if _, ok := euo.mutation.ParentMapID(); euo.mutation.ParentMapCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Event.parent_map"`)
+	}
+	return nil
+}
+
 func (euo *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error) {
+	if err := euo.check(); err != nil {
+		return _node, err
+	}
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table:   event.Table,
@@ -262,6 +355,41 @@ func (euo *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error
 	}
 	if value, ok := euo.mutation.Description(); ok {
 		_spec.SetField(event.FieldDescription, field.TypeString, value)
+	}
+	if euo.mutation.ParentMapCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.ParentMapTable,
+			Columns: []string{event.ParentMapColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: eventmap.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := euo.mutation.ParentMapIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.ParentMapTable,
+			Columns: []string{event.ParentMapColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: eventmap.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Event{config: euo.config}
 	_spec.Assign = _node.assignValues

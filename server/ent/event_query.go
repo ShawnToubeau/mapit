@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"server/ent/event"
+	"server/ent/eventmap"
 	"server/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
@@ -18,13 +19,15 @@ import (
 // EventQuery is the builder for querying Event entities.
 type EventQuery struct {
 	config
-	limit      *int
-	offset     *int
-	unique     *bool
-	order      []OrderFunc
-	fields     []string
-	inters     []Interceptor
-	predicates []predicate.Event
+	limit         *int
+	offset        *int
+	unique        *bool
+	order         []OrderFunc
+	fields        []string
+	inters        []Interceptor
+	predicates    []predicate.Event
+	withParentMap *EventMapQuery
+	withFKs       bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -59,6 +62,28 @@ func (eq *EventQuery) Unique(unique bool) *EventQuery {
 func (eq *EventQuery) Order(o ...OrderFunc) *EventQuery {
 	eq.order = append(eq.order, o...)
 	return eq
+}
+
+// QueryParentMap chains the current query on the "parent_map" edge.
+func (eq *EventQuery) QueryParentMap() *EventMapQuery {
+	query := (&EventMapClient{config: eq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := eq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := eq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, selector),
+			sqlgraph.To(eventmap.Table, eventmap.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, event.ParentMapTable, event.ParentMapColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(eq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Event entity from the query.
@@ -246,17 +271,29 @@ func (eq *EventQuery) Clone() *EventQuery {
 		return nil
 	}
 	return &EventQuery{
-		config:     eq.config,
-		limit:      eq.limit,
-		offset:     eq.offset,
-		order:      append([]OrderFunc{}, eq.order...),
-		inters:     append([]Interceptor{}, eq.inters...),
-		predicates: append([]predicate.Event{}, eq.predicates...),
+		config:        eq.config,
+		limit:         eq.limit,
+		offset:        eq.offset,
+		order:         append([]OrderFunc{}, eq.order...),
+		inters:        append([]Interceptor{}, eq.inters...),
+		predicates:    append([]predicate.Event{}, eq.predicates...),
+		withParentMap: eq.withParentMap.Clone(),
 		// clone intermediate query.
 		sql:    eq.sql.Clone(),
 		path:   eq.path,
 		unique: eq.unique,
 	}
+}
+
+// WithParentMap tells the query-builder to eager-load the nodes that are connected to
+// the "parent_map" edge. The optional arguments are used to configure the query builder of the edge.
+func (eq *EventQuery) WithParentMap(opts ...func(*EventMapQuery)) *EventQuery {
+	query := (&EventMapClient{config: eq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	eq.withParentMap = query
+	return eq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -335,15 +372,26 @@ func (eq *EventQuery) prepareQuery(ctx context.Context) error {
 
 func (eq *EventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Event, error) {
 	var (
-		nodes = []*Event{}
-		_spec = eq.querySpec()
+		nodes       = []*Event{}
+		withFKs     = eq.withFKs
+		_spec       = eq.querySpec()
+		loadedTypes = [1]bool{
+			eq.withParentMap != nil,
+		}
 	)
+	if eq.withParentMap != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, event.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Event).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Event{config: eq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -355,7 +403,43 @@ func (eq *EventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Event,
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := eq.withParentMap; query != nil {
+		if err := eq.loadParentMap(ctx, query, nodes, nil,
+			func(n *Event, e *EventMap) { n.Edges.ParentMap = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (eq *EventQuery) loadParentMap(ctx context.Context, query *EventMapQuery, nodes []*Event, init func(*Event), assign func(*Event, *EventMap)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Event)
+	for i := range nodes {
+		if nodes[i].event_map_events == nil {
+			continue
+		}
+		fk := *nodes[i].event_map_events
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	query.Where(eventmap.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "event_map_events" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (eq *EventQuery) sqlCount(ctx context.Context) (int, error) {

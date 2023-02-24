@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"server/ent/event"
+	"server/ent/eventmap"
 	"strings"
 	"time"
 
@@ -28,6 +29,32 @@ type Event struct {
 	Point *pgtype.Point `json:"point,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the EventQuery when eager-loading is set.
+	Edges            EventEdges `json:"edges"`
+	event_map_events *uuid.UUID
+}
+
+// EventEdges holds the relations/edges for other nodes in the graph.
+type EventEdges struct {
+	// ParentMap holds the value of the parent_map edge.
+	ParentMap *EventMap `json:"parent_map,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// ParentMapOrErr returns the ParentMap value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e EventEdges) ParentMapOrErr() (*EventMap, error) {
+	if e.loadedTypes[0] {
+		if e.ParentMap == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: eventmap.Label}
+		}
+		return e.ParentMap, nil
+	}
+	return nil, &NotLoadedError{edge: "parent_map"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -43,6 +70,8 @@ func (*Event) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case event.FieldID:
 			values[i] = new(uuid.UUID)
+		case event.ForeignKeys[0]: // event_map_events
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Event", columns[i])
 		}
@@ -94,9 +123,21 @@ func (e *Event) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				e.Description = value.String
 			}
+		case event.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field event_map_events", values[i])
+			} else if value.Valid {
+				e.event_map_events = new(uuid.UUID)
+				*e.event_map_events = *value.S.(*uuid.UUID)
+			}
 		}
 	}
 	return nil
+}
+
+// QueryParentMap queries the "parent_map" edge of the Event entity.
+func (e *Event) QueryParentMap() *EventMapQuery {
+	return (&EventClient{config: e.config}).QueryParentMap(e)
 }
 
 // Update returns a builder for updating this Event.

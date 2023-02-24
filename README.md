@@ -18,14 +18,16 @@ The `./client` directory contains a `.env.local` file which holds Supabase conne
 
 | Command          | Description                                                 |
 |------------------|-------------------------------------------------------------|
+| `buf lint`       | Lint all protocol buffer files                              |
 | `yarn gen-proto` | Generate the latest client code based on the protobuf files |
 
 ### Server
 
-| Command             | Description                                |
-|---------------------|--------------------------------------------|
-| `go generate ./ent` | Generates DB client and applies migrations |
-| `go run main.go`    | Starts the server on port 8080             |
+| Command                                                            | Description                                |
+|--------------------------------------------------------------------|--------------------------------------------|
+| `migrate create -ext sql -dir db/migrations -seq <MIGRATION_NAME>` | Creates empty up and down migration files  |
+| `go generate ./ent`                                                | Generates DB client and applies migrations |
+| `go run main.go`                                                   | Starts the server on port 8080             |
 
 ### Client
 

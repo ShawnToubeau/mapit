@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package proto.event_map_api.v1;
+
+message CreateEventMapRequest {
+  string name = 1;
+}
+
+message CreateEventMapResponse {
+  string id = 1;
+}
+
+message GetEventMapRequest {
+  string id = 1;
+}
+
+message GetEventMapResponse {
+  string id = 1;
+  string owner_id = 2;
+  string name = 3;
+  int32  num_events = 4;
+}
+
+message GetAllEventMapsRequest {}
+
+message GetAllEventMapsResponse {
+  repeated GetEventMapResponse events = 1;
+}
+
+message UpdateEventMapRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message UpdateEventMapResponse {}
+
+message DeleteEventMapRequest {
+  string id = 1;
+}
+
+message DeleteEventMapResponse {}
+
+service EventMapService {
+  rpc CreateEventMap(CreateEventMapRequest) returns (CreateEventMapResponse) {}
+  rpc GetEventMap(GetEventMapRequest) returns (GetEventMapResponse) {}
+  rpc GetAllEventMaps(GetAllEventMapsRequest) returns (GetAllEventMapsResponse) {}
+  rpc UpdateEventMap(UpdateEventMapRequest) returns (UpdateEventMapResponse) {}
+  rpc DeleteEventMap(DeleteEventMapRequest) returns (DeleteEventMapResponse) {}
+}

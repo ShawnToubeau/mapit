@@ -1,20 +1,7 @@
 import Head from "next/head";
 import Header from "../components/Header";
-import dynamic from "next/dynamic";
-
-export const HeaderHeight = 90;
-export const FooterHeight = 60;
-// corresponds to the 'lg' breakpoint defined by tailwindcss
-export const MobileLayoutBreakpoint = 1024;
 
 export default function Page() {
-	const ResponsiveEventMapWithNoSSR = dynamic(
-		() => import("../components/ResponsiveEventMap"),
-		{
-			ssr: false,
-		},
-	);
-
 	return (
 		<div>
 			<Head>
@@ -24,15 +11,16 @@ export default function Page() {
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
-			<div
-				className="grid"
-				style={{
-					height: "100dvh",
-					gridTemplateRows: `${HeaderHeight}px auto ${FooterHeight}px`,
-				}}
-			>
+			<div className="border-b-gray-400 border-b">
 				<Header />
-				<ResponsiveEventMapWithNoSSR />
+			</div>
+
+			<div className="flex flex-col justify-centerk items-center pt-4">
+				<div className="text-2xl">Welcome!</div>
+				<div>
+					This section is still under construction but feel free to create an
+					account and take a look around.
+				</div>
 			</div>
 		</div>
 	);

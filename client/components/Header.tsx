@@ -4,44 +4,46 @@ import {
 	Bars3Icon,
 	UserCircleIcon,
 	XMarkIcon,
+	MapIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 import AccountDropdown from "./AccountDropdown";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const solutions = [
 	{
-		name: "Account Settings",
-		description: "Speak directly to your customers in a more meaningful way.",
-		href: "#",
-		icon: UserCircleIcon,
+		name: "My maps",
+		href: "/maps",
+		icon: MapIcon,
 	},
 ];
 
-export default function Header() {
+interface HeaderProps {
+	mapName?: string;
+}
+
+export default function Header(props: HeaderProps) {
+	const router = useRouter();
 	const supabaseClient = useSupabaseClient();
 	const user = useUser();
 
 	return (
-		<Popover className="relative bg-white">
-			<div className="flex items-center justify-between p-6 md:justify-start md:space-x-10">
-				<div className="flex">
-					<Image src="/header-icon.svg" alt="Logo" width={38} height={38} />
-					<span className="flex self-center text-2xl ml-2 font-bold cursor-default">
-						Mapit
-					</span>
-				</div>
-				<div className="-my-2 -mr-2 md:hidden">
-					<Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+		<Popover className="relative bg-white flex">
+			<div className="flex items-center justify-between p-6 w-full">
+				<HeaderLogo {...props} />
+
+				<div className="flex md:hidden">
+					<Popover.Button className="inline-flex items-center justify-center rounded-md bg-white text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
 						<span className="sr-only">Open menu</span>
-						<Bars3Icon className="h-6 w-6" aria-hidden="true" />
+						<Bars3Icon className="h-8 w-8" aria-hidden="true" />
 					</Popover.Button>
 				</div>
-				<div className="hidden md:flex md:flex-1 md:items-center md:justify-end">
-					<div className="flex items-center md:ml-12">
+				<div className="hidden md:flex md:items-center md:justify-end">
+					<div className="flex items-center">
 						{user ? (
-							<AccountDropdown />
+							<AccountDropdown user={user} />
 						) : (
 							<Link
 								href="/auth"
@@ -70,17 +72,8 @@ export default function Header() {
 					<div className="divide-y-2 divide-gray-50 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
 						<div className="px-5 pt-5 pb-6">
 							<div className="flex items-center justify-between">
-								<div className="flex">
-									<Image
-										src="/header-icon.svg"
-										alt="Logo"
-										width={38}
-										height={38}
-									/>
-									<span className="flex self-center text-2xl ml-2 font-bold cursor-default">
-										Mapit
-									</span>
-								</div>
+								<HeaderLogo {...props} />
+
 								<div className="-mr-2">
 									<Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
 										<span className="sr-only">Close menu</span>
@@ -90,6 +83,23 @@ export default function Header() {
 							</div>
 							<div className="mt-6">
 								<nav className="grid gap-6">
+									{user && (
+										<Link
+											href="/#"
+											className="-m-3 flex items-center rounded-lg p-3 cursor-default"
+										>
+											<div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-indigo-500 text-white">
+												<UserCircleIcon
+													className="h-6 w-6"
+													aria-hidden="true"
+												/>
+											</div>
+											<div className="ml-4 text-base font-medium text-gray-900 flex">
+												<div>My Account</div>
+												<div className="ml-1 text-gray-400">({user.email})</div>
+											</div>
+										</Link>
+									)}
 									{solutions.map((item) => (
 										<a
 											key={item.name}
@@ -112,7 +122,17 @@ export default function Header() {
 								{user ? (
 									<button
 										onClick={() => {
-											supabaseClient.auth.signOut();
+											supabaseClient.auth
+												.signOut()
+												.then(() => {
+													// redirect if we're on a protected route
+													if (location.pathname === "/maps") {
+														router.push("/");
+													}
+												})
+												.catch((error) =>
+													console.error("error signing out", error),
+												);
 										}}
 										className="text-indigo-600 hover:text-indigo-500"
 									>
@@ -132,5 +152,26 @@ export default function Header() {
 				</Popover.Panel>
 			</Transition>
 		</Popover>
+	);
+}
+
+function HeaderLogo(props: HeaderProps) {
+	return (
+		<Link href="/">
+			<div className="flex cursor-pointer">
+				<Image src="/header-icon.svg" alt="Logo" width={38} height={38} />
+				<div className="flex items-center">
+					<div className="text-2xl ml-2 font-bold">Mapit</div>
+					{props.mapName && (
+						<>
+							<div className="mx-1">&#65372;</div>
+							<div className="text-lg lg:text-xl font-bold">
+								{props.mapName}
+							</div>
+						</>
+					)}
+				</div>
+			</div>
+		</Link>
 	);
 }

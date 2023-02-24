@@ -1,12 +1,17 @@
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { User, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { clsx } from "clsx";
+import { useRouter } from "next/navigation";
 
-export default function AccountDropdown() {
+interface AccountDropdownProps {
+	user: User;
+}
+
+export default function AccountDropdown(props: AccountDropdownProps) {
+	const router = useRouter();
 	const supabaseClient = useSupabaseClient();
-
 	return (
 		<Menu as="div" className="relative inline-block text-left">
 			<div>
@@ -28,15 +33,15 @@ export default function AccountDropdown() {
 				<Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none divide-y divide-gray-100">
 					<div className="py-1">
 						<Menu.Item>
-							{({ active }) => (
+							{() => (
 								<a
 									href="#"
 									className={clsx(
-										active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-										"block px-4 py-2 text-sm",
+										"block px-4 py-2 text-sm text-gray-700 cursor-default",
 									)}
 								>
-									My Org
+									<div>My Account</div>
+									<div className="text-gray-400">({props.user.email})</div>
 								</a>
 							)}
 						</Menu.Item>
@@ -45,26 +50,13 @@ export default function AccountDropdown() {
 						<Menu.Item>
 							{({ active }) => (
 								<a
-									href="#"
+									href="/maps"
 									className={clsx(
 										active ? "bg-gray-100 text-gray-900" : "text-gray-700",
 										"block px-4 py-2 text-sm",
 									)}
 								>
-									Maps
-								</a>
-							)}
-						</Menu.Item>
-						<Menu.Item>
-							{({ active }) => (
-								<a
-									href="#"
-									className={clsx(
-										active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-										"block px-4 py-2 text-sm",
-									)}
-								>
-									Settings
+									My maps
 								</a>
 							)}
 						</Menu.Item>
@@ -76,7 +68,17 @@ export default function AccountDropdown() {
 										"block w-full px-4 py-2 text-left text-sm",
 									)}
 									onClick={() => {
-										supabaseClient.auth.signOut();
+										supabaseClient.auth
+											.signOut()
+											.then(() => {
+												// redirect if we're on a protected route
+												if (location.pathname === "/maps") {
+													router.push("/");
+												}
+											})
+											.catch((error) =>
+												console.error("error signing out", error),
+											);
 									}}
 								>
 									Sign out

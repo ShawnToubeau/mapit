@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"server/ent/event"
+	"server/ent/eventmap"
 	"server/ent/predicate"
 	"sync"
 	"time"
@@ -27,24 +28,27 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeEvent = "Event"
+	TypeEvent    = "Event"
+	TypeEventMap = "EventMap"
 )
 
 // EventMutation represents an operation that mutates the Event nodes in the graph.
 type EventMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uuid.UUID
-	name          *string
-	start_time    *time.Time
-	end_time      *time.Time
-	point         **pgtype.Point
-	description   *string
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Event, error)
-	predicates    []predicate.Event
+	op                Op
+	typ               string
+	id                *uuid.UUID
+	name              *string
+	start_time        *time.Time
+	end_time          *time.Time
+	point             **pgtype.Point
+	description       *string
+	clearedFields     map[string]struct{}
+	parent_map        *uuid.UUID
+	clearedparent_map bool
+	done              bool
+	oldValue          func(context.Context) (*Event, error)
+	predicates        []predicate.Event
 }
 
 var _ ent.Mutation = (*EventMutation)(nil)
@@ -331,6 +335,45 @@ func (m *EventMutation) ResetDescription() {
 	m.description = nil
 }
 
+// SetParentMapID sets the "parent_map" edge to the EventMap entity by id.
+func (m *EventMutation) SetParentMapID(id uuid.UUID) {
+	m.parent_map = &id
+}
+
+// ClearParentMap clears the "parent_map" edge to the EventMap entity.
+func (m *EventMutation) ClearParentMap() {
+	m.clearedparent_map = true
+}
+
+// ParentMapCleared reports if the "parent_map" edge to the EventMap entity was cleared.
+func (m *EventMutation) ParentMapCleared() bool {
+	return m.clearedparent_map
+}
+
+// ParentMapID returns the "parent_map" edge ID in the mutation.
+func (m *EventMutation) ParentMapID() (id uuid.UUID, exists bool) {
+	if m.parent_map != nil {
+		return *m.parent_map, true
+	}
+	return
+}
+
+// ParentMapIDs returns the "parent_map" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ParentMapID instead. It exists only for internal usage by the builders.
+func (m *EventMutation) ParentMapIDs() (ids []uuid.UUID) {
+	if id := m.parent_map; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetParentMap resets all changes to the "parent_map" edge.
+func (m *EventMutation) ResetParentMap() {
+	m.parent_map = nil
+	m.clearedparent_map = false
+}
+
 // Where appends a list predicates to the EventMutation builder.
 func (m *EventMutation) Where(ps ...predicate.Event) {
 	m.predicates = append(m.predicates, ps...)
@@ -532,19 +575,28 @@ func (m *EventMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *EventMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.parent_map != nil {
+		edges = append(edges, event.EdgeParentMap)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *EventMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case event.EdgeParentMap:
+		if id := m.parent_map; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *EventMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
@@ -556,24 +608,596 @@ func (m *EventMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *EventMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedparent_map {
+		edges = append(edges, event.EdgeParentMap)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *EventMutation) EdgeCleared(name string) bool {
+	switch name {
+	case event.EdgeParentMap:
+		return m.clearedparent_map
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *EventMutation) ClearEdge(name string) error {
+	switch name {
+	case event.EdgeParentMap:
+		m.ClearParentMap()
+		return nil
+	}
 	return fmt.Errorf("unknown Event unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *EventMutation) ResetEdge(name string) error {
+	switch name {
+	case event.EdgeParentMap:
+		m.ResetParentMap()
+		return nil
+	}
 	return fmt.Errorf("unknown Event edge %s", name)
+}
+
+// EventMapMutation represents an operation that mutates the EventMap nodes in the graph.
+type EventMapMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *uuid.UUID
+	owner_id      *uuid.UUID
+	name          *string
+	extent        **pgtype.Box
+	clearedFields map[string]struct{}
+	events        map[uuid.UUID]struct{}
+	removedevents map[uuid.UUID]struct{}
+	clearedevents bool
+	done          bool
+	oldValue      func(context.Context) (*EventMap, error)
+	predicates    []predicate.EventMap
+}
+
+var _ ent.Mutation = (*EventMapMutation)(nil)
+
+// eventmapOption allows management of the mutation configuration using functional options.
+type eventmapOption func(*EventMapMutation)
+
+// newEventMapMutation creates new mutation for the EventMap entity.
+func newEventMapMutation(c config, op Op, opts ...eventmapOption) *EventMapMutation {
+	m := &EventMapMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeEventMap,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withEventMapID sets the ID field of the mutation.
+func withEventMapID(id uuid.UUID) eventmapOption {
+	return func(m *EventMapMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *EventMap
+		)
+		m.oldValue = func(ctx context.Context) (*EventMap, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().EventMap.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withEventMap sets the old EventMap of the mutation.
+func withEventMap(node *EventMap) eventmapOption {
+	return func(m *EventMapMutation) {
+		m.oldValue = func(context.Context) (*EventMap, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m EventMapMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m EventMapMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of EventMap entities.
+func (m *EventMapMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *EventMapMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *EventMapMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().EventMap.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetOwnerID sets the "owner_id" field.
+func (m *EventMapMutation) SetOwnerID(u uuid.UUID) {
+	m.owner_id = &u
+}
+
+// OwnerID returns the value of the "owner_id" field in the mutation.
+func (m *EventMapMutation) OwnerID() (r uuid.UUID, exists bool) {
+	v := m.owner_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOwnerID returns the old "owner_id" field's value of the EventMap entity.
+// If the EventMap object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EventMapMutation) OldOwnerID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOwnerID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOwnerID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOwnerID: %w", err)
+	}
+	return oldValue.OwnerID, nil
+}
+
+// ResetOwnerID resets all changes to the "owner_id" field.
+func (m *EventMapMutation) ResetOwnerID() {
+	m.owner_id = nil
+}
+
+// SetName sets the "name" field.
+func (m *EventMapMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *EventMapMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the EventMap entity.
+// If the EventMap object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EventMapMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *EventMapMutation) ResetName() {
+	m.name = nil
+}
+
+// SetExtent sets the "extent" field.
+func (m *EventMapMutation) SetExtent(pg *pgtype.Box) {
+	m.extent = &pg
+}
+
+// Extent returns the value of the "extent" field in the mutation.
+func (m *EventMapMutation) Extent() (r *pgtype.Box, exists bool) {
+	v := m.extent
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExtent returns the old "extent" field's value of the EventMap entity.
+// If the EventMap object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EventMapMutation) OldExtent(ctx context.Context) (v *pgtype.Box, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExtent is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExtent requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExtent: %w", err)
+	}
+	return oldValue.Extent, nil
+}
+
+// ClearExtent clears the value of the "extent" field.
+func (m *EventMapMutation) ClearExtent() {
+	m.extent = nil
+	m.clearedFields[eventmap.FieldExtent] = struct{}{}
+}
+
+// ExtentCleared returns if the "extent" field was cleared in this mutation.
+func (m *EventMapMutation) ExtentCleared() bool {
+	_, ok := m.clearedFields[eventmap.FieldExtent]
+	return ok
+}
+
+// ResetExtent resets all changes to the "extent" field.
+func (m *EventMapMutation) ResetExtent() {
+	m.extent = nil
+	delete(m.clearedFields, eventmap.FieldExtent)
+}
+
+// AddEventIDs adds the "events" edge to the Event entity by ids.
+func (m *EventMapMutation) AddEventIDs(ids ...uuid.UUID) {
+	if m.events == nil {
+		m.events = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.events[ids[i]] = struct{}{}
+	}
+}
+
+// ClearEvents clears the "events" edge to the Event entity.
+func (m *EventMapMutation) ClearEvents() {
+	m.clearedevents = true
+}
+
+// EventsCleared reports if the "events" edge to the Event entity was cleared.
+func (m *EventMapMutation) EventsCleared() bool {
+	return m.clearedevents
+}
+
+// RemoveEventIDs removes the "events" edge to the Event entity by IDs.
+func (m *EventMapMutation) RemoveEventIDs(ids ...uuid.UUID) {
+	if m.removedevents == nil {
+		m.removedevents = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.events, ids[i])
+		m.removedevents[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedEvents returns the removed IDs of the "events" edge to the Event entity.
+func (m *EventMapMutation) RemovedEventsIDs() (ids []uuid.UUID) {
+	for id := range m.removedevents {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// EventsIDs returns the "events" edge IDs in the mutation.
+func (m *EventMapMutation) EventsIDs() (ids []uuid.UUID) {
+	for id := range m.events {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetEvents resets all changes to the "events" edge.
+func (m *EventMapMutation) ResetEvents() {
+	m.events = nil
+	m.clearedevents = false
+	m.removedevents = nil
+}
+
+// Where appends a list predicates to the EventMapMutation builder.
+func (m *EventMapMutation) Where(ps ...predicate.EventMap) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the EventMapMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *EventMapMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.EventMap, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *EventMapMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *EventMapMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (EventMap).
+func (m *EventMapMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *EventMapMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.owner_id != nil {
+		fields = append(fields, eventmap.FieldOwnerID)
+	}
+	if m.name != nil {
+		fields = append(fields, eventmap.FieldName)
+	}
+	if m.extent != nil {
+		fields = append(fields, eventmap.FieldExtent)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *EventMapMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case eventmap.FieldOwnerID:
+		return m.OwnerID()
+	case eventmap.FieldName:
+		return m.Name()
+	case eventmap.FieldExtent:
+		return m.Extent()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *EventMapMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case eventmap.FieldOwnerID:
+		return m.OldOwnerID(ctx)
+	case eventmap.FieldName:
+		return m.OldName(ctx)
+	case eventmap.FieldExtent:
+		return m.OldExtent(ctx)
+	}
+	return nil, fmt.Errorf("unknown EventMap field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *EventMapMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case eventmap.FieldOwnerID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOwnerID(v)
+		return nil
+	case eventmap.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case eventmap.FieldExtent:
+		v, ok := value.(*pgtype.Box)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExtent(v)
+		return nil
+	}
+	return fmt.Errorf("unknown EventMap field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *EventMapMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *EventMapMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *EventMapMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown EventMap numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *EventMapMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(eventmap.FieldExtent) {
+		fields = append(fields, eventmap.FieldExtent)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *EventMapMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *EventMapMutation) ClearField(name string) error {
+	switch name {
+	case eventmap.FieldExtent:
+		m.ClearExtent()
+		return nil
+	}
+	return fmt.Errorf("unknown EventMap nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *EventMapMutation) ResetField(name string) error {
+	switch name {
+	case eventmap.FieldOwnerID:
+		m.ResetOwnerID()
+		return nil
+	case eventmap.FieldName:
+		m.ResetName()
+		return nil
+	case eventmap.FieldExtent:
+		m.ResetExtent()
+		return nil
+	}
+	return fmt.Errorf("unknown EventMap field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *EventMapMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.events != nil {
+		edges = append(edges, eventmap.EdgeEvents)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *EventMapMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case eventmap.EdgeEvents:
+		ids := make([]ent.Value, 0, len(m.events))
+		for id := range m.events {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *EventMapMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedevents != nil {
+		edges = append(edges, eventmap.EdgeEvents)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *EventMapMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case eventmap.EdgeEvents:
+		ids := make([]ent.Value, 0, len(m.removedevents))
+		for id := range m.removedevents {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *EventMapMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedevents {
+		edges = append(edges, eventmap.EdgeEvents)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *EventMapMutation) EdgeCleared(name string) bool {
+	switch name {
+	case eventmap.EdgeEvents:
+		return m.clearedevents
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *EventMapMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown EventMap unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *EventMapMutation) ResetEdge(name string) error {
+	switch name {
+	case eventmap.EdgeEvents:
+		m.ResetEvents()
+		return nil
+	}
+	return fmt.Errorf("unknown EventMap edge %s", name)
 }

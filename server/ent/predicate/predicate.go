@@ -8,3 +8,6 @@ import (
 
 // Event is the predicate function for event builders.
 type Event func(*sql.Selector)
+
+// EventMap is the predicate function for eventmap builders.
+type EventMap func(*sql.Selector)

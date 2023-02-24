@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"github.com/jackc/pgtype"
 )
@@ -329,6 +330,33 @@ func DescriptionEqualFold(v string) predicate.Event {
 // DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
 func DescriptionContainsFold(v string) predicate.Event {
 	return predicate.Event(sql.FieldContainsFold(FieldDescription, v))
+}
+
+// HasParentMap applies the HasEdge predicate on the "parent_map" edge.
+func HasParentMap() predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ParentMapTable, ParentMapColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasParentMapWith applies the HasEdge predicate on the "parent_map" edge with a given conditions (other predicates).
+func HasParentMapWith(preds ...predicate.EventMap) predicate.Event {
+	return predicate.Event(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ParentMapInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ParentMapTable, ParentMapColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

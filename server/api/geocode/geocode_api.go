@@ -10,7 +10,7 @@ import (
 	"log"
 	"net/http"
 	"server/db"
-	geocodeapiv1 "server/gen/geocode_api/v1"
+	geocodeapiv1 "server/gen/proto/geocode_api/v1"
 	"strconv"
 	"time"
 )

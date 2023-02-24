@@ -1,19 +1,25 @@
-import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Field, Form, Formik } from "formik";
 import { LatLng } from "leaflet";
 import { FieldProps } from "formik/dist/Field";
-import { FC } from "react";
 import { useClient } from "../hooks/use-client";
 import { useSWRConfig } from "swr";
-import { SwrKeys } from "./EventMap";
+import { SwrKeys } from "../constants";
 import { number, object, string } from "yup";
-import { CreateMapEventRequest } from "../gen/map_event_api/v1/map_event_api_pb";
-import { MapEventService } from "../gen/map_event_api/v1/map_event_api_connectweb";
+import { CreateEventRequest } from "../gen/proto/event_api/v1/event_api_pb";
+import { EventService } from "../gen/proto/event_api/v1/event_api_connectweb";
 import { clsx } from "clsx";
+import GenerateAuthHeader from "../utils/generate-auth-header";
+import { Session } from "@supabase/auth-helpers-react";
+import TextInput from "./form-inputs/TextInput";
+import TextAreaInput from "./form-inputs/TextAreaInput";
+import DateTimeInput from "./form-inputs/DateTimeInput";
+import { useEffect, useRef } from "react";
+import { FormikProps } from "formik/dist/types";
 
-type FormFields = Pick<
-	CreateMapEventRequest,
-	"name" | "startTime" | "endTime" | "description"
->;
+type FormFields = Pick<CreateEventRequest, "name" | "description"> & {
+	startTime: number;
+	endTime: number;
+};
 
 type EditData = {
 	eventId: string;
@@ -21,13 +27,19 @@ type EditData = {
 };
 
 const validationSchema = object({
-	name: string().required("Required"),
-	startTime: number().required("Required"),
-	endTime: number().required("Required"),
-	description: string().required("Required"),
+	name: string()
+		.max(44, "Name must be no more than 44 characters")
+		.required("Required"),
+	startTime: number().min(1, "Required"),
+	endTime: number().min(1, "Required"),
+	description: string()
+		.max(1000, "Description must be no more than 1000 characters")
+		.required("Required"),
 });
 
 interface EventFormProps {
+	mapId: string;
+	session: Session;
 	latLng: LatLng;
 	close: () => void;
 	eventData?: EditData;
@@ -35,7 +47,16 @@ interface EventFormProps {
 
 export default function EventForm(props: EventFormProps) {
 	const { mutate } = useSWRConfig();
-	const client = useClient(MapEventService);
+	const client = useClient(EventService);
+	const formRef = useRef<FormikProps<FormFields> | null>(null);
+
+	// a change in the lat/long signifies a new form was opened at the location.
+	// because this component doesn't unmount, we must manually reset it
+	useEffect(() => {
+		if (formRef.current) {
+			formRef.current.handleReset();
+		}
+	}, [props.latLng.lat, props.latLng.lng]);
 
 	return (
 		<div>
@@ -43,14 +64,14 @@ export default function EventForm(props: EventFormProps) {
 				props.eventData ? "Edit" : "New"
 			} Event`}</div>
 			<Formik<FormFields>
+				innerRef={formRef}
 				validateOnBlur
-				validateOnMount
 				validateOnChange
 				initialValues={
 					props.eventData?.initialValues ?? {
 						name: "",
-						startTime: BigInt(0),
-						endTime: BigInt(0),
+						startTime: 0,
+						endTime: 0,
 						description: "",
 					}
 				}
@@ -58,92 +79,116 @@ export default function EventForm(props: EventFormProps) {
 				onSubmit={(values, { setSubmitting }) => {
 					if (props.eventData) {
 						client
-							.updateMapEvent({
-								id: props.eventData.eventId,
-								name: values.name,
-								startTime: values.startTime,
-								endTime: values.endTime,
-								latitude: props.latLng.lat,
-								longitude: props.latLng.lng,
-								description: values.description,
-							})
-							.then(() => {
+							.updateEvent(
+								{
+									id: props.eventData.eventId,
+									name: values.name,
+									startTime: BigInt(values.startTime),
+									endTime: BigInt(values.endTime),
+									latitude: props.latLng.lat,
+									longitude: props.latLng.lng,
+									description: values.description,
+								},
+								{
+									headers: GenerateAuthHeader(props.session),
+								},
+							)
+							.then(async () => {
 								setSubmitting(false);
-								// re-fetch events shown on the map
-								mutate(SwrKeys.EVENT_MARKERS);
+								// re-fetch events shown on the event_map
+								await mutate(SwrKeys.EVENT_MARKERS);
 								props.close();
 							})
 							.catch((error) => {
-								console.error("error updating map event", error);
+								console.error("error updating event_map event", error);
 							});
 					} else {
 						client
-							.createMapEvent({
-								name: values.name,
-								startTime: values.startTime,
-								endTime: values.endTime,
-								latitude: props.latLng.lat,
-								longitude: props.latLng.lng,
-								description: values.description,
-							})
-							.then(() => {
+							.createEvent(
+								{
+									mapId: props.mapId,
+									name: values.name,
+									startTime: BigInt(values.startTime),
+									endTime: BigInt(values.endTime),
+									latitude: props.latLng.lat,
+									longitude: props.latLng.lng,
+									description: values.description,
+								},
+								{
+									headers: GenerateAuthHeader(props.session),
+								},
+							)
+							.then(async () => {
 								setSubmitting(false);
-								// re-fetch events shown on the map
-								mutate(SwrKeys.EVENT_MARKERS);
+								// re-fetch events shown on the event_map
+								await mutate(SwrKeys.EVENT_MARKERS);
 								props.close();
 							})
 							.catch((error) => {
-								console.error("error creating map event", error);
+								console.error("error creating event_map event", error);
 							});
 					}
 				}}
 			>
 				{({ isSubmitting, isValid, dirty }) => (
-					<Form
-						style={{
-							display: "flex",
-							flexDirection: "column",
-						}}
-					>
+					<Form className="flex flex-col">
 						<label
 							htmlFor="name"
-							className="block text-sm font-medium text-gray-700"
+							className="required block text-sm font-medium text-gray-700"
 						>
 							Name
 						</label>
-						<Field name="name" component={NameInput} />
-						<ErrorMessage name="name" component="div" />
+						<Field
+							name="name"
+							render={(fieldProps: FieldProps<string>) => (
+								<TextInput
+									{...fieldProps}
+									inputProps={{ placeholder: "Event name" }}
+								/>
+							)}
+						/>
 
 						<label
 							htmlFor="startTime"
-							className="block text-sm font-medium text-gray-700 mt-1"
+							className="required block text-sm font-medium text-gray-700 mt-1"
 						>
 							Start Time
 						</label>
-						<Field name="startTime" component={DateTimeInput} />
-						<ErrorMessage name="startTime" component="div" />
+						<Field
+							name="startTime"
+							render={(fieldProps: FieldProps<number>) => (
+								<DateTimeInput {...fieldProps} inputProps={{}} />
+							)}
+						/>
 
 						<label
 							htmlFor="endTime"
-							className="block text-sm font-medium text-gray-700 mt-1"
+							className="required block text-sm font-medium text-gray-700 mt-1"
 						>
 							End Time
 						</label>
-						<Field name="endTime" component={DateTimeInput} />
-						<ErrorMessage name="endTime" component="div" />
+						<Field
+							name="endTime"
+							render={(fieldProps: FieldProps<number>) => (
+								<DateTimeInput {...fieldProps} />
+							)}
+						/>
 
 						<label
 							htmlFor="description"
-							className="block text-sm font-medium text-gray-700 mt-1"
+							className="required block text-sm font-medium text-gray-700 my-1"
 						>
 							Description
 						</label>
 						<Field
-							type="text"
 							name="description"
-							component={DescriptionInput}
+							render={(fieldProps: FieldProps<string>) => (
+								<TextAreaInput
+									{...fieldProps}
+									inputProps={{ placeholder: "Event description" }}
+								/>
+							)}
 						/>
-						<ErrorMessage name="description" component="div" />
 
 						<button
 							type="submit"
@@ -159,62 +204,4 @@ export default function EventForm(props: EventFormProps) {
 			</Formik>
 		</div>
 	);
-}
-
-const NameInput: FC<FieldProps<string>> = ({ field, form }) => {
-	return (
-		<input
-			type="text"
-			value={field.value}
-			placeholder="Event name"
-			onChange={(event) => form.setFieldValue(field.name, event.target.value)}
-			className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-		/>
-	);
-};
-
-const DescriptionInput: FC<FieldProps<string>> = ({ field, form }) => {
-	return (
-		<textarea
-			rows={3}
-			value={field.value}
-			placeholder="Event description"
-			onChange={(event) => form.setFieldValue(field.name, event.target.value)}
-			className="border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-			style={{
-				width: 300,
-			}}
-		/>
-	);
-};
-
-const DateTimeInput: FC<FieldProps<bigint>> = ({ field, form }) => {
-	return (
-		<input
-			type="datetime-local"
-			className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-			// pass undefined so the input displays empty instead of the unix epoch
-			value={
-				field.value === BigInt(0)
-					? undefined
-					: unixMilliToDateTimeLocal(Number(field.value))
-			}
-			onChange={(event) => {
-				if (event.target.value.length === 0) {
-					form.setFieldValue(field.name, BigInt(0));
-				} else {
-					form.setFieldValue(
-						field.name,
-						BigInt(new Date(event.target.value).getTime()),
-					);
-				}
-			}}
-		/>
-	);
-};
-
-function unixMilliToDateTimeLocal(unixMilli: number) {
-	const dt = new Date(unixMilli);
-	dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
-	return dt.toISOString().slice(0, 16);
 }

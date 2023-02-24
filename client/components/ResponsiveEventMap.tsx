@@ -3,14 +3,31 @@ import React, { useState } from "react";
 import NavigationFooter, { MobileView } from "./NavigationFooter";
 import EventMap from "./EventMap";
 import EventsList from "./EventsList";
-import { MobileLayoutBreakpoint } from "../pages";
+import { MobileLayoutBreakpoint } from "../constants";
+import { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
 
-export default function ResponsiveEventMap() {
-	const { width } = useWindowDimensions();
-	return width > MobileLayoutBreakpoint ? <DesktopLayout /> : <MobileLayout />;
+export type EventMarkerSetter = (
+	eventId: string,
+	eventMarker: LeafletMarker,
+) => void;
+
+interface ResponsiveEventMapProps {
+	mapId: string;
 }
 
-function DesktopLayout() {
+export default function ResponsiveEventMap(props: ResponsiveEventMapProps) {
+	const { width } = useWindowDimensions();
+	return width > MobileLayoutBreakpoint ? (
+		<DesktopLayout {...props} />
+	) : (
+		<MobileLayout {...props} />
+	);
+}
+
+function DesktopLayout(props: ResponsiveEventMapProps) {
+	const [map, setMap] = useState<LeafletMap | null>(null);
+	const [eventMarkers] = useState(new Map<string, LeafletMarker>());
+
 	return (
 		<>
 			<div className="flex">
@@ -19,16 +36,29 @@ function DesktopLayout() {
 						width: 448,
 					}}
 				>
-					<EventsList />
+					<EventsList
+						mapId={props.mapId}
+						map={map}
+						eventMarkers={eventMarkers}
+					/>
 				</div>
 
-				<EventMap />
+				<EventMap
+					mapId={props.mapId}
+					setMap={setMap}
+					eventMarkers={eventMarkers}
+					setEventMarker={(eventId, marker) =>
+						eventMarkers.set(eventId, marker)
+					}
+				/>
 			</div>
 		</>
 	);
 }
 
-function MobileLayout() {
+function MobileLayout(props: ResponsiveEventMapProps) {
+	const [map, setMap] = useState<LeafletMap | null>(null);
+	const [eventMarkers] = useState(new Map<string, LeafletMarker>());
 	const [mobileView, setMobileView] = useState(MobileView.MAP);
 
 	return (
@@ -37,12 +67,22 @@ function MobileLayout() {
 				{mobileView === MobileView.MAP ? null : (
 					<div className="absolute w-full bg-white z-10">
 						<EventsList
+							mapId={props.mapId}
+							map={map}
+							eventMarkers={eventMarkers}
 							onEventLocationSelect={() => setMobileView(MobileView.MAP)}
 						/>
 					</div>
 				)}
 
-				<EventMap />
+				<EventMap
+					mapId={props.mapId}
+					setMap={setMap}
+					eventMarkers={eventMarkers}
+					setEventMarker={(eventId, marker) =>
+						eventMarkers.set(eventId, marker)
+					}
+				/>
 			</div>
 
 			<NavigationFooter mobileView={mobileView} setMobileView={setMobileView} />

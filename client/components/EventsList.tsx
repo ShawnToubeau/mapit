@@ -1,8 +1,7 @@
 import { useClient } from "../hooks/use-client";
-import { MapEventService } from "../gen/map_event_api/v1/map_event_api_connectweb";
+import { EventService } from "../gen/proto/event_api/v1/event_api_connectweb";
 import useSWR from "swr";
-import { MapRef, MarkerMap, SwrKeys } from "./EventMap";
-import { GetMapEventResponse } from "../gen/map_event_api/v1/map_event_api_pb";
+import { GetEventResponse } from "../gen/proto/event_api/v1/event_api_pb";
 import { Fragment, useMemo, useState } from "react";
 import { clsx } from "clsx";
 import FormatDate from "../utils/format-date";
@@ -10,7 +9,14 @@ import Image from "next/image";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import useWindowDimensions from "../hooks/use-window-dimensions";
-import { FooterHeight, HeaderHeight, MobileLayoutBreakpoint } from "../pages";
+import { AnonAuthHeader } from "../utils/generate-auth-header";
+import { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
+import {
+	FooterHeight,
+	HeaderHeight,
+	MobileLayoutBreakpoint,
+	SwrKeys,
+} from "../constants";
 
 enum SortOrder {
 	ALPHABETICAL_ASCENDING = "alphabetical_ascending",
@@ -22,9 +28,9 @@ enum SortOrder {
 function sortOrderToString(sortOrder: SortOrder): string {
 	switch (sortOrder) {
 		case SortOrder.ALPHABETICAL_ASCENDING:
-			return "Alphabetical Asc";
+			return "A-Z";
 		case SortOrder.ALPHABETICAL_DESCENDING:
-			return "Alphabetical Desc";
+			return "Z-A";
 		case SortOrder.CHRONOLOGICAL_ASCENDING:
 			return "Chronological Asc";
 		case SortOrder.CHRONOLOGICAL_DESCENDING:
@@ -33,18 +39,23 @@ function sortOrderToString(sortOrder: SortOrder): string {
 }
 
 interface EventsListProps {
+	mapId: string;
+	map: LeafletMap | null;
+	eventMarkers: Map<string, LeafletMarker>;
 	onEventLocationSelect?: () => void;
 }
 
 export default function EventsList(props: EventsListProps) {
-	const client = useClient(MapEventService);
 	const { width } = useWindowDimensions();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [sortOrder, setSortOrder] = useState(SortOrder.ALPHABETICAL_ASCENDING);
+	const client = useClient(EventService);
 	const { data } = useSWR(SwrKeys.EVENT_MARKERS, () =>
-		client.getAllMapEvents({}).then((res) => {
-			return res.events;
-		}),
+		client
+			.getAllEvents({ parentMapId: props.mapId }, { headers: AnonAuthHeader() })
+			.then((res) => {
+				return res.events;
+			}),
 	);
 
 	// the amount of height we need to subtract to size the event list
@@ -58,17 +69,16 @@ export default function EventsList(props: EventsListProps) {
 
 	return (
 		<div
-			className="grid px-6"
+			className="grid px-6 border-t-gray-300 border-t"
 			style={{
 				height: `calc(100dvh - ${subtractedListHeight}px)`,
-				borderTop: "1px solid #e9e9ed",
 				gridTemplateRows: "min-content auto",
 			}}
 		>
 			<div>
-				<div className="text-2xl">Events</div>
+				<div className="text-2xl pt-1">Events</div>
 				<input
-					className="mt-1 mb-1.5 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+					className="mt-1 mb-1.5 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm pl-2"
 					placeholder="Search events"
 					value={searchTerm}
 					style={{
@@ -85,7 +95,7 @@ export default function EventsList(props: EventsListProps) {
 						(event, index) => (
 							<div
 								key={event.id}
-								className={clsx({
+								className={clsx("py-2 pl-4", {
 									"mt-2": index > 0, // margin on every card except the first
 									"bg-slate-200": index % 2 === 0, // alternating background colors
 								})}
@@ -99,17 +109,14 @@ export default function EventsList(props: EventsListProps) {
 	);
 }
 
-function filterEvents(events: GetMapEventResponse[], searchTerm: string) {
+function filterEvents(events: GetEventResponse[], searchTerm: string) {
 	return events.filter((event) =>
 		event.name.toLowerCase().includes(searchTerm.toLowerCase()),
 	);
 }
 
-function sortEvents(events: GetMapEventResponse[], sortOrder: SortOrder) {
-	function nameComparator(
-		a: GetMapEventResponse,
-		b: GetMapEventResponse,
-	): number {
+function sortEvents(events: GetEventResponse[], sortOrder: SortOrder) {
+	function nameComparator(a: GetEventResponse, b: GetEventResponse): number {
 		if (a.name < b.name) {
 			return -1;
 		} else if (a.name > b.name) {
@@ -119,10 +126,7 @@ function sortEvents(events: GetMapEventResponse[], sortOrder: SortOrder) {
 		return 0;
 	}
 
-	function dateComparator(
-		a: GetMapEventResponse,
-		b: GetMapEventResponse,
-	): number {
+	function dateComparator(a: GetEventResponse, b: GetEventResponse): number {
 		return Number(a.startTime - b.startTime);
 	}
 
@@ -139,32 +143,66 @@ function sortEvents(events: GetMapEventResponse[], sortOrder: SortOrder) {
 }
 
 interface EventCardProps extends EventsListProps {
-	event: GetMapEventResponse;
+	event: GetEventResponse;
 }
 
 function EventCard(props: EventCardProps) {
+	const [clampLines, setClampLines] = useState(true);
+
 	return (
 		<Fragment>
 			<div className="flex">
 				<div>
-					<div>{`Name: ${props.event.name}`}</div>
-					<div>{`Start: ${FormatDate(props.event.startTime)}`}</div>
-					<div>{`End: ${FormatDate(props.event.endTime)}`}</div>
+					<div>
+						<div className="inline mr-1 font-bold">Name:</div>
+						<div className="inline">{props.event.name}</div>
+					</div>
+					<div>
+						<div className="inline mr-1 font-bold">Start:</div>
+						<div className="inline">{FormatDate(props.event.startTime)}</div>
+					</div>
+					<div>
+						<div className="inline mr-1 font-bold">End:</div>
+						<div className="inline">{FormatDate(props.event.endTime)}</div>
+					</div>
 				</div>
-				<div className="flex ml-auto h-fit mt-1 mr-5">
+				<div className="flex ml-auto h-fit mt-1 mr-5 ml-1">
 					<Image
 						className="icon"
 						src="/location-dot-icon.svg"
 						alt="Edit"
 						width={12}
 						height={12}
-						onClick={(event) => {
-							const marker = MarkerMap.get(props.event.id);
-
-							if (MapRef && marker) {
-								MapRef.flyTo(marker.getLatLng(), 17);
+						onClick={() => {
+							const marker = props.eventMarkers.get(props.event.id);
+							if (marker) {
+								// below code is taken from here https://stackoverflow.com/a/23960984/7627620
+								// first, open the popup
 								marker.openPopup();
-								props.onEventLocationSelect?.();
+								// wait 20 ms for the popup container to populate in the DOM
+								setTimeout(() => {
+									const popupHeight = marker
+										.getPopup()
+										?.getElement()?.clientHeight;
+									if (props.map && !!popupHeight) {
+										// convert our marker lat/lng to pixel values
+										const px = props.map.project(marker.getLatLng());
+										// translate the y-value by half of the popup's height
+										px.y -= popupHeight / 2;
+										// convert back to a lat/lng and fly there, centering the popup in view
+										// TODO it doesn't not account for zoom atm
+										props.map.flyTo(props.map.unproject(px));
+										props.onEventLocationSelect?.();
+									} else {
+										console.error(
+											"map ref or popup height are undefined",
+											props.map,
+											popupHeight,
+										);
+									}
+								}, 20);
+							} else {
+								console.error("marker ref undefined");
 							}
 						}}
 					/>
@@ -178,7 +216,20 @@ function EventCard(props: EventCardProps) {
 					/>
 				</div>
 			</div>
-			<div>{`Description: ${props.event.description}`}</div>
+			<div
+				className={clsx({
+					"line-clamp-6": clampLines,
+				})}
+			>
+				<div className="inline mr-1 font-bold">Description:</div>
+				<div className="inline">{props.event.description}</div>
+			</div>
+			<button
+				className="text-gray-600 hover:underline mt-1"
+				onClick={() => setClampLines(!clampLines)}
+			>
+				{clampLines ? "Show more" : "Show less"}
+			</button>
 		</Fragment>
 	);
 }
@@ -194,7 +245,7 @@ function SortOrderDropdown(props: SortOrderDropdownProps) {
 			{({ open }) => (
 				<>
 					<div className="relative mt-1">
-						<Listbox.Button className="relative w-full cursor-default rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm">
+						<Listbox.Button className="relative w-full cursor-default rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm cursor-pointer">
 							<span className="block truncate">
 								{sortOrderToString(props.sortOrder)}
 							</span>
@@ -219,6 +270,7 @@ function SortOrderDropdown(props: SortOrderDropdownProps) {
 										key={sortOrderOpt}
 										className={({ active }) =>
 											clsx(
+												"cursor-pointer",
 												active ? "text-white bg-indigo-600" : "text-gray-900",
 												"relative cursor-default select-none py-2 pl-3 pr-9",
 											)

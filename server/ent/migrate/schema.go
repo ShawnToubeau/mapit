@@ -16,18 +16,42 @@ var (
 		{Name: "end_time", Type: field.TypeTime},
 		{Name: "point", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "point"}},
 		{Name: "description", Type: field.TypeString},
+		{Name: "event_map_events", Type: field.TypeUUID},
 	}
 	// EventsTable holds the schema information for the "events" table.
 	EventsTable = &schema.Table{
 		Name:       "events",
 		Columns:    EventsColumns,
 		PrimaryKey: []*schema.Column{EventsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "events_event_maps_events",
+				Columns:    []*schema.Column{EventsColumns[6]},
+				RefColumns: []*schema.Column{EventMapsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// EventMapsColumns holds the columns for the "event_maps" table.
+	EventMapsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "owner_id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString},
+		{Name: "extent", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "box"}},
+	}
+	// EventMapsTable holds the schema information for the "event_maps" table.
+	EventMapsTable = &schema.Table{
+		Name:       "event_maps",
+		Columns:    EventMapsColumns,
+		PrimaryKey: []*schema.Column{EventMapsColumns[0]},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		EventsTable,
+		EventMapsTable,
 	}
 )
 
 func init() {
+	EventsTable.ForeignKeys[0].RefTable = EventMapsTable
 }

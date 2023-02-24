@@ -4,6 +4,7 @@ package ent
 
 import (
 	"server/ent/event"
+	"server/ent/eventmap"
 	"server/ent/schema"
 
 	"github.com/google/uuid"
@@ -19,4 +20,10 @@ func init() {
 	eventDescID := eventFields[0].Descriptor()
 	// event.DefaultID holds the default value on creation for the id field.
 	event.DefaultID = eventDescID.Default.(func() uuid.UUID)
+	eventmapFields := schema.EventMap{}.Fields()
+	_ = eventmapFields
+	// eventmapDescID is the schema descriptor for id field.
+	eventmapDescID := eventmapFields[0].Descriptor()
+	// eventmap.DefaultID holds the default value on creation for the id field.
+	eventmap.DefaultID = eventmapDescID.Default.(func() uuid.UUID)
 }
