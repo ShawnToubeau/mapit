@@ -12,8 +12,8 @@ import EventForm from "../EventForm";
 import FormatDate from "../../utils/format-date";
 import Image from "next/image";
 import { SwrKeys } from "../../constants";
-import { useAuth } from "../../context/auth-context";
 import { EventMarkerSetter } from "../ResponsiveEventMap";
+import { useSupabase } from "../../context/supabase-provider";
 
 enum EventMarkerViews {
 	READ = "read",
@@ -133,7 +133,7 @@ function EventPopupContent(props: EventPopupProps) {
 }
 
 function ReadEventPopup(props: EventPopupProps) {
-	const { session } = useAuth();
+	const { session } = useSupabase();
 
 	return (
 		<div>
@@ -185,7 +185,7 @@ function ReadEventPopup(props: EventPopupProps) {
 }
 
 function EditEventPopup(props: EventPopupProps) {
-	const { session } = useAuth();
+	const { session } = useSupabase();
 	if (!session) {
 		return null;
 	}
@@ -214,7 +214,7 @@ function EditEventPopup(props: EventPopupProps) {
 }
 
 function DeleteEventPopup(props: EventPopupProps) {
-	const { session } = useAuth();
+	const { session } = useSupabase();
 	const client = useClient(EventService);
 	if (!session) {
 		return null;

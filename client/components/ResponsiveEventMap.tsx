@@ -1,10 +1,12 @@
+"use client";
+
 import useWindowDimensions from "../hooks/use-window-dimensions";
 import React, { useState } from "react";
 import NavigationFooter, { MobileView } from "./NavigationFooter";
-import EventMap from "./EventMap";
 import EventsList from "./EventsList";
-import { MobileLayoutBreakpoint } from "../constants";
 import { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
+import { MobileLayoutBreakpoint } from "../constants";
+import EventMap from "./EventMap";
 
 export type EventMarkerSetter = (
 	eventId: string,

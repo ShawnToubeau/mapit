@@ -14,10 +14,9 @@ function getWindowDimensions(): WindowDimensions {
 }
 
 export default function useWindowDimensions() {
-	const [windowDimensions, setWindowDimensions] = useState<WindowDimensions>({
-		width: 0,
-		height: 0,
-	});
+	const [windowDimensions, setWindowDimensions] = useState<WindowDimensions>(
+		getWindowDimensions(),
+	);
 
 	useLayoutEffect(() => {
 		function handleResize() {

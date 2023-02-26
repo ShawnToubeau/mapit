@@ -2,14 +2,14 @@ import { useState } from "react";
 import { LatLng } from "leaflet";
 import { Popup, useMapEvents } from "react-leaflet";
 import EventForm from "../EventForm";
-import { useAuth } from "../../context/auth-context";
+import { useSupabase } from "../../context/supabase-provider";
 
 interface NewEventPopupProps {
 	mapId: string;
 }
 
 export default function NewEventPopup(props: NewEventPopupProps) {
-	const { session } = useAuth();
+	const { session } = useSupabase();
 	const [position, setPosition] = useState<LatLng | null>(null);
 	useMapEvents({
 		click(e) {

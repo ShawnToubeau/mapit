@@ -1,10 +1,11 @@
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import { User, useSupabaseClient } from "@supabase/auth-helpers-react";
+import { User } from "@supabase/auth-helpers-react";
 import { clsx } from "clsx";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSupabase } from "../context/supabase-provider";
 
 interface AccountDropdownProps {
 	user: User;
@@ -12,7 +13,7 @@ interface AccountDropdownProps {
 
 export default function AccountDropdown(props: AccountDropdownProps) {
 	const router = useRouter();
-	const supabaseClient = useSupabaseClient();
+	const { supabase } = useSupabase();
 	return (
 		<Menu as="div" className="relative inline-block text-left">
 			<div>
@@ -69,7 +70,7 @@ export default function AccountDropdown(props: AccountDropdownProps) {
 										"block w-full px-4 py-2 text-left text-sm",
 									)}
 									onClick={() => {
-										supabaseClient.auth
+										supabase.auth
 											.signOut()
 											.then(() => {
 												// redirect if we're on a protected route

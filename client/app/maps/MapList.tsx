@@ -1,15 +1,15 @@
-import { useClient } from "../hooks/use-client";
-import { EventMapService } from "../gen/proto/event_map_api/v1/event_map_api_connectweb";
+import { useClient } from "../../hooks/use-client";
+import { EventMapService } from "../../gen/proto/event_map_api/v1/event_map_api_connectweb";
 import useSWR from "swr";
-import { GetEventMapResponse } from "../gen/proto/event_map_api/v1/event_map_api_pb";
+import { GetEventMapResponse } from "../../gen/proto/event_map_api/v1/event_map_api_pb";
 import { Session } from "@supabase/auth-helpers-react";
-import GenerateAuthHeader from "../utils/generate-auth-header";
+import GenerateAuthHeader from "../../utils/generate-auth-header";
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { clsx } from "clsx";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
-import { SwrKeys } from "../constants";
-import { MapModalMode } from "./MapModal";
+import { SwrKeys } from "../../constants";
+import { MapModalMode } from "../../components/MapModal";
 import { useRouter } from "next/navigation";
 
 interface MapListProps {
@@ -19,7 +19,7 @@ interface MapListProps {
 
 export default function MapList(props: MapListProps) {
 	const client = useClient(EventMapService);
-	const { data } = useSWR(SwrKeys.MAPS, () =>
+	const { data, isLoading } = useSWR(SwrKeys.MAPS, () =>
 		client
 			.getAllEventMaps(
 				{
@@ -32,11 +32,15 @@ export default function MapList(props: MapListProps) {
 			}),
 	);
 
-	if (!data) {
-		return null;
+	if (isLoading) {
+		return (
+			<div className="text-center text-xl text-gray-500 mt-8">
+				<div>Loading maps...</div>
+			</div>
+		);
 	}
 
-	if (data.length === 0) {
+	if (!data || data.length === 0) {
 		return (
 			<div className="text-center text-xl text-gray-500 mt-8">
 				<div>{"You don't have any maps yet!"}</div>

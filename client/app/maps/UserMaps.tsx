@@ -1,23 +1,20 @@
-import { PlusIcon } from "@heroicons/react/24/outline";
+"use client";
+
 import Header from "../../components/Header";
+import MapModal, {
+	MapModalData,
+	MapModalMode,
+} from "../../components/MapModal";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { Session } from "@supabase/auth-helpers-react";
-import {
-	GetServerSidePropsContext,
-	GetServerSidePropsResult,
-} from "next/types";
-import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
-import MapList from "../../components/MapList";
-import MapModal, {
-	MapModalMode,
-	MapModalData,
-} from "../../components/MapModal";
+import MapList from "./MapList";
 
-interface PageProps {
+interface UserMapsProps {
 	session: Session;
 }
 
-export default function Page(props: PageProps) {
+export default function UserMaps(props: UserMapsProps) {
 	const [modalData, setModalData] = useState<MapModalData | null>(null);
 
 	return (
@@ -55,27 +52,4 @@ export default function Page(props: PageProps) {
 			</div>
 		</div>
 	);
-}
-
-export async function getServerSideProps(
-	ctx: GetServerSidePropsContext,
-): Promise<GetServerSidePropsResult<PageProps>> {
-	const supabase = createServerSupabaseClient(ctx);
-	const {
-		data: { session },
-	} = await supabase.auth.getSession();
-
-	if (!session)
-		return {
-			redirect: {
-				destination: "/",
-				permanent: false,
-			},
-		};
-
-	return {
-		props: {
-			session,
-		},
-	};
 }

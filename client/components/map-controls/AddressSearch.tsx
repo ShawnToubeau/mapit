@@ -10,8 +10,8 @@ import EventForm from "../EventForm";
 
 import { Session } from "@supabase/auth-helpers-react";
 import GenerateAuthHeader from "../../utils/generate-auth-header";
-import { useAuth } from "../../context/auth-context";
 import { clsx } from "clsx";
+import { useSupabase } from "../../context/supabase-provider";
 
 interface AddressSearchProps {
 	mapId: string;
@@ -19,7 +19,7 @@ interface AddressSearchProps {
 
 export default function AddressSearch(props: AddressSearchProps) {
 	const map = useMap();
-	const { session } = useAuth();
+	const { session } = useSupabase();
 	// this helps persist the searched term once a user performs the search
 	const [persistentSearch, setPersistentSearch] = useState<string>("");
 	const [address, setAddress] = useState<SearchAddressResponse | null>(null);

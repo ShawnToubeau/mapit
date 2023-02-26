@@ -4,6 +4,7 @@ const nextConfig = {
 	swcMinify: true,
 	experimental: {
 		runtime: "experimental-edge",
+		appDir: true,
 	},
 	/**
 	 * this fixes an issue where the generated connect-web code imports protobuffer definitions

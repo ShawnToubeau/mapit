@@ -1,3 +1,5 @@
+"use client";
+
 import { Fragment } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import {
@@ -7,10 +9,10 @@ import {
 	MapIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 import AccountDropdown from "./AccountDropdown";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useSupabase } from "../context/supabase-provider";
 
 const solutions = [
 	{
@@ -26,8 +28,7 @@ interface HeaderProps {
 
 export default function Header(props: HeaderProps) {
 	const router = useRouter();
-	const supabaseClient = useSupabaseClient();
-	const user = useUser();
+	const { supabase, session } = useSupabase();
 
 	return (
 		<Popover className="relative bg-white flex">
@@ -42,12 +43,12 @@ export default function Header(props: HeaderProps) {
 				</div>
 				<div className="hidden md:flex md:items-center md:justify-end">
 					<div className="flex items-center">
-						{user ? (
-							<AccountDropdown user={user} />
+						{session?.user ? (
+							<AccountDropdown user={session.user} />
 						) : (
 							<Link
 								href="/auth"
-								className="ml-8 inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+								className="ml-8 inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 cursor-pointer"
 							>
 								Sign in
 							</Link>
@@ -83,7 +84,7 @@ export default function Header(props: HeaderProps) {
 							</div>
 							<div className="mt-6">
 								<nav className="grid gap-6">
-									{user && (
+									{session?.user && (
 										<Link
 											href="/#"
 											className="-m-3 flex items-center rounded-lg p-3 cursor-default"
@@ -96,7 +97,9 @@ export default function Header(props: HeaderProps) {
 											</div>
 											<div className="ml-4 text-base font-medium text-gray-900 flex">
 												<div>My Account</div>
-												<div className="ml-1 text-gray-400">({user.email})</div>
+												<div className="ml-1 text-gray-400">
+													({session.user.email})
+												</div>
 											</div>
 										</Link>
 									)}
@@ -118,11 +121,11 @@ export default function Header(props: HeaderProps) {
 							</div>
 						</div>
 						<div className="py-6 px-5">
-							<p className="text-center">
-								{user ? (
+							<div className="text-center">
+								{session?.user ? (
 									<button
 										onClick={() => {
-											supabaseClient.auth
+											supabase.auth
 												.signOut()
 												.then(() => {
 													// redirect if we're on a protected route
@@ -141,12 +144,12 @@ export default function Header(props: HeaderProps) {
 								) : (
 									<Link
 										href="/auth"
-										className="text-indigo-600 hover:text-indigo-500"
+										className="text-indigo-600 hover:text-indigo-500 cursor-pointer"
 									>
 										Sign in
 									</Link>
 								)}
-							</p>
+							</div>
 						</div>
 					</div>
 				</Popover.Panel>
