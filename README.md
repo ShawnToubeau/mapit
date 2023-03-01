@@ -31,6 +31,7 @@ The `./client` directory contains a `.env.local` file which holds Supabase conne
 
 ### Client
 
-| Command          | Description                    |
-|------------------|--------------------------------|
-| `yarn dev`       | Starts the client on port 3000 |
+| Command                   | Description                         |
+|---------------------------|-------------------------------------|
+| `yarn dev`                | Starts the client on port 3000      |
+| `ANALYZE=true yarn build` | Build and analyze the client bundle |
