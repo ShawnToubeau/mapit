@@ -14,6 +14,7 @@ import { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
 import {
 	FooterHeight,
 	HeaderHeight,
+	MarkerHeight,
 	MobileLayoutBreakpoint,
 	SwrKeys,
 } from "../constants";
@@ -187,8 +188,8 @@ function EventCard(props: EventCardProps) {
 									if (props.map && !!popupHeight) {
 										// convert our marker lat/lng to pixel values
 										const px = props.map.project(marker.getLatLng());
-										// translate the y-value by half of the popup's height
-										px.y -= popupHeight / 2;
+										// translate the y-value by half of the popup's height + the marker height
+										px.y -= popupHeight / 2 + MarkerHeight;
 										// convert back to a lat/lng and fly there, centering the popup in view
 										// TODO it doesn't not account for zoom atm
 										props.map.flyTo(props.map.unproject(px));

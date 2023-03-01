@@ -12,6 +12,7 @@ import { Session } from "@supabase/auth-helpers-react";
 import GenerateAuthHeader from "../../utils/generate-auth-header";
 import { clsx } from "clsx";
 import { useSupabase } from "../../context/supabase-provider";
+import { MarkerHeight } from "../../constants";
 
 interface AddressSearchProps {
 	mapId: string;
@@ -35,8 +36,8 @@ export default function AddressSearch(props: AddressSearchProps) {
 			if (popupHeight && latLng) {
 				// convert our lat/lng to pixel values
 				const px = map.project(latLng);
-				// translate the y-value by half of the popup's height
-				px.y -= popupHeight / 2;
+				// translate the y-value by half of the popup's height + the marker height
+				px.y -= popupHeight / 2 + MarkerHeight;
 				// convert back to a lat/lng and fly there, centering the popup in view
 				map.flyTo(map.unproject(px));
 			}
