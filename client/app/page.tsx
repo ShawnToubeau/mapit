@@ -9,7 +9,7 @@ export default function Page() {
 
 			<div className="flex flex-col justify-center items-center pt-4">
 				<div className="text-2xl">Welcome!</div>
-				<div>
+				<div className="text-center px-4">
 					This section is still under construction but feel free to create an
 					account and take a look around.
 				</div>
