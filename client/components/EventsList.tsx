@@ -16,7 +16,7 @@ import {
 	HeaderHeight,
 	InputHeight,
 	MarkerHeight,
-	MobileLayoutBreakpoint,
+	LargeBreakpoint,
 	SwrKeys,
 } from "../constants";
 
@@ -62,7 +62,7 @@ export default function EventsList(props: EventsListProps) {
 
 	// the amount of height we need to subtract to size the event list
 	const subtractedListHeight = useMemo(() => {
-		if (width > MobileLayoutBreakpoint) {
+		if (width > LargeBreakpoint) {
 			return HeaderHeight;
 		}
 

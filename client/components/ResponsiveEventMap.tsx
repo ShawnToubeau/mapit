@@ -6,7 +6,7 @@ import NavigationFooter, { MobileView } from "./NavigationFooter";
 import EventsList from "./EventsList";
 import { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
 import EventMap from "./EventMap";
-import { MobileLayoutBreakpoint } from "../constants";
+import { LargeBreakpoint } from "../constants";
 
 export type EventMarkerSetter = (
 	eventId: string,
@@ -19,7 +19,7 @@ interface ResponsiveEventMapProps {
 
 export default function ResponsiveEventMap(props: ResponsiveEventMapProps) {
 	const width = useWindowWidth();
-	return width > MobileLayoutBreakpoint ? (
+	return width > LargeBreakpoint ? (
 		<DesktopLayout {...props} />
 	) : (
 		<MobileLayout {...props} />

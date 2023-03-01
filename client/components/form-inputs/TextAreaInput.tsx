@@ -32,7 +32,7 @@ export default function TextAreaInput({
 				)}
 				style={{
 					width: 300,
-					height: 124,
+					height: 80,
 				}}
 			/>
 			<ErrorMessage

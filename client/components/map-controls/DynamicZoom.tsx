@@ -1,10 +1,10 @@
 import useWindowWidth from "../../hooks/use-window-width";
 import { ZoomControl } from "react-leaflet";
-import { MobileLayoutBreakpoint } from "../../constants";
+import { LargeBreakpoint } from "../../constants";
 
 export default function DynamicZoomControl() {
 	const width = useWindowWidth();
-	if (width < MobileLayoutBreakpoint) {
+	if (width < LargeBreakpoint) {
 		return null;
 	}
 

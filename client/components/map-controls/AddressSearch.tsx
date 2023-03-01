@@ -12,7 +12,8 @@ import { Session } from "@supabase/auth-helpers-react";
 import GenerateAuthHeader from "../../utils/generate-auth-header";
 import { clsx } from "clsx";
 import { useSupabase } from "../../context/supabase-provider";
-import { InputHeight, MarkerHeight } from "../../constants";
+import { InputHeight, MediumBreakpoint } from "../../constants";
+import useWindowWidth from "../../hooks/use-window-width";
 
 interface AddressSearchProps {
 	mapId: string;
@@ -20,6 +21,7 @@ interface AddressSearchProps {
 
 export default function AddressSearch(props: AddressSearchProps) {
 	const map = useMap();
+	const width = useWindowWidth();
 	const { session } = useSupabase();
 	// this helps persist the searched term once a user performs the search
 	const [persistentSearch, setPersistentSearch] = useState<string>("");
@@ -37,7 +39,7 @@ export default function AddressSearch(props: AddressSearchProps) {
 				// convert our lat/lng to pixel values
 				const px = map.project(latLng);
 				// translate the y-value by half of the popup's height + the marker height
-				px.y -= popupHeight / 2 + MarkerHeight;
+				px.y -= popupHeight / 2;
 				// convert back to a lat/lng and fly there, centering the popup in view
 				map.flyTo(map.unproject(px));
 			}
@@ -88,21 +90,29 @@ export default function AddressSearch(props: AddressSearchProps) {
 			<div className="flex">
 				<input
 					type="text"
-					className="mr-1 map-control-border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm pl-2"
+					className="mr-1 map-control-border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm pl-2"
 					placeholder="Search for an address"
 					value={searchTerm}
-					onChange={(e) => {
-						e.stopPropagation();
-						e.preventDefault();
-						setSearchTerm(e.target.value);
+					onChange={(event) => {
+						event.stopPropagation();
+						event.preventDefault();
+						setSearchTerm(event.target.value);
+					}}
+					onKeyDown={(event) => {
+						if (event.key === "Enter" && searchTerm.length > 0) {
+							searchAddress();
+						}
 					}}
 					style={{
-						width: 200,
+						height: InputHeight,
+						// the input will take full width across the screen on smaller resolutions.
+						// there was no control that offered this type of positioning
+						width: width > MediumBreakpoint ? 300 : `calc(100vw - 20px)`,
 					}}
 				/>
 				<div
 					className={clsx(
-						"bg-white flex justify-center map-control-border rounded-md",
+						"hidden bg-white md:flex justify-center map-control-border rounded-md",
 						{
 							"bg-zinc-200 cursor-not-allowed": searchTerm.length === 0,
 							"hover:bg-zinc-100 cursor-pointer": searchTerm.length > 0,
