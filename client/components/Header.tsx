@@ -36,10 +36,19 @@ export default function Header(props: HeaderProps) {
 				<HeaderLogo {...props} />
 
 				<div className="flex md:hidden">
-					<Popover.Button className="inline-flex items-center justify-center rounded-md bg-white text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
-						<span className="sr-only">Open menu</span>
-						<Bars3Icon className="h-8 w-8" aria-hidden="true" />
-					</Popover.Button>
+					{session?.user ? (
+						<Popover.Button className="inline-flex items-center justify-center rounded-md bg-white text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+							<span className="sr-only">Open menu</span>
+							<Bars3Icon className="h-8 w-8" aria-hidden="true" />
+						</Popover.Button>
+					) : (
+						<Link
+							href="/auth"
+							className="ml-8 inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 cursor-pointer"
+						>
+							Sign in
+						</Link>
+					)}
 				</div>
 				<div className="hidden md:flex md:items-center md:justify-end">
 					<div className="flex items-center">
