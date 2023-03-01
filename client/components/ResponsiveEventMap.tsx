@@ -1,12 +1,12 @@
 "use client";
 
-import useWindowDimensions from "../hooks/use-window-dimensions";
+import useWindowWidth from "../hooks/use-window-width";
 import React, { useState } from "react";
 import NavigationFooter, { MobileView } from "./NavigationFooter";
 import EventsList from "./EventsList";
 import { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
-import { MobileLayoutBreakpoint } from "../constants";
 import EventMap from "./EventMap";
+import { MobileLayoutBreakpoint } from "../constants";
 
 export type EventMarkerSetter = (
 	eventId: string,
@@ -18,7 +18,7 @@ interface ResponsiveEventMapProps {
 }
 
 export default function ResponsiveEventMap(props: ResponsiveEventMapProps) {
-	const { width } = useWindowDimensions();
+	const width = useWindowWidth();
 	return width > MobileLayoutBreakpoint ? (
 		<DesktopLayout {...props} />
 	) : (

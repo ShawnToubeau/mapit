@@ -8,7 +8,7 @@ import FormatDate from "../utils/format-date";
 import Image from "next/image";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
-import useWindowDimensions from "../hooks/use-window-dimensions";
+import useWindowWidth from "../hooks/use-window-width";
 import { AnonAuthHeader } from "../utils/generate-auth-header";
 import { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
 import {
@@ -46,7 +46,7 @@ interface EventsListProps {
 }
 
 export default function EventsList(props: EventsListProps) {
-	const { width } = useWindowDimensions();
+	const width = useWindowWidth();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [sortOrder, setSortOrder] = useState(SortOrder.ALPHABETICAL_ASCENDING);
 	const client = useClient(EventService);
