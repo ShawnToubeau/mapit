@@ -14,6 +14,7 @@ import { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
 import {
 	FooterHeight,
 	HeaderHeight,
+	InputHeight,
 	MarkerHeight,
 	MobileLayoutBreakpoint,
 	SwrKeys,
@@ -83,7 +84,7 @@ export default function EventsList(props: EventsListProps) {
 					placeholder="Search events"
 					value={searchTerm}
 					style={{
-						height: 30,
+						height: InputHeight,
 					}}
 					onChange={(event) => setSearchTerm(event.target.value)}
 				/>

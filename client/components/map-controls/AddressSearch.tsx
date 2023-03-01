@@ -12,7 +12,7 @@ import { Session } from "@supabase/auth-helpers-react";
 import GenerateAuthHeader from "../../utils/generate-auth-header";
 import { clsx } from "clsx";
 import { useSupabase } from "../../context/supabase-provider";
-import { MarkerHeight } from "../../constants";
+import { InputHeight, MarkerHeight } from "../../constants";
 
 interface AddressSearchProps {
 	mapId: string;
@@ -109,8 +109,8 @@ export default function AddressSearch(props: AddressSearchProps) {
 						},
 					)}
 					style={{
-						width: 30,
-						height: 30,
+						width: InputHeight,
+						height: InputHeight,
 					}}
 				>
 					<Image

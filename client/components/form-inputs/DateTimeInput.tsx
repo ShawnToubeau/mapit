@@ -2,6 +2,7 @@ import { DetailedHTMLProps, InputHTMLAttributes } from "react";
 import { FieldProps } from "formik/dist/Field";
 import { clsx } from "clsx";
 import { ErrorMessage } from "formik";
+import { InputHeight } from "../../constants";
 
 interface DateInputProps extends FieldProps<number> {
 	inputProps?: DetailedHTMLProps<
@@ -21,8 +22,11 @@ export default function DateTimeInput({
 			<input
 				{...inputProps}
 				type="datetime-local"
+				style={{
+					height: InputHeight,
+				}}
 				className={clsx(
-					"block w-full rounded-md border-gray-300 shadow-sm sm:text-sm pl-2 h-8 outline-none",
+					"block w-full rounded-md border-gray-300 shadow-sm sm:text-sm pl-2 outline-none",
 					{
 						"focus:border-indigo-500 focus:border-2": !showError,
 						"border-red-500 focus:border-2": showError,
