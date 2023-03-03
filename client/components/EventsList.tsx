@@ -2,7 +2,7 @@ import { useClient } from "../hooks/use-client";
 import { EventService } from "../gen/proto/event_api/v1/event_api_connectweb";
 import useSWR from "swr";
 import { GetEventResponse } from "../gen/proto/event_api/v1/event_api_pb";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { clsx } from "clsx";
 import FormatDate from "../utils/format-date";
 import { Listbox, Transition } from "@headlessui/react";
@@ -154,7 +154,26 @@ interface EventCardProps extends EventsListProps {
 }
 
 function EventCard(props: EventCardProps) {
-	const [clampLines, setClampLines] = useState(true);
+	const [isClamped, setIsClamped] = useState(false);
+	const [isExpanded, setIsExpanded] = useState(true);
+	const descRef = useRef<HTMLDivElement | null>(null);
+
+	// checks whether the description's text is clamped. clamped text will have a "show more" button
+	useEffect(() => {
+		function handleResize() {
+			if (descRef && descRef.current) {
+				setIsClamped(
+					descRef.current.scrollHeight > descRef.current.clientHeight,
+				);
+			}
+		}
+
+		// initial check
+		handleResize();
+		// re-runs check when the window resizes
+		window.addEventListener("resize", handleResize);
+		return () => window.removeEventListener("resize", handleResize);
+	}, [descRef]);
 
 	function goToEvent() {
 		const marker = props.eventMarkers.get(props.event.id);
@@ -217,19 +236,22 @@ function EventCard(props: EventCardProps) {
 				</div>
 			</div>
 			<div
+				ref={descRef}
 				className={clsx({
-					"line-clamp-6": clampLines,
+					"line-clamp-6": isExpanded,
 				})}
 			>
 				<div className="inline mr-1 font-bold">Description:</div>
 				<div className="inline">{props.event.description}</div>
 			</div>
-			<button
-				className="text-gray-600 hover:underline mt-1"
-				onClick={() => setClampLines(!clampLines)}
-			>
-				{clampLines ? "Show more" : "Show less"}
-			</button>
+			{isClamped && (
+				<button
+					className="text-gray-600 hover:underline mt-1"
+					onClick={() => setIsExpanded(!isExpanded)}
+				>
+					{isExpanded ? "Show more" : "Show less"}
+				</button>
+			)}
 		</>
 	);
 }
