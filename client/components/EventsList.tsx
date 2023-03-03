@@ -5,7 +5,6 @@ import { GetEventResponse } from "../gen/proto/event_api/v1/event_api_pb";
 import { Fragment, useMemo, useState } from "react";
 import { clsx } from "clsx";
 import FormatDate from "../utils/format-date";
-import Image from "next/image";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import useWindowWidth from "../hooks/use-window-width";
@@ -19,6 +18,7 @@ import {
 	LargeBreakpoint,
 	SwrKeys,
 } from "../constants";
+import { MapPinIcon, EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 
 enum SortOrder {
 	ALPHABETICAL_ASCENDING = "alphabetical_ascending",
@@ -52,7 +52,7 @@ export default function EventsList(props: EventsListProps) {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [sortOrder, setSortOrder] = useState(SortOrder.ALPHABETICAL_ASCENDING);
 	const client = useClient(EventService);
-	const { data } = useSWR(SwrKeys.EVENT_MARKERS, () =>
+	const { data, isLoading } = useSWR(SwrKeys.EVENT_MARKERS, () =>
 		client
 			.getAllEvents({ parentMapId: props.mapId }, { headers: AnonAuthHeader() })
 			.then((res) => {
@@ -91,7 +91,12 @@ export default function EventsList(props: EventsListProps) {
 				<SortOrderDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} />
 			</div>
 
-			<div className="overflow-auto mt-2">
+			<div className="overflow-auto mt-2 border-t-gray-300 border-t">
+				{isLoading ? (
+					<div className="text-center text-xl text-gray-500 mt-8">
+						<div>Loading events...</div>
+					</div>
+				) : null}
 				{data &&
 					sortEvents(filterEvents(data, searchTerm), sortOrder).map(
 						(event, index) => (
@@ -99,7 +104,7 @@ export default function EventsList(props: EventsListProps) {
 								key={event.id}
 								className={clsx("py-2 pl-4", {
 									"mt-2": index > 0, // margin on every card except the first
-									"bg-slate-200": index % 2 === 0, // alternating background colors
+									"bg-gray-100": index % 2 === 1, // alternating background colors
 								})}
 							>
 								<EventCard {...props} event={event} />
@@ -151,9 +156,40 @@ interface EventCardProps extends EventsListProps {
 function EventCard(props: EventCardProps) {
 	const [clampLines, setClampLines] = useState(true);
 
+	function goToEvent() {
+		const marker = props.eventMarkers.get(props.event.id);
+		if (marker) {
+			// below code is taken from here https://stackoverflow.com/a/23960984/7627620
+			// first, open the popup
+			marker.openPopup();
+			// wait 20 ms for the popup container to populate in the DOM
+			setTimeout(() => {
+				const popupHeight = marker.getPopup()?.getElement()?.clientHeight;
+				if (props.map && !!popupHeight) {
+					// convert our marker lat/lng to pixel values
+					const px = props.map.project(marker.getLatLng());
+					// translate the y-value by half of the popup's height + the marker height
+					px.y -= popupHeight / 2 + MarkerHeight;
+					// convert back to a lat/lng and fly there, centering the popup in view
+					// TODO it doesn't not account for zoom atm
+					props.map.flyTo(props.map.unproject(px));
+					props.onEventLocationSelect?.();
+				} else {
+					console.error(
+						"map ref or popup height are undefined",
+						props.map,
+						popupHeight,
+					);
+				}
+			}, 20);
+		} else {
+			console.error("marker ref undefined");
+		}
+	}
+
 	return (
-		<Fragment>
-			<div className="flex">
+		<>
+			<div className="flex justify-between gap-4">
 				<div>
 					<div>
 						<div className="inline mr-1 font-bold">Name:</div>
@@ -168,54 +204,16 @@ function EventCard(props: EventCardProps) {
 						<div className="inline">{FormatDate(props.event.endTime)}</div>
 					</div>
 				</div>
-				<div className="flex ml-auto h-fit mt-1 mr-5 ml-1">
-					<Image
-						className="icon"
-						src="/location-dot-icon.svg"
-						alt="Edit"
-						width={12}
-						height={12}
-						onClick={() => {
-							const marker = props.eventMarkers.get(props.event.id);
-							if (marker) {
-								// below code is taken from here https://stackoverflow.com/a/23960984/7627620
-								// first, open the popup
-								marker.openPopup();
-								// wait 20 ms for the popup container to populate in the DOM
-								setTimeout(() => {
-									const popupHeight = marker
-										.getPopup()
-										?.getElement()?.clientHeight;
-									if (props.map && !!popupHeight) {
-										// convert our marker lat/lng to pixel values
-										const px = props.map.project(marker.getLatLng());
-										// translate the y-value by half of the popup's height + the marker height
-										px.y -= popupHeight / 2 + MarkerHeight;
-										// convert back to a lat/lng and fly there, centering the popup in view
-										// TODO it doesn't not account for zoom atm
-										props.map.flyTo(props.map.unproject(px));
-										props.onEventLocationSelect?.();
-									} else {
-										console.error(
-											"map ref or popup height are undefined",
-											props.map,
-											popupHeight,
-										);
-									}
-								}, 20);
-							} else {
-								console.error("marker ref undefined");
-							}
-						}}
-					/>
-					<Image
-						className="icon ml-2"
-						src="/ellipsis-vertical-icon.svg"
-						alt="Edit"
-						width={6}
-						height={6}
-						// onClick={(event) => {}}
-					/>
+				<div className="flex items-start mr-1">
+					<button
+						className="rounded-full p-2 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+						onClick={goToEvent}
+					>
+						<MapPinIcon className="icon h-5 w-5" />
+					</button>
+					<button className="rounded-full p-2 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600">
+						<EllipsisVerticalIcon className="icon h-6 w-6" />
+					</button>
 				</div>
 			</div>
 			<div
@@ -232,7 +230,7 @@ function EventCard(props: EventCardProps) {
 			>
 				{clampLines ? "Show more" : "Show less"}
 			</button>
-		</Fragment>
+		</>
 	);
 }
 
