@@ -104,9 +104,9 @@ export default function Header(props: HeaderProps) {
 													aria-hidden="true"
 												/>
 											</div>
-											<div className="ml-4 text-base font-medium text-gray-900 flex">
+											<div className="ml-4 text-base font-medium text-gray-900 flex flex-col">
 												<div>My Account</div>
-												<div className="ml-1 text-gray-400">
+												<div className="text-gray-400">
 													({session.user.email})
 												</div>
 											</div>
