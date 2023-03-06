@@ -5,7 +5,6 @@ import "../styles/global.scss";
 import SupabaseProvider from "../context/supabase-provider";
 import { createServerClient } from "../utils/supabase-server";
 import SupabaseListener from "../components/SupabaseListener";
-import { Analytics } from "@vercel/analytics/react";
 
 // do not cache this layout
 export const revalidate = 0;
@@ -27,7 +26,6 @@ export default async function RootLayout({
 					<SupabaseListener serverAccessToken={session?.access_token} />
 					{children}
 				</SupabaseProvider>
-				<Analytics />
 			</body>
 		</html>
 	);
