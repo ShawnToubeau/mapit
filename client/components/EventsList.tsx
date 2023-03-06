@@ -180,6 +180,7 @@ function EventCard(props: EventCardProps) {
 		const eventMarker = props.eventMarkers.get(props.event.id);
 		if (eventMarker) {
 			eventMarker.marker.openPopup();
+			props.onEventLocationSelect?.();
 		} else {
 			console.error("marker ref undefined");
 		}
