@@ -7,11 +7,11 @@ import GenerateAuthHeader, {
 import { Fragment, useEffect, useRef, useState } from "react";
 import { GetEventResponse } from "../../gen/proto/event_api/v1/event_api_pb";
 import { LatLng, Marker as LeafletMarker } from "leaflet";
-import { Marker, Popup } from "react-leaflet";
+import { Marker, Popup, useMap } from "react-leaflet";
 import EventForm from "../EventForm";
 import FormatDate from "../../utils/format-date";
 import Image from "next/image";
-import { SwrKeys } from "../../constants";
+import { MarkerHeight, SwrKeys } from "../../constants";
 import { EventMarker } from "../ResponsiveEventMap";
 import { useSupabase } from "../../context/supabase-provider";
 
@@ -69,6 +69,7 @@ interface EventMarkerProps {
 }
 
 function EventMarker(props: EventMarkerProps) {
+	const map = useMap();
 	const markerRef = useRef<LeafletMarker | null>(null);
 	const [view, setView] = useState(EventMarkerViews.READ);
 
@@ -94,6 +95,21 @@ function EventMarker(props: EventMarkerProps) {
 					setTimeout(() => {
 						setView(EventMarkerViews.READ);
 					}, 100);
+				},
+				popupopen: (event) => {
+					setTimeout(() => {
+						const popupHeight = event.popup.getElement()?.clientHeight;
+						const popupLatLng = event.popup.getLatLng();
+						if (map && !!popupHeight && !!popupLatLng) {
+							// convert our marker lat/lng to pixel values
+							const px = map.project(popupLatLng);
+							// translate the y-value by half of the popup's height + the marker height
+							px.y -= popupHeight / 2 + MarkerHeight;
+							// convert back to a lat/lng and fly there, centering the popup in view
+							// TODO it doesn't not account for zoom atm
+							map.flyTo(map.unproject(px));
+						}
+					}, 20);
 				},
 			}}
 		>
