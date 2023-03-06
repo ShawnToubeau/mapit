@@ -5,20 +5,22 @@ import { GetEventResponse } from "../gen/proto/event_api/v1/event_api_pb";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { clsx } from "clsx";
 import FormatDate from "../utils/format-date";
-import { Listbox, Transition } from "@headlessui/react";
+import { Listbox, Menu, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import useWindowWidth from "../hooks/use-window-width";
 import { AnonAuthHeader } from "../utils/generate-auth-header";
-import { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
+import { Map as LeafletMap } from "leaflet";
 import {
 	FooterHeight,
 	HeaderHeight,
 	InputHeight,
-	MarkerHeight,
 	LargeBreakpoint,
+	MarkerHeight,
 	SwrKeys,
 } from "../constants";
-import { MapPinIcon, EllipsisVerticalIcon } from "@heroicons/react/24/outline";
+import { EllipsisVerticalIcon, MapPinIcon } from "@heroicons/react/24/outline";
+import { EventMarkerViews } from "./map-controls/EventMarkers";
+import { EventMarker } from "./ResponsiveEventMap";
 
 enum SortOrder {
 	ALPHABETICAL_ASCENDING = "alphabetical_ascending",
@@ -43,7 +45,7 @@ function sortOrderToString(sortOrder: SortOrder): string {
 interface EventsListProps {
 	mapId: string;
 	map: LeafletMap | null;
-	eventMarkers: Map<string, LeafletMarker>;
+	eventMarkers: Map<string, EventMarker>;
 	onEventLocationSelect?: () => void;
 }
 
@@ -176,17 +178,19 @@ function EventCard(props: EventCardProps) {
 	}, [descRef]);
 
 	function goToEvent() {
-		const marker = props.eventMarkers.get(props.event.id);
-		if (marker) {
+		const eventMarker = props.eventMarkers.get(props.event.id);
+		if (eventMarker) {
 			// below code is taken from here https://stackoverflow.com/a/23960984/7627620
 			// first, open the popup
-			marker.openPopup();
+			eventMarker.marker.openPopup();
 			// wait 20 ms for the popup container to populate in the DOM
 			setTimeout(() => {
-				const popupHeight = marker.getPopup()?.getElement()?.clientHeight;
+				const popupHeight = eventMarker.marker
+					.getPopup()
+					?.getElement()?.clientHeight;
 				if (props.map && !!popupHeight) {
 					// convert our marker lat/lng to pixel values
-					const px = props.map.project(marker.getLatLng());
+					const px = props.map.project(eventMarker.marker.getLatLng());
 					// translate the y-value by half of the popup's height + the marker height
 					px.y -= popupHeight / 2 + MarkerHeight;
 					// convert back to a lat/lng and fly there, centering the popup in view
@@ -230,9 +234,75 @@ function EventCard(props: EventCardProps) {
 					>
 						<MapPinIcon className="icon h-5 w-5" />
 					</button>
-					<button className="rounded-full p-2 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600">
-						<EllipsisVerticalIcon className="icon h-6 w-6" />
-					</button>
+					<Menu as="div" className="relative inline-block text-left">
+						<div>
+							<Menu.Button className="flex items-center rounded-full p-2 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600">
+								<span className="sr-only">Open options</span>
+								<EllipsisVerticalIcon className="h-5 w-5" aria-hidden="true" />
+							</Menu.Button>
+						</div>
+
+						<Transition
+							as={Fragment}
+							enter="transition ease-out duration-100"
+							enterFrom="transform opacity-0 scale-95"
+							enterTo="transform opacity-100 scale-100"
+							leave="transition ease-in duration-75"
+							leaveFrom="transform opacity-100 scale-100"
+							leaveTo="transform opacity-0 scale-95"
+						>
+							<Menu.Items className="absolute right-0 z-10 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+								<div className="">
+									<Menu.Item>
+										{({ active }) => (
+											<div
+												className={clsx(
+													active
+														? "bg-gray-100 text-gray-900"
+														: "text-gray-700",
+													"flex w-full justify-between px-4 py-2 text-sm",
+												)}
+												onClick={() => {
+													goToEvent();
+													const eventMarker = props.eventMarkers.get(
+														props.event.id,
+													);
+													if (eventMarker) {
+														eventMarker.setView(EventMarkerViews.EDIT);
+													}
+												}}
+											>
+												<span>Edit event</span>
+											</div>
+										)}
+									</Menu.Item>
+									<Menu.Item>
+										{({ active }) => (
+											<div
+												className={clsx(
+													active
+														? "bg-gray-100 text-gray-900"
+														: "text-gray-700",
+													"flex justify-between px-4 py-2 text-sm",
+												)}
+												onClick={() => {
+													goToEvent();
+													const eventMarker = props.eventMarkers.get(
+														props.event.id,
+													);
+													if (eventMarker) {
+														eventMarker.setView(EventMarkerViews.DELETE);
+													}
+												}}
+											>
+												<span>Delete event</span>
+											</div>
+										)}
+									</Menu.Item>
+								</div>
+							</Menu.Items>
+						</Transition>
+					</Menu>
 				</div>
 			</div>
 			<div

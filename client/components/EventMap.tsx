@@ -1,4 +1,4 @@
-import { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
+import { Map as LeafletMap } from "leaflet";
 import { MapContainer, TileLayer, ScaleControl } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
@@ -9,13 +9,12 @@ import NewEventPopup from "./map-controls/NewEventPopup";
 import LocationMarker from "./map-controls/LocationMarker";
 import DynamicZoomControl from "./map-controls/DynamicZoom";
 import { useMemo } from "react";
-import { EventMarkerSetter } from "./ResponsiveEventMap";
+import { EventMarker } from "./ResponsiveEventMap";
 
 interface EventMapProps {
 	mapId: string;
 	setMap: (map: LeafletMap | null) => void;
-	eventMarkers: Map<string, LeafletMarker>;
-	setEventMarker: EventMarkerSetter;
+	eventMarkers: Map<string, EventMarker>;
 }
 
 export default function EventMap(props: EventMapProps) {
@@ -35,17 +34,13 @@ export default function EventMap(props: EventMapProps) {
 				/>
 				<LocationMarker />
 				<NewEventPopup mapId={props.mapId} />
-				<EventMarkers
-					mapId={props.mapId}
-					markers={props.eventMarkers}
-					setMarker={props.setEventMarker}
-				/>
+				<EventMarkers mapId={props.mapId} eventMarkers={props.eventMarkers} />
 				<ScaleControl />
 				<DynamicZoomControl />
 				<AddressSearch mapId={props.mapId} />
 			</MapContainer>
 		),
-		[props.mapId, props.setMap, props.eventMarkers, props.setEventMarker],
+		[props.mapId, props.setMap, props.eventMarkers],
 	);
 
 	return displayMap;

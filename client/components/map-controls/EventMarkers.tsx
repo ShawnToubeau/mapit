@@ -12,10 +12,10 @@ import EventForm from "../EventForm";
 import FormatDate from "../../utils/format-date";
 import Image from "next/image";
 import { SwrKeys } from "../../constants";
-import { EventMarkerSetter } from "../ResponsiveEventMap";
+import { EventMarker } from "../ResponsiveEventMap";
 import { useSupabase } from "../../context/supabase-provider";
 
-enum EventMarkerViews {
+export enum EventMarkerViews {
 	READ = "read",
 	EDIT = "edit",
 	DELETE = "delete",
@@ -23,8 +23,7 @@ enum EventMarkerViews {
 
 interface EventMarkersProps {
 	mapId: string;
-	markers: Map<string, LeafletMarker>;
-	setMarker: EventMarkerSetter;
+	eventMarkers: Map<string, EventMarker>;
 }
 
 export default function EventMarkers(props: EventMarkersProps) {
@@ -56,8 +55,7 @@ export default function EventMarkers(props: EventMarkersProps) {
 					mapId={props.mapId}
 					key={event.id}
 					event={event}
-					markers={props.markers}
-					setMarker={props.setMarker}
+					eventMarkers={props.eventMarkers}
 				/>
 			))}
 		</Fragment>
@@ -67,19 +65,21 @@ export default function EventMarkers(props: EventMarkersProps) {
 interface EventMarkerProps {
 	mapId: string;
 	event: GetEventResponse;
-	markers: Map<string, LeafletMarker>;
-	setMarker: EventMarkerSetter;
+	eventMarkers: Map<string, EventMarker>;
 }
 
 function EventMarker(props: EventMarkerProps) {
-	const [view, setView] = useState(EventMarkerViews.READ);
 	const markerRef = useRef<LeafletMarker | null>(null);
+	const [view, setView] = useState(EventMarkerViews.READ);
 
 	useEffect(() => {
 		if (markerRef.current) {
-			props.setMarker(props.event.id, markerRef.current);
+			props.eventMarkers.set(props.event.id, {
+				marker: markerRef.current,
+				setView: (view) => setView(view),
+			});
 		}
-	}, [markerRef, props.event.id]);
+	}, [markerRef, props.event.id, props.eventMarkers]);
 
 	return (
 		<Marker
@@ -88,28 +88,17 @@ function EventMarker(props: EventMarkerProps) {
 				lat: props.event.latitude,
 				lng: props.event.longitude,
 			}}
-			// popups have the same event handlers prop, but they don't seem to work
-			// handling the events on the marker allows us to reset state but requires prop drilling
 			eventHandlers={{
-				// this is actually being used even though IDEs will say it isn't
-				// TODO this could maybe be done though a ref instead
 				popupclose: () => {
-					// wait for the popup to close before resetting state
+					// wait for the popup to close before resetting the view
 					setTimeout(() => {
 						setView(EventMarkerViews.READ);
-					}, 200);
+					}, 100);
 				},
 			}}
 		>
 			<Popup autoPan>
-				<EventPopupContent
-					mapId={props.mapId}
-					event={props.event}
-					view={view}
-					setView={setView}
-					markers={props.markers}
-					setMarker={props.setMarker}
-				/>
+				<EventPopupContent {...props} view={view} setView={setView} />
 			</Popup>
 		</Marker>
 	);
@@ -118,7 +107,6 @@ function EventMarker(props: EventMarkerProps) {
 interface EventPopupProps extends EventMarkerProps {
 	view: EventMarkerViews;
 	setView: (view: EventMarkerViews) => void;
-	markers: Map<string, LeafletMarker>;
 }
 
 function EventPopupContent(props: EventPopupProps) {
@@ -224,8 +212,8 @@ function DeleteEventPopup(props: EventPopupProps) {
 		<div>
 			<div className="flex flex-col">
 				<div className="text-lg">
-					Are you sure you wish to delete this event?
-					<div className="font-bold inline-block ml-1">{props.event.name}</div>
+					<div>Are you sure you wish to delete this event?</div>
+					<div className="font-bold inline-block">{props.event.name}</div>
 				</div>
 				<div className="flex justify-center gap-2 mt-2">
 					<button
@@ -252,9 +240,9 @@ function DeleteEventPopup(props: EventPopupProps) {
 								.then(async () => {
 									// re-fetch events shown on the event_map
 									await mutate(SwrKeys.EVENT_MARKERS);
-									const marker = props.markers.get(props.event.id);
-									if (marker) {
-										marker.closePopup();
+									const eventMarker = props.eventMarkers.get(props.event.id);
+									if (eventMarker) {
+										eventMarker.marker.closePopup();
 									}
 								})
 								.catch((error) => {
