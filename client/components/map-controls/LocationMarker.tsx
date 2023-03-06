@@ -54,7 +54,7 @@ export default function LocationMarker() {
 				</Marker>
 			)}
 			<Control prepend position="bottomright">
-				<div className="p-1 rounded-md bg-white map-control-border hover:bg-zinc-100 cursor-pointer">
+				<div className="p-3 lg:p-1 rounded-full lg:rounded-md bg-white map-control-border hover:bg-zinc-100 cursor-pointer">
 					<Image
 						src="/location-crosshairs-icon.svg"
 						alt="Locate me"

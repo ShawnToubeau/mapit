@@ -2,21 +2,24 @@ import { useClient } from "../hooks/use-client";
 import { EventService } from "../gen/proto/event_api/v1/event_api_connectweb";
 import useSWR from "swr";
 import { GetEventResponse } from "../gen/proto/event_api/v1/event_api_pb";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { clsx } from "clsx";
 import FormatDate from "../utils/format-date";
-import Image from "next/image";
-import { Listbox, Transition } from "@headlessui/react";
+import { Listbox, Menu, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
-import useWindowDimensions from "../hooks/use-window-dimensions";
+import useWindowWidth from "../hooks/use-window-width";
 import { AnonAuthHeader } from "../utils/generate-auth-header";
-import { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
+import { Map as LeafletMap } from "leaflet";
 import {
 	FooterHeight,
 	HeaderHeight,
-	MobileLayoutBreakpoint,
+	InputHeight,
+	LargeBreakpoint,
 	SwrKeys,
 } from "../constants";
+import { EllipsisVerticalIcon, MapPinIcon } from "@heroicons/react/24/outline";
+import { EventMarkerViews } from "./map-controls/EventMarkers";
+import { EventMarker } from "./ResponsiveEventMap";
 
 enum SortOrder {
 	ALPHABETICAL_ASCENDING = "alphabetical_ascending",
@@ -41,16 +44,16 @@ function sortOrderToString(sortOrder: SortOrder): string {
 interface EventsListProps {
 	mapId: string;
 	map: LeafletMap | null;
-	eventMarkers: Map<string, LeafletMarker>;
+	eventMarkers: Map<string, EventMarker>;
 	onEventLocationSelect?: () => void;
 }
 
 export default function EventsList(props: EventsListProps) {
-	const { width } = useWindowDimensions();
+	const width = useWindowWidth();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [sortOrder, setSortOrder] = useState(SortOrder.ALPHABETICAL_ASCENDING);
 	const client = useClient(EventService);
-	const { data } = useSWR(SwrKeys.EVENT_MARKERS, () =>
+	const { data, isLoading } = useSWR(SwrKeys.EVENT_MARKERS, () =>
 		client
 			.getAllEvents({ parentMapId: props.mapId }, { headers: AnonAuthHeader() })
 			.then((res) => {
@@ -60,7 +63,7 @@ export default function EventsList(props: EventsListProps) {
 
 	// the amount of height we need to subtract to size the event list
 	const subtractedListHeight = useMemo(() => {
-		if (width > MobileLayoutBreakpoint) {
+		if (width > LargeBreakpoint) {
 			return HeaderHeight;
 		}
 
@@ -82,14 +85,19 @@ export default function EventsList(props: EventsListProps) {
 					placeholder="Search events"
 					value={searchTerm}
 					style={{
-						height: 30,
+						height: InputHeight,
 					}}
 					onChange={(event) => setSearchTerm(event.target.value)}
 				/>
 				<SortOrderDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} />
 			</div>
 
-			<div className="overflow-auto mt-2">
+			<div className="overflow-auto mt-2 border-t-gray-300 border-t">
+				{isLoading ? (
+					<div className="text-center text-xl text-gray-500 mt-8">
+						<div>Loading events...</div>
+					</div>
+				) : null}
 				{data &&
 					sortEvents(filterEvents(data, searchTerm), sortOrder).map(
 						(event, index) => (
@@ -97,7 +105,7 @@ export default function EventsList(props: EventsListProps) {
 								key={event.id}
 								className={clsx("py-2 pl-4", {
 									"mt-2": index > 0, // margin on every card except the first
-									"bg-slate-200": index % 2 === 0, // alternating background colors
+									"bg-gray-100": index % 2 === 1, // alternating background colors
 								})}
 							>
 								<EventCard {...props} event={event} />
@@ -147,11 +155,40 @@ interface EventCardProps extends EventsListProps {
 }
 
 function EventCard(props: EventCardProps) {
-	const [clampLines, setClampLines] = useState(true);
+	const [isClamped, setIsClamped] = useState(false);
+	const [isExpanded, setIsExpanded] = useState(true);
+	const descRef = useRef<HTMLDivElement | null>(null);
+
+	// checks whether the description's text is clamped. clamped text will have a "show more" button
+	useEffect(() => {
+		function handleResize() {
+			if (descRef && descRef.current) {
+				setIsClamped(
+					descRef.current.scrollHeight > descRef.current.clientHeight,
+				);
+			}
+		}
+
+		// initial check
+		handleResize();
+		// re-runs check when the window resizes
+		window.addEventListener("resize", handleResize);
+		return () => window.removeEventListener("resize", handleResize);
+	}, [descRef]);
+
+	function goToEvent() {
+		const eventMarker = props.eventMarkers.get(props.event.id);
+		if (eventMarker) {
+			eventMarker.marker.openPopup();
+			props.onEventLocationSelect?.();
+		} else {
+			console.error("marker ref undefined");
+		}
+	}
 
 	return (
-		<Fragment>
-			<div className="flex">
+		<>
+			<div className="flex justify-between gap-4">
 				<div>
 					<div>
 						<div className="inline mr-1 font-bold">Name:</div>
@@ -166,71 +203,102 @@ function EventCard(props: EventCardProps) {
 						<div className="inline">{FormatDate(props.event.endTime)}</div>
 					</div>
 				</div>
-				<div className="flex ml-auto h-fit mt-1 mr-5 ml-1">
-					<Image
-						className="icon"
-						src="/location-dot-icon.svg"
-						alt="Edit"
-						width={12}
-						height={12}
-						onClick={() => {
-							const marker = props.eventMarkers.get(props.event.id);
-							if (marker) {
-								// below code is taken from here https://stackoverflow.com/a/23960984/7627620
-								// first, open the popup
-								marker.openPopup();
-								// wait 20 ms for the popup container to populate in the DOM
-								setTimeout(() => {
-									const popupHeight = marker
-										.getPopup()
-										?.getElement()?.clientHeight;
-									if (props.map && !!popupHeight) {
-										// convert our marker lat/lng to pixel values
-										const px = props.map.project(marker.getLatLng());
-										// translate the y-value by half of the popup's height
-										px.y -= popupHeight / 2;
-										// convert back to a lat/lng and fly there, centering the popup in view
-										// TODO it doesn't not account for zoom atm
-										props.map.flyTo(props.map.unproject(px));
-										props.onEventLocationSelect?.();
-									} else {
-										console.error(
-											"map ref or popup height are undefined",
-											props.map,
-											popupHeight,
-										);
-									}
-								}, 20);
-							} else {
-								console.error("marker ref undefined");
-							}
-						}}
-					/>
-					<Image
-						className="icon ml-2"
-						src="/ellipsis-vertical-icon.svg"
-						alt="Edit"
-						width={6}
-						height={6}
-						// onClick={(event) => {}}
-					/>
+				<div className="flex items-start mr-1">
+					<button
+						className="rounded-full p-2 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+						onClick={goToEvent}
+					>
+						<MapPinIcon className="icon h-5 w-5" />
+					</button>
+					<Menu as="div" className="relative inline-block text-left">
+						<div>
+							<Menu.Button className="flex items-center rounded-full p-2 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600">
+								<span className="sr-only">Open options</span>
+								<EllipsisVerticalIcon className="h-5 w-5" aria-hidden="true" />
+							</Menu.Button>
+						</div>
+
+						<Transition
+							as={Fragment}
+							enter="transition ease-out duration-100"
+							enterFrom="transform opacity-0 scale-95"
+							enterTo="transform opacity-100 scale-100"
+							leave="transition ease-in duration-75"
+							leaveFrom="transform opacity-100 scale-100"
+							leaveTo="transform opacity-0 scale-95"
+						>
+							<Menu.Items className="absolute right-0 z-10 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+								<div className="">
+									<Menu.Item>
+										{({ active }) => (
+											<div
+												className={clsx(
+													active
+														? "bg-gray-100 text-gray-900"
+														: "text-gray-700",
+													"flex w-full justify-between px-4 py-2 text-sm",
+												)}
+												onClick={() => {
+													goToEvent();
+													const eventMarker = props.eventMarkers.get(
+														props.event.id,
+													);
+													if (eventMarker) {
+														eventMarker.setView(EventMarkerViews.EDIT);
+													}
+												}}
+											>
+												<span>Edit event</span>
+											</div>
+										)}
+									</Menu.Item>
+									<Menu.Item>
+										{({ active }) => (
+											<div
+												className={clsx(
+													active
+														? "bg-gray-100 text-gray-900"
+														: "text-gray-700",
+													"flex justify-between px-4 py-2 text-sm",
+												)}
+												onClick={() => {
+													goToEvent();
+													const eventMarker = props.eventMarkers.get(
+														props.event.id,
+													);
+													if (eventMarker) {
+														eventMarker.setView(EventMarkerViews.DELETE);
+													}
+												}}
+											>
+												<span>Delete event</span>
+											</div>
+										)}
+									</Menu.Item>
+								</div>
+							</Menu.Items>
+						</Transition>
+					</Menu>
 				</div>
 			</div>
 			<div
+				ref={descRef}
 				className={clsx({
-					"line-clamp-6": clampLines,
+					"line-clamp-6": isExpanded,
 				})}
 			>
 				<div className="inline mr-1 font-bold">Description:</div>
 				<div className="inline">{props.event.description}</div>
 			</div>
-			<button
-				className="text-gray-600 hover:underline mt-1"
-				onClick={() => setClampLines(!clampLines)}
-			>
-				{clampLines ? "Show more" : "Show less"}
-			</button>
-		</Fragment>
+			{isClamped && (
+				<button
+					className="text-gray-600 hover:underline mt-1"
+					onClick={() => setIsExpanded(!isExpanded)}
+				>
+					{isExpanded ? "Show more" : "Show less"}
+				</button>
+			)}
+		</>
 	);
 }
 

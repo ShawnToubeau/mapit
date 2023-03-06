@@ -36,10 +36,19 @@ export default function Header(props: HeaderProps) {
 				<HeaderLogo {...props} />
 
 				<div className="flex md:hidden">
-					<Popover.Button className="inline-flex items-center justify-center rounded-md bg-white text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
-						<span className="sr-only">Open menu</span>
-						<Bars3Icon className="h-8 w-8" aria-hidden="true" />
-					</Popover.Button>
+					{session?.user ? (
+						<Popover.Button className="inline-flex items-center justify-center rounded-md bg-white text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+							<span className="sr-only">Open menu</span>
+							<Bars3Icon className="h-8 w-8" aria-hidden="true" />
+						</Popover.Button>
+					) : (
+						<Link
+							href="/auth"
+							className="ml-8 inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 cursor-pointer"
+						>
+							Sign in
+						</Link>
+					)}
 				</div>
 				<div className="hidden md:flex md:items-center md:justify-end">
 					<div className="flex items-center">
@@ -68,7 +77,7 @@ export default function Header(props: HeaderProps) {
 			>
 				<Popover.Panel
 					focus
-					className="absolute inset-x-0 top-0 origin-top-right transform p-2 transition md:hidden z-10"
+					className="absolute inset-x-0 top-0 origin-top-right transform p-2 transition md:hidden z-20"
 				>
 					<div className="divide-y-2 divide-gray-50 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
 						<div className="px-5 pt-5 pb-6">
@@ -95,9 +104,9 @@ export default function Header(props: HeaderProps) {
 													aria-hidden="true"
 												/>
 											</div>
-											<div className="ml-4 text-base font-medium text-gray-900 flex">
+											<div className="ml-4 text-base font-medium text-gray-900 flex flex-col">
 												<div>My Account</div>
-												<div className="ml-1 text-gray-400">
+												<div className="text-gray-400">
 													({session.user.email})
 												</div>
 											</div>

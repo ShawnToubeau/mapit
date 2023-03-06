@@ -1,25 +1,26 @@
 "use client";
 
-import useWindowDimensions from "../hooks/use-window-dimensions";
+import useWindowWidth from "../hooks/use-window-width";
 import React, { useState } from "react";
 import NavigationFooter, { MobileView } from "./NavigationFooter";
 import EventsList from "./EventsList";
 import { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
-import { MobileLayoutBreakpoint } from "../constants";
 import EventMap from "./EventMap";
+import { LargeBreakpoint } from "../constants";
+import { EventMarkerViews } from "./map-controls/EventMarkers";
 
-export type EventMarkerSetter = (
-	eventId: string,
-	eventMarker: LeafletMarker,
-) => void;
+export type EventMarker = {
+	marker: LeafletMarker;
+	setView: (view: EventMarkerViews) => void;
+};
 
 interface ResponsiveEventMapProps {
 	mapId: string;
 }
 
 export default function ResponsiveEventMap(props: ResponsiveEventMapProps) {
-	const { width } = useWindowDimensions();
-	return width > MobileLayoutBreakpoint ? (
+	const width = useWindowWidth();
+	return width > LargeBreakpoint ? (
 		<DesktopLayout {...props} />
 	) : (
 		<MobileLayout {...props} />
@@ -28,7 +29,7 @@ export default function ResponsiveEventMap(props: ResponsiveEventMapProps) {
 
 function DesktopLayout(props: ResponsiveEventMapProps) {
 	const [map, setMap] = useState<LeafletMap | null>(null);
-	const [eventMarkers] = useState(new Map<string, LeafletMarker>());
+	const [eventMarker] = useState(new Map<string, EventMarker>());
 
 	return (
 		<>
@@ -41,17 +42,14 @@ function DesktopLayout(props: ResponsiveEventMapProps) {
 					<EventsList
 						mapId={props.mapId}
 						map={map}
-						eventMarkers={eventMarkers}
+						eventMarkers={eventMarker}
 					/>
 				</div>
 
 				<EventMap
 					mapId={props.mapId}
 					setMap={setMap}
-					eventMarkers={eventMarkers}
-					setEventMarker={(eventId, marker) =>
-						eventMarkers.set(eventId, marker)
-					}
+					eventMarkers={eventMarker}
 				/>
 			</div>
 		</>
@@ -60,7 +58,7 @@ function DesktopLayout(props: ResponsiveEventMapProps) {
 
 function MobileLayout(props: ResponsiveEventMapProps) {
 	const [map, setMap] = useState<LeafletMap | null>(null);
-	const [eventMarkers] = useState(new Map<string, LeafletMarker>());
+	const [markerPopups] = useState(new Map<string, EventMarker>());
 	const [mobileView, setMobileView] = useState(MobileView.MAP);
 
 	return (
@@ -71,7 +69,7 @@ function MobileLayout(props: ResponsiveEventMapProps) {
 						<EventsList
 							mapId={props.mapId}
 							map={map}
-							eventMarkers={eventMarkers}
+							eventMarkers={markerPopups}
 							onEventLocationSelect={() => setMobileView(MobileView.MAP)}
 						/>
 					</div>
@@ -80,10 +78,7 @@ function MobileLayout(props: ResponsiveEventMapProps) {
 				<EventMap
 					mapId={props.mapId}
 					setMap={setMap}
-					eventMarkers={eventMarkers}
-					setEventMarker={(eventId, marker) =>
-						eventMarkers.set(eventId, marker)
-					}
+					eventMarkers={markerPopups}
 				/>
 			</div>
 

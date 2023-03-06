@@ -9,6 +9,7 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { Session } from "@supabase/auth-helpers-react";
 import MapList from "./MapList";
+import { HeaderHeight } from "../../constants";
 
 interface UserMapsProps {
 	session: Session;
@@ -23,7 +24,12 @@ export default function UserMaps(props: UserMapsProps) {
 				<Header />
 			</div>
 
-			<div className="p-6">
+			<div
+				className="p-6 pb-16 overflow-y-scroll"
+				style={{
+					height: `calc(100dvh - ${HeaderHeight}px)`,
+				}}
+			>
 				<MapList
 					session={props.session}
 					onMapSelect={(eventMap, action) => {
@@ -33,23 +39,23 @@ export default function UserMaps(props: UserMapsProps) {
 						});
 					}}
 				/>
-
-				<MapModal
-					session={props.session}
-					modalData={modalData}
-					onClose={() => setModalData(null)}
-				/>
-
-				<button
-					type="button"
-					className="absolute bottom-4 right-4 inline-flex items-center rounded-full border border-transparent bg-indigo-600 p-3 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-					onClick={() =>
-						setModalData({ modalMode: MapModalMode.CREATE, mapData: null })
-					}
-				>
-					<PlusIcon className="h-6 w-6" aria-hidden="true" />
-				</button>
 			</div>
+
+			<MapModal
+				session={props.session}
+				modalData={modalData}
+				onClose={() => setModalData(null)}
+			/>
+
+			<button
+				type="button"
+				className="absolute bottom-4 right-4 inline-flex items-center rounded-full border border-transparent bg-indigo-600 p-3 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+				onClick={() =>
+					setModalData({ modalMode: MapModalMode.CREATE, mapData: null })
+				}
+			>
+				<PlusIcon className="h-6 w-6" aria-hidden="true" />
+			</button>
 		</div>
 	);
 }
