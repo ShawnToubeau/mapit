@@ -1,6 +1,5 @@
 export const HeaderHeight = 90;
 export const FooterHeight = 60;
-export const MarkerHeight = 53;
 export const InputHeight = 38;
 
 // correspond to the breakpoints defined by tailwindcss

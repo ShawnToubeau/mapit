@@ -15,7 +15,6 @@ import {
 	HeaderHeight,
 	InputHeight,
 	LargeBreakpoint,
-	MarkerHeight,
 	SwrKeys,
 } from "../constants";
 import { EllipsisVerticalIcon, MapPinIcon } from "@heroicons/react/24/outline";
@@ -180,31 +179,7 @@ function EventCard(props: EventCardProps) {
 	function goToEvent() {
 		const eventMarker = props.eventMarkers.get(props.event.id);
 		if (eventMarker) {
-			// below code is taken from here https://stackoverflow.com/a/23960984/7627620
-			// first, open the popup
 			eventMarker.marker.openPopup();
-			// wait 20 ms for the popup container to populate in the DOM
-			setTimeout(() => {
-				const popupHeight = eventMarker.marker
-					.getPopup()
-					?.getElement()?.clientHeight;
-				if (props.map && !!popupHeight) {
-					// convert our marker lat/lng to pixel values
-					const px = props.map.project(eventMarker.marker.getLatLng());
-					// translate the y-value by half of the popup's height + the marker height
-					px.y -= popupHeight / 2 + MarkerHeight;
-					// convert back to a lat/lng and fly there, centering the popup in view
-					// TODO it doesn't not account for zoom atm
-					props.map.flyTo(props.map.unproject(px));
-					props.onEventLocationSelect?.();
-				} else {
-					console.error(
-						"map ref or popup height are undefined",
-						props.map,
-						popupHeight,
-					);
-				}
-			}, 20);
 		} else {
 			console.error("marker ref undefined");
 		}

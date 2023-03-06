@@ -14,6 +14,7 @@ import { clsx } from "clsx";
 import { useSupabase } from "../../context/supabase-provider";
 import { InputHeight, MediumBreakpoint } from "../../constants";
 import useWindowWidth from "../../hooks/use-window-width";
+import { CenterPopup } from "../../app/map/[mapId]/utils";
 
 interface AddressSearchProps {
 	mapId: string;
@@ -30,20 +31,11 @@ export default function AddressSearch(props: AddressSearchProps) {
 	const popupRef = useRef<LeafletPopup | null>(null);
 
 	// centers the popup within the map when it opens.
-	// code taken from here https://stackoverflow.com/a/23960984/7627620
 	useEffect(() => {
-		// wait 20 ms for the popup container to populate in the DOM
-		setTimeout(() => {
-			const popupHeight = popupRef.current?.getElement()?.clientHeight;
-			if (popupHeight && latLng) {
-				// convert our lat/lng to pixel values
-				const px = map.project(latLng);
-				// translate the y-value by half of the popup's height + the marker height
-				px.y -= popupHeight / 2;
-				// convert back to a lat/lng and fly there, centering the popup in view
-				map.flyTo(map.unproject(px));
-			}
-		}, 20);
+		const popup = popupRef.current;
+		if (popup) {
+			CenterPopup(popup, map, false);
+		}
 	}, [popupRef, latLng, map]);
 
 	if (!session) {

@@ -11,9 +11,10 @@ import { Marker, Popup, useMap } from "react-leaflet";
 import EventForm from "../EventForm";
 import FormatDate from "../../utils/format-date";
 import Image from "next/image";
-import { MarkerHeight, SwrKeys } from "../../constants";
+import { SwrKeys } from "../../constants";
 import { EventMarker } from "../ResponsiveEventMap";
 import { useSupabase } from "../../context/supabase-provider";
+import { CenterPopup } from "../../app/map/[mapId]/utils";
 
 export enum EventMarkerViews {
 	READ = "read",
@@ -96,21 +97,7 @@ function EventMarker(props: EventMarkerProps) {
 						setView(EventMarkerViews.READ);
 					}, 100);
 				},
-				popupopen: (event) => {
-					setTimeout(() => {
-						const popupHeight = event.popup.getElement()?.clientHeight;
-						const popupLatLng = event.popup.getLatLng();
-						if (map && !!popupHeight && !!popupLatLng) {
-							// convert our marker lat/lng to pixel values
-							const px = map.project(popupLatLng);
-							// translate the y-value by half of the popup's height + the marker height
-							px.y -= popupHeight / 2 + MarkerHeight;
-							// convert back to a lat/lng and fly there, centering the popup in view
-							// TODO it doesn't not account for zoom atm
-							map.flyTo(map.unproject(px));
-						}
-					}, 20);
-				},
+				popupopen: (event) => CenterPopup(event.popup, map, true),
 			}}
 		>
 			<Popup autoPan>
