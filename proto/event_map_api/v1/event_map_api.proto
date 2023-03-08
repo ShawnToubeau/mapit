@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "event_api/v1/event_api.proto";
 
 package proto.event_map_api.v1;
 
@@ -19,6 +20,7 @@ message GetEventMapResponse {
   string owner_id = 2;
   string name = 3;
   int32  num_events = 4;
+  repeated event_api.v1.GetEventResponse events = 5;
 }
 
 message GetAllEventMapsRequest {}

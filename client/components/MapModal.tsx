@@ -4,12 +4,12 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import {
 	CreateEventMapRequest,
 	GetEventMapResponse,
-} from "../gen/proto/event_map_api/v1/event_map_api_pb";
+} from "../gen/event_map_api/v1/event_map_api_pb";
 import { object, string } from "yup";
 import { Session } from "@supabase/auth-helpers-react";
 import { useSWRConfig } from "swr";
 import { useClient } from "../hooks/use-client";
-import { EventMapService } from "../gen/proto/event_map_api/v1/event_map_api_connectweb";
+import { EventMapService } from "../gen/event_map_api/v1/event_map_api_connectweb";
 import { Field, Form, Formik } from "formik";
 import GenerateAuthHeader from "../utils/generate-auth-header";
 import { SwrKeys } from "../constants";

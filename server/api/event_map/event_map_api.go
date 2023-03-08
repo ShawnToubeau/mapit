@@ -8,7 +8,8 @@ import (
 	"github.com/google/uuid"
 	"server/db"
 	"server/ent/eventmap"
-	eventmapapiv1 "server/gen/proto/event_map_api/v1"
+	eventapiv1 "server/gen/event_api/v1"
+	eventmapapiv1 "server/gen/event_map_api/v1"
 )
 
 type EventMapServer struct{}
@@ -53,10 +54,30 @@ func (s *EventMapServer) GetEventMap(
 		return nil, fmt.Errorf("error querying event map: %w", err)
 	}
 
+	queriedEvents, err := queried.QueryEvents().All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error querying map events: %w", err)
+	}
+
+	var events []*eventapiv1.GetEventResponse
+	for _, eventIter := range queriedEvents {
+		events = append(events, &eventapiv1.GetEventResponse{
+			Id:          eventIter.ID.String(),
+			Name:        eventIter.Name,
+			StartTime:   eventIter.StartTime.UnixMilli(),
+			EndTime:     eventIter.EndTime.UnixMilli(),
+			Latitude:    eventIter.Point.P.X,
+			Longitude:   eventIter.Point.P.Y,
+			Description: eventIter.Description,
+		})
+	}
+
 	res := connect.NewResponse(&eventmapapiv1.GetEventMapResponse{
-		Id:      queried.ID.String(),
-		OwnerId: queried.OwnerID.String(),
-		Name:    queried.Name,
+		Id:        queried.ID.String(),
+		OwnerId:   queried.OwnerID.String(),
+		Name:      queried.Name,
+		NumEvents: int32(len(events)),
+		Events:    events,
 	})
 	res.Header().Set("GetEventMap-Version", "v1")
 	return res, nil

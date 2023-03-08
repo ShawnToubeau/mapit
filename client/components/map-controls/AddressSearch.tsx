@@ -1,9 +1,9 @@
 import { Popup, useMap } from "react-leaflet";
 import { useEffect, useRef, useState } from "react";
-import { SearchAddressResponse } from "../../gen/proto/geocode_api/v1/geocode_api_pb";
+import { SearchAddressResponse } from "../../gen/geocode_api/v1/geocode_api_pb";
 import { LatLng, Popup as LeafletPopup } from "leaflet";
 import { useClient } from "../../hooks/use-client";
-import { GeocodeService } from "../../gen/proto/geocode_api/v1/geocode_api_connectweb";
+import { GeocodeService } from "../../gen/geocode_api/v1/geocode_api_connectweb";
 import Image from "next/image";
 import Control from "react-leaflet-custom-control";
 import EventForm from "../EventForm";

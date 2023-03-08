@@ -1,7 +1,7 @@
 import { useClient } from "../../hooks/use-client";
-import { EventMapService } from "../../gen/proto/event_map_api/v1/event_map_api_connectweb";
+import { EventMapService } from "../../gen/event_map_api/v1/event_map_api_connectweb";
 import useSWR from "swr";
-import { GetEventMapResponse } from "../../gen/proto/event_map_api/v1/event_map_api_pb";
+import { GetEventMapResponse } from "../../gen/event_map_api/v1/event_map_api_pb";
 import { Session } from "@supabase/auth-helpers-react";
 import GenerateAuthHeader from "../../utils/generate-auth-header";
 import { Menu, Transition } from "@headlessui/react";

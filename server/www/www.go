@@ -11,9 +11,9 @@ import (
 	"server/api/event"
 	"server/api/event_map"
 	"server/api/geocode"
-	"server/gen/proto/event_api/v1/event_apiv1connect"
-	"server/gen/proto/event_map_api/v1/event_map_apiv1connect"
-	"server/gen/proto/geocode_api/v1/geocode_apiv1connect"
+	"server/gen/event_api/v1/event_apiv1connect"
+	"server/gen/event_map_api/v1/event_map_apiv1connect"
+	"server/gen/geocode_api/v1/geocode_apiv1connect"
 	"strings"
 )
 
