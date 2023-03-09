@@ -2,19 +2,19 @@
 # yarn lockfile v1
 
 
-"@bufbuild/connect-web@^0.8.3":
+"@bufbuild/connect-web@0.8.3":
   version "0.8.3"
   resolved "https://registry.yarnpkg.com/@bufbuild/connect-web/-/connect-web-0.8.3.tgz#0a67d2b505a202a658de920ddb9dc519ce8951ed"
   integrity sha512-36FZ8L6e/oNUglIclhLu3mHceTXRHp/QB/Pnphzhc0SYkZFFyjGfRJfm+qq89dFns8krchtP8sTyqV8G7EaJEQ==
   dependencies:
     "@bufbuild/connect" "0.8.3"
 
-"@bufbuild/connect@0.8.3", "@bufbuild/connect@^0.8.3":
+"@bufbuild/connect@0.8.3":
   version "0.8.3"
   resolved "https://registry.yarnpkg.com/@bufbuild/connect/-/connect-0.8.3.tgz#5eed5b2231ce7b0f9e9c504ea231d21eb7266ec4"
   integrity sha512-lk4JVYxRPRvELAiYIc4fALI2qh/gG8j0yYTSKzBkmy+DuJ7xvWQ81DX7zo1WhXaZRxiC9VDU3jfFwgbwYrd2eQ==
 
-"@bufbuild/protobuf@^1.1.0":
+"@bufbuild/protobuf@1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@bufbuild/protobuf/-/protobuf-1.1.0.tgz#249fc602d0ca78564d6666bbffcbbaef9aa905ff"
   integrity sha512-NYqSqOp+7u37sfQugoJaIWbnQdUTwB0UtfNhIeN71rr/xY8upO9zIvM865Ju7ws/21xbu05RUdC1gNhSggmCYg==
@@ -134,14 +134,26 @@
   resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.10.tgz#6dfbf5ea17142f7f9a043809f1cd4c448cb68249"
   integrity sha512-Nmh0K3iWQJzniTuPRcJn5hxXkfB1T1pgB89SBig5PlJQU5yocazeu4jATJlaA0GYFKWMqDdvYemoSnF2pXgLVA==
 
-"@types/leaflet@^1.9.1":
+"@types/leaflet@1.9.1":
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/@types/leaflet/-/leaflet-1.9.1.tgz#a220706b02c6024951d7fc2959d530c6941c4224"
   integrity sha512-lYawM3I3lLO6rmBASaqdGgY6zUL4YHr3H79/axx7FNYyPXuj0P1DZHbkNo8Itbv0i7Y9EryLWtDXXROMygXhRA==
   dependencies:
     "@types/geojson" "*"
 
-esbuild@^0.17.11:
+dotenv@16.0.3, dotenv@^16.0.3:
+  version "16.0.3"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.0.3.tgz#115aec42bac5053db3c456db30cc243a5a836a07"
+  integrity sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==
+
+esbuild-envfile-plugin@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/esbuild-envfile-plugin/-/esbuild-envfile-plugin-1.0.5.tgz#9c5427c4bd4be58a2d2a9aef9d316b0c42719df3"
+  integrity sha512-AT6mUTI4pbVodwLRYOrXYeXmFCAKO3SpRqAktS0IlKvpohTgvw/cYWUgkOXpB46BhMwhjwucBKO5UVejNg/DPg==
+  dependencies:
+    dotenv "16.0.3"
+
+esbuild@0.17.11:
   version "0.17.11"
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.17.11.tgz#9f3122643b21d7e7731e42f18576c10bfa28152b"
   integrity sha512-pAMImyokbWDtnA/ufPxjQg0fYo2DDuzAlqwnDvbXqHLphe+m80eF++perYKVm8LeTuj2zUuFXC+xgSVxyoHUdg==
@@ -169,12 +181,12 @@ esbuild@^0.17.11:
     "@esbuild/win32-ia32" "0.17.11"
     "@esbuild/win32-x64" "0.17.11"
 
-leaflet@^1.9.3:
+leaflet@1.9.3:
   version "1.9.3"
   resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-1.9.3.tgz#52ec436954964e2d3d39e0d433da4b2500d74414"
   integrity sha512-iB2cR9vAkDOu5l3HAay2obcUHZ7xwUBBjph8+PGtmW/2lYhbLizWtG7nTeYht36WfOslixQF9D/uSIzhZgGMfQ==
 
-typescript@^4.9.5:
+typescript@4.9.5:
   version "4.9.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.5.tgz#095979f9bcc0d09da324d58d03ce8f8374cbe65a"
   integrity sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==

@@ -1,21 +1,27 @@
 {
-  "name": "embed",
-  "version": "1.0.0",
+  "name": "mapit-embed",
+  "version": "1.0.1",
   "main": "embed.ts",
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "esbuild embed.ts --bundle --minify --target=chrome60,firefox60,safari11,edge18 --outfile=./dist/embed.js"
+    "build": "node build.js",
+    "publish": "npm publish"
+  },
+  "files": [
+    "./dist"
+  ],
+  "dependencies": {
+    "@bufbuild/connect": "0.8.3",
+    "@bufbuild/connect-web": "0.8.3",
+    "@bufbuild/protobuf": "1.1.0"
   },
   "devDependencies": {
-    "@types/leaflet": "^1.9.1",
-    "esbuild": "^0.17.11",
-    "leaflet": "^1.9.3",
-    "typescript": "^4.9.5"
-  },
-  "dependencies": {
-    "@bufbuild/connect": "^0.8.3",
-    "@bufbuild/connect-web": "^0.8.3",
-    "@bufbuild/protobuf": "^1.1.0"
+    "@types/leaflet": "1.9.1",
+    "dotenv": "16.0.3",
+    "esbuild": "0.17.11",
+    "esbuild-envfile-plugin": "1.0.5",
+    "leaflet": "1.9.3",
+    "typescript": "4.9.5"
   }
 }

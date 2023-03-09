@@ -4,36 +4,38 @@ import {
   createConnectTransport,
   createPromiseClient,
 } from "@bufbuild/connect-web";
-
-const transport = createConnectTransport({
-  baseUrl: "http://localhost:8080",
-});
-const client = createPromiseClient(EventMapService, transport);
-
-const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11bHJ6eXB3enpsbGVpb3JkY2ttIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzQ3NTc3NjMsImV4cCI6MTk5MDMzMzc2M30.Glz3uwex31FoIxEJ00D3ipQy2ZfTLFLYvNWbeFVttrs";
-function AnonAuthHeader() {
-  const requestHeaders = new Headers();
-  requestHeaders.set("Authorization", `Bearer ${token}`);
-  return requestHeaders;
-}
+// @ts-ignore - error saying it cannot find the module or declaration
+import { SUPABASE_ANON_KEY, BACKEND_URL } from "env";
 
 async function main() {
   const tag = document.getElementById("mapit-script");
   if (!tag) {
-    console.error("unable to select mapit script");
+    console.error("unable to select mapit script tag");
     return;
   }
   const mapId = tag.getAttribute("mapId");
   if (!mapId || mapId.length !== 36) {
-    console.error("missing or invalid map ID:", mapId);
+    console.error(
+      "script tag missing or has invalid 'mapId' attribute:",
+      mapId
+    );
     return;
   }
 
   try {
+    const client = createPromiseClient(
+      EventMapService,
+      createConnectTransport({
+        baseUrl: BACKEND_URL,
+      })
+    );
     const res = await client.getEventMap(
       { id: mapId },
-      { headers: AnonAuthHeader() }
+      {
+        headers: new Headers({
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        }),
+      }
     );
     console.log(res);
     const mapElement = map("my-custom-map").setView([51.505, -0.09], 13);
@@ -50,7 +52,7 @@ async function main() {
         .bindPopup(event.name);
     });
   } catch (error) {
-    console.error("error fetching map data", error);
+    console.error("error fetching map data from mapit server", error);
   }
 }
 void main();
