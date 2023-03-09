@@ -32,8 +32,8 @@ func (s *EventServer) CreateEvent(
 		SetDescription(req.Msg.Description).
 		SetPoint(&pgtype.Point{
 			P: pgtype.Vec2{
-				X: req.Msg.Latitude,
-				Y: req.Msg.Longitude,
+				Y: req.Msg.Latitude,
+				X: req.Msg.Longitude,
 			},
 			Status: pgtype.Present,
 		}).Save(ctx)
@@ -67,8 +67,8 @@ func (s *EventServer) GetEvent(
 		Name:        queried.Name,
 		StartTime:   queried.StartTime.UnixMilli(),
 		EndTime:     queried.EndTime.UnixMilli(),
-		Latitude:    queried.Point.P.X,
-		Longitude:   queried.Point.P.Y,
+		Latitude:    queried.Point.P.Y,
+		Longitude:   queried.Point.P.X,
 		Description: queried.Description,
 	})
 	res.Header().Set("GetEvent-Version", "v1")
@@ -101,8 +101,8 @@ func (s *EventServer) GetAllEvents(
 			Name:        eventIter.Name,
 			StartTime:   eventIter.StartTime.UnixMilli(),
 			EndTime:     eventIter.EndTime.UnixMilli(),
-			Latitude:    eventIter.Point.P.X,
-			Longitude:   eventIter.Point.P.Y,
+			Latitude:    eventIter.Point.P.Y,
+			Longitude:   eventIter.Point.P.X,
 			Description: eventIter.Description,
 		})
 	}
@@ -131,8 +131,8 @@ func (s *EventServer) UpdateEvent(
 		SetDescription(req.Msg.Description).
 		SetPoint(&pgtype.Point{
 			P: pgtype.Vec2{
-				X: req.Msg.Latitude,
-				Y: req.Msg.Longitude,
+				Y: req.Msg.Latitude,
+				X: req.Msg.Longitude,
 			},
 			Status: pgtype.Present,
 		}).Save(ctx)
