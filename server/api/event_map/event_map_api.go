@@ -66,8 +66,8 @@ func (s *EventMapServer) GetEventMap(
 			Name:        eventIter.Name,
 			StartTime:   eventIter.StartTime.UnixMilli(),
 			EndTime:     eventIter.EndTime.UnixMilli(),
-			Latitude:    eventIter.Point.P.X,
-			Longitude:   eventIter.Point.P.Y,
+			Latitude:    eventIter.Point.P.Y,
+			Longitude:   eventIter.Point.P.X,
 			Description: eventIter.Description,
 		})
 	}
