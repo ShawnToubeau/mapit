@@ -6,6 +6,7 @@ import (
 	"github.com/bufbuild/connect-go"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
+	"github.com/jackc/pgtype"
 	"server/db"
 	"server/ent/eventmap"
 	eventapiv1 "server/gen/event_api/v1"
@@ -72,13 +73,24 @@ func (s *EventMapServer) GetEventMap(
 		})
 	}
 
-	res := connect.NewResponse(&eventmapapiv1.GetEventMapResponse{
+	mapRes := &eventmapapiv1.GetEventMapResponse{
 		Id:        queried.ID.String(),
 		OwnerId:   queried.OwnerID.String(),
 		Name:      queried.Name,
 		NumEvents: int32(len(events)),
 		Events:    events,
-	})
+	}
+
+	if queried.Extent.Status == pgtype.Present {
+		mapRes.BoundingBox = &eventmapapiv1.MapBoundingBox{
+			NorthEastLatitude:  queried.Extent.P[0].Y,
+			NorthEastLongitude: queried.Extent.P[0].X,
+			SouthWestLatitude:  queried.Extent.P[1].Y,
+			SouthWestLongitude: queried.Extent.P[1].X,
+		}
+	}
+
+	res := connect.NewResponse(mapRes)
 	res.Header().Set("GetEventMap-Version", "v1")
 	return res, nil
 }

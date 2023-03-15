@@ -119,6 +119,61 @@ export class GetEventMapRequest extends Message<GetEventMapRequest> {
 }
 
 /**
+ * @generated from message proto.event_map_api.v1.MapBoundingBox
+ */
+export class MapBoundingBox extends Message<MapBoundingBox> {
+  /**
+   * @generated from field: double north_east_latitude = 1;
+   */
+  northEastLatitude = 0;
+
+  /**
+   * @generated from field: double north_east_longitude = 2;
+   */
+  northEastLongitude = 0;
+
+  /**
+   * @generated from field: double south_west_latitude = 3;
+   */
+  southWestLatitude = 0;
+
+  /**
+   * @generated from field: double south_west_longitude = 4;
+   */
+  southWestLongitude = 0;
+
+  constructor(data?: PartialMessage<MapBoundingBox>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime = proto3;
+  static readonly typeName = "proto.event_map_api.v1.MapBoundingBox";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "north_east_latitude", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 2, name: "north_east_longitude", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 3, name: "south_west_latitude", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 4, name: "south_west_longitude", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): MapBoundingBox {
+    return new MapBoundingBox().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): MapBoundingBox {
+    return new MapBoundingBox().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): MapBoundingBox {
+    return new MapBoundingBox().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: MapBoundingBox | PlainMessage<MapBoundingBox> | undefined, b: MapBoundingBox | PlainMessage<MapBoundingBox> | undefined): boolean {
+    return proto3.util.equals(MapBoundingBox, a, b);
+  }
+}
+
+/**
  * @generated from message proto.event_map_api.v1.GetEventMapResponse
  */
 export class GetEventMapResponse extends Message<GetEventMapResponse> {
@@ -138,12 +193,17 @@ export class GetEventMapResponse extends Message<GetEventMapResponse> {
   name = "";
 
   /**
-   * @generated from field: int32 num_events = 4;
+   * @generated from field: proto.event_map_api.v1.MapBoundingBox bounding_box = 4;
+   */
+  boundingBox?: MapBoundingBox;
+
+  /**
+   * @generated from field: int32 num_events = 5;
    */
   numEvents = 0;
 
   /**
-   * @generated from field: repeated proto.event_api.v1.GetEventResponse events = 5;
+   * @generated from field: repeated proto.event_api.v1.GetEventResponse events = 6;
    */
   events: GetEventResponse[] = [];
 
@@ -158,8 +218,9 @@ export class GetEventMapResponse extends Message<GetEventMapResponse> {
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "owner_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "num_events", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
-    { no: 5, name: "events", kind: "message", T: GetEventResponse, repeated: true },
+    { no: 4, name: "bounding_box", kind: "message", T: MapBoundingBox },
+    { no: 5, name: "num_events", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 6, name: "events", kind: "message", T: GetEventResponse, repeated: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetEventMapResponse {
