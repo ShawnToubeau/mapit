@@ -18,6 +18,8 @@ import { locate } from "./MapControls/Control.Locate";
 import "leaflet/dist/leaflet.css";
 import "./index.css";
 // @ts-expect-error - "cannot find module"
+import circleIcon from "./public/circle-icon.svg";
+// @ts-expect-error - "cannot find module"
 import iconUrl from "leaflet/dist/images/marker-icon.png";
 // @ts-expect-error - "cannot find module"
 import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
@@ -73,7 +75,7 @@ async function main(): Promise<void> {
       } else {
         userMarker = marker(event.latlng, {
           icon: icon({
-            iconUrl: "./public/circle-icon.svg",
+            iconUrl: circleIcon,
             iconSize: [22, 22],
           }),
         });

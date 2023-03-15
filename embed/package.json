@@ -1,6 +1,6 @@
 {
   "name": "mapit-embed",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "index.ts",
   "license": "MIT",
   "type": "module",
@@ -23,7 +23,6 @@
     "dotenv": "16.0.3",
     "esbuild": "0.17.11",
     "esbuild-envfile-plugin": "1.0.5",
-    "esbuild-plugin-svg": "0.1.0",
     "eslint": "8.0.1",
     "eslint-config-prettier": "8.7.0",
     "eslint-config-standard-with-typescript": "34.0.1",
