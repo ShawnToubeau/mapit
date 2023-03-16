@@ -25,7 +25,7 @@ export default function UserMaps(props: UserMapsProps) {
 			</div>
 
 			<div
-				className="p-6 pb-16 overflow-y-scroll"
+				className="p-6 pb-16 overflow-y-auto"
 				style={{
 					height: `calc(100dvh - ${HeaderHeight}px)`,
 				}}
