@@ -35,3 +35,10 @@ The `./client` directory contains a `.env.local` file which holds Supabase conne
 |---------------------------|-------------------------------------|
 | `yarn dev`                | Starts the client on port 3000      |
 | `ANALYZE=true yarn build` | Build and analyze the client bundle |
+
+### Embed
+
+| Command        | Description                     |
+|----------------|---------------------------------|
+| `yarn build`   | Build the mapit-embed package   |
+| `yarn publish` | Publish the latest build to NPM |
