@@ -63,7 +63,7 @@ export default function MapModal(props: MapModalProps) {
 		// delay closing further to avoid UI race conditions
 		setTimeout(() => {
 			props.onClose();
-		}, 200);
+		}, 300);
 	}
 
 	return (
