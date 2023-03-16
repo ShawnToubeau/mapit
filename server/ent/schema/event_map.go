@@ -21,7 +21,7 @@ func (EventMap) Fields() []ent.Field {
 		field.UUID("id", uuid.UUID{}).Default(uuid.New),
 		field.UUID("owner_id", uuid.UUID{}),
 		field.String("name"),
-		field.Other("extent", &pgtype.Box{}).SchemaType(map[string]string{
+		field.Other("bounding_box", &pgtype.Box{}).SchemaType(map[string]string{
 			dialect.Postgres: "box",
 		}).Optional(),
 	}

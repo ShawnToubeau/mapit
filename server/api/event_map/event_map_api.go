@@ -81,12 +81,12 @@ func (s *EventMapServer) GetEventMap(
 		Events:    events,
 	}
 
-	if queried.Extent.Status == pgtype.Present {
+	if queried.BoundingBox.Status == pgtype.Present {
 		mapRes.BoundingBox = &eventmapapiv1.MapBoundingBox{
-			NorthEastLatitude:  queried.Extent.P[0].Y,
-			NorthEastLongitude: queried.Extent.P[0].X,
-			SouthWestLatitude:  queried.Extent.P[1].Y,
-			SouthWestLongitude: queried.Extent.P[1].X,
+			NorthEastLatitude:  queried.BoundingBox.P[0].Y,
+			NorthEastLongitude: queried.BoundingBox.P[0].X,
+			SouthWestLatitude:  queried.BoundingBox.P[1].Y,
+			SouthWestLongitude: queried.BoundingBox.P[1].X,
 		}
 	}
 

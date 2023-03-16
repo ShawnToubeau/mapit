@@ -66,9 +66,9 @@ func Name(v string) predicate.EventMap {
 	return predicate.EventMap(sql.FieldEQ(FieldName, v))
 }
 
-// Extent applies equality check predicate on the "extent" field. It's identical to ExtentEQ.
-func Extent(v *pgtype.Box) predicate.EventMap {
-	return predicate.EventMap(sql.FieldEQ(FieldExtent, v))
+// BoundingBox applies equality check predicate on the "bounding_box" field. It's identical to BoundingBoxEQ.
+func BoundingBox(v *pgtype.Box) predicate.EventMap {
+	return predicate.EventMap(sql.FieldEQ(FieldBoundingBox, v))
 }
 
 // OwnerIDEQ applies the EQ predicate on the "owner_id" field.
@@ -176,54 +176,54 @@ func NameContainsFold(v string) predicate.EventMap {
 	return predicate.EventMap(sql.FieldContainsFold(FieldName, v))
 }
 
-// ExtentEQ applies the EQ predicate on the "extent" field.
-func ExtentEQ(v *pgtype.Box) predicate.EventMap {
-	return predicate.EventMap(sql.FieldEQ(FieldExtent, v))
+// BoundingBoxEQ applies the EQ predicate on the "bounding_box" field.
+func BoundingBoxEQ(v *pgtype.Box) predicate.EventMap {
+	return predicate.EventMap(sql.FieldEQ(FieldBoundingBox, v))
 }
 
-// ExtentNEQ applies the NEQ predicate on the "extent" field.
-func ExtentNEQ(v *pgtype.Box) predicate.EventMap {
-	return predicate.EventMap(sql.FieldNEQ(FieldExtent, v))
+// BoundingBoxNEQ applies the NEQ predicate on the "bounding_box" field.
+func BoundingBoxNEQ(v *pgtype.Box) predicate.EventMap {
+	return predicate.EventMap(sql.FieldNEQ(FieldBoundingBox, v))
 }
 
-// ExtentIn applies the In predicate on the "extent" field.
-func ExtentIn(vs ...*pgtype.Box) predicate.EventMap {
-	return predicate.EventMap(sql.FieldIn(FieldExtent, vs...))
+// BoundingBoxIn applies the In predicate on the "bounding_box" field.
+func BoundingBoxIn(vs ...*pgtype.Box) predicate.EventMap {
+	return predicate.EventMap(sql.FieldIn(FieldBoundingBox, vs...))
 }
 
-// ExtentNotIn applies the NotIn predicate on the "extent" field.
-func ExtentNotIn(vs ...*pgtype.Box) predicate.EventMap {
-	return predicate.EventMap(sql.FieldNotIn(FieldExtent, vs...))
+// BoundingBoxNotIn applies the NotIn predicate on the "bounding_box" field.
+func BoundingBoxNotIn(vs ...*pgtype.Box) predicate.EventMap {
+	return predicate.EventMap(sql.FieldNotIn(FieldBoundingBox, vs...))
 }
 
-// ExtentGT applies the GT predicate on the "extent" field.
-func ExtentGT(v *pgtype.Box) predicate.EventMap {
-	return predicate.EventMap(sql.FieldGT(FieldExtent, v))
+// BoundingBoxGT applies the GT predicate on the "bounding_box" field.
+func BoundingBoxGT(v *pgtype.Box) predicate.EventMap {
+	return predicate.EventMap(sql.FieldGT(FieldBoundingBox, v))
 }
 
-// ExtentGTE applies the GTE predicate on the "extent" field.
-func ExtentGTE(v *pgtype.Box) predicate.EventMap {
-	return predicate.EventMap(sql.FieldGTE(FieldExtent, v))
+// BoundingBoxGTE applies the GTE predicate on the "bounding_box" field.
+func BoundingBoxGTE(v *pgtype.Box) predicate.EventMap {
+	return predicate.EventMap(sql.FieldGTE(FieldBoundingBox, v))
 }
 
-// ExtentLT applies the LT predicate on the "extent" field.
-func ExtentLT(v *pgtype.Box) predicate.EventMap {
-	return predicate.EventMap(sql.FieldLT(FieldExtent, v))
+// BoundingBoxLT applies the LT predicate on the "bounding_box" field.
+func BoundingBoxLT(v *pgtype.Box) predicate.EventMap {
+	return predicate.EventMap(sql.FieldLT(FieldBoundingBox, v))
 }
 
-// ExtentLTE applies the LTE predicate on the "extent" field.
-func ExtentLTE(v *pgtype.Box) predicate.EventMap {
-	return predicate.EventMap(sql.FieldLTE(FieldExtent, v))
+// BoundingBoxLTE applies the LTE predicate on the "bounding_box" field.
+func BoundingBoxLTE(v *pgtype.Box) predicate.EventMap {
+	return predicate.EventMap(sql.FieldLTE(FieldBoundingBox, v))
 }
 
-// ExtentIsNil applies the IsNil predicate on the "extent" field.
-func ExtentIsNil() predicate.EventMap {
-	return predicate.EventMap(sql.FieldIsNull(FieldExtent))
+// BoundingBoxIsNil applies the IsNil predicate on the "bounding_box" field.
+func BoundingBoxIsNil() predicate.EventMap {
+	return predicate.EventMap(sql.FieldIsNull(FieldBoundingBox))
 }
 
-// ExtentNotNil applies the NotNil predicate on the "extent" field.
-func ExtentNotNil() predicate.EventMap {
-	return predicate.EventMap(sql.FieldNotNull(FieldExtent))
+// BoundingBoxNotNil applies the NotNil predicate on the "bounding_box" field.
+func BoundingBoxNotNil() predicate.EventMap {
+	return predicate.EventMap(sql.FieldNotNull(FieldBoundingBox))
 }
 
 // HasEvents applies the HasEdge predicate on the "events" edge.

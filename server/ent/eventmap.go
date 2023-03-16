@@ -21,8 +21,8 @@ type EventMap struct {
 	OwnerID uuid.UUID `json:"owner_id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
-	// Extent holds the value of the "extent" field.
-	Extent *pgtype.Box `json:"extent,omitempty"`
+	// BoundingBox holds the value of the "bounding_box" field.
+	BoundingBox *pgtype.Box `json:"bounding_box,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the EventMapQuery when eager-loading is set.
 	Edges EventMapEdges `json:"edges"`
@@ -51,7 +51,7 @@ func (*EventMap) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case eventmap.FieldExtent:
+		case eventmap.FieldBoundingBox:
 			values[i] = new(pgtype.Box)
 		case eventmap.FieldName:
 			values[i] = new(sql.NullString)
@@ -90,11 +90,11 @@ func (em *EventMap) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				em.Name = value.String
 			}
-		case eventmap.FieldExtent:
+		case eventmap.FieldBoundingBox:
 			if value, ok := values[i].(*pgtype.Box); !ok {
-				return fmt.Errorf("unexpected type %T for field extent", values[i])
+				return fmt.Errorf("unexpected type %T for field bounding_box", values[i])
 			} else if value != nil {
-				em.Extent = value
+				em.BoundingBox = value
 			}
 		}
 	}
@@ -135,8 +135,8 @@ func (em *EventMap) String() string {
 	builder.WriteString("name=")
 	builder.WriteString(em.Name)
 	builder.WriteString(", ")
-	builder.WriteString("extent=")
-	builder.WriteString(fmt.Sprintf("%v", em.Extent))
+	builder.WriteString("bounding_box=")
+	builder.WriteString(fmt.Sprintf("%v", em.BoundingBox))
 	builder.WriteByte(')')
 	return builder.String()
 }
