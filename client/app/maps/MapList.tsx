@@ -142,6 +142,28 @@ function MapCard(props: MapCardProps) {
 														active
 															? "bg-gray-100 text-gray-900"
 															: "text-gray-700",
+														"flex w-full justify-between px-4 py-2 text-sm hidden md:flex",
+													)}
+													onClick={async (event) => {
+														event.stopPropagation();
+														props.onMapSelect(
+															props.eventMap,
+															MapModalMode.EMBED,
+														);
+													}}
+												>
+													<span>Embed Map</span>
+												</button>
+											)}
+										</Menu.Item>
+										<Menu.Item>
+											{({ active }) => (
+												<button
+													type="button"
+													className={clsx(
+														active
+															? "bg-gray-100 text-gray-900"
+															: "text-gray-700",
 														"flex w-full justify-between px-4 py-2 text-sm",
 													)}
 													onClick={(event) => {
