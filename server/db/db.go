@@ -29,6 +29,16 @@ func Connect() {
 	}
 	log.Println("established connection to database")
 
+	entClient := ent.NewClient(ent.Driver(entsql.OpenDB(dialect.Postgres, dbConnection)))
+	// run migrations managed by ent
+	if err := entClient.Schema.Create(ctx,
+		migrate.WithDropIndex(true),
+		migrate.WithDropColumn(true),
+	); err != nil {
+		log.Fatalf("error creating schema resources: %v", err)
+	}
+	log.Println("ent client applied database migrations")
+
 	golangMigrateDriver, err := postgres.WithInstance(dbConnection, &postgres.Config{})
 	if err != nil {
 		log.Fatalf("error creating golang_migrate driver: %v", err)
@@ -48,16 +58,6 @@ func Connect() {
 		log.Fatalf("error applying manual migrations to database: %v", err)
 	}
 	log.Println("golang_migrate client applied database migrations")
-
-	entClient := ent.NewClient(ent.Driver(entsql.OpenDB(dialect.Postgres, dbConnection)))
-	// run migrations managed by ent
-	if err := entClient.Schema.Create(ctx,
-		migrate.WithDropIndex(true),
-		migrate.WithDropColumn(true),
-	); err != nil {
-		log.Fatalf("error creating schema resources: %v", err)
-	}
-	log.Println("ent client applied database migrations")
 
 	redisOpts, err := redis.ParseURL(os.Getenv("REDIS_ADDRESS"))
 	if err != nil {
