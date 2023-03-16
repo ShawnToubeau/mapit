@@ -9,7 +9,7 @@ import (
 	"server/db"
 	"server/ent/event"
 	"server/ent/eventmap"
-	eventapiv1 "server/gen/proto/event_api/v1"
+	eventapiv1 "server/gen/event_api/v1"
 	"time"
 )
 

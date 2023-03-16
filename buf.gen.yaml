@@ -4,12 +4,14 @@ managed:
   go_package_prefix:
     default: server/gen
 plugins:
+  # server directory
   - name: go
     out: server/gen
     opt: paths=source_relative
   - name: connect-go
     out: server/gen
     opt: paths=source_relative
+  # client directory
   - name: es
     path: ./node_modules/.bin/protoc-gen-es
     opt: target=ts
@@ -17,3 +19,11 @@ plugins:
   - plugin: connect-web
     opt: target=ts
     out: client/gen
+  # embed directory
+  - name: es
+    path: ./node_modules/.bin/protoc-gen-es
+    opt: target=ts
+    out: embed/gen
+  - plugin: connect-web
+    opt: target=ts
+    out: embed/gen

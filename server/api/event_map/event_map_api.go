@@ -6,9 +6,11 @@ import (
 	"github.com/bufbuild/connect-go"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
+	"github.com/jackc/pgtype"
 	"server/db"
 	"server/ent/eventmap"
-	eventmapapiv1 "server/gen/proto/event_map_api/v1"
+	eventapiv1 "server/gen/event_api/v1"
+	eventmapapiv1 "server/gen/event_map_api/v1"
 )
 
 type EventMapServer struct{}
@@ -53,11 +55,42 @@ func (s *EventMapServer) GetEventMap(
 		return nil, fmt.Errorf("error querying event map: %w", err)
 	}
 
-	res := connect.NewResponse(&eventmapapiv1.GetEventMapResponse{
-		Id:      queried.ID.String(),
-		OwnerId: queried.OwnerID.String(),
-		Name:    queried.Name,
-	})
+	queriedEvents, err := queried.QueryEvents().All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error querying map events: %w", err)
+	}
+
+	var events []*eventapiv1.GetEventResponse
+	for _, eventIter := range queriedEvents {
+		events = append(events, &eventapiv1.GetEventResponse{
+			Id:          eventIter.ID.String(),
+			Name:        eventIter.Name,
+			StartTime:   eventIter.StartTime.UnixMilli(),
+			EndTime:     eventIter.EndTime.UnixMilli(),
+			Latitude:    eventIter.Point.P.Y,
+			Longitude:   eventIter.Point.P.X,
+			Description: eventIter.Description,
+		})
+	}
+
+	mapRes := &eventmapapiv1.GetEventMapResponse{
+		Id:        queried.ID.String(),
+		OwnerId:   queried.OwnerID.String(),
+		Name:      queried.Name,
+		NumEvents: int32(len(events)),
+		Events:    events,
+	}
+
+	if queried.BoundingBox.Status == pgtype.Present {
+		mapRes.BoundingBox = &eventmapapiv1.MapBoundingBox{
+			NorthEastLatitude:  queried.BoundingBox.P[0].Y,
+			NorthEastLongitude: queried.BoundingBox.P[0].X,
+			SouthWestLatitude:  queried.BoundingBox.P[1].Y,
+			SouthWestLongitude: queried.BoundingBox.P[1].X,
+		}
+	}
+
+	res := connect.NewResponse(mapRes)
 	res.Header().Set("GetEventMap-Version", "v1")
 	return res, nil
 }

@@ -4,22 +4,25 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import {
 	CreateEventMapRequest,
 	GetEventMapResponse,
-} from "../gen/proto/event_map_api/v1/event_map_api_pb";
+} from "../gen/event_map_api/v1/event_map_api_pb";
 import { object, string } from "yup";
 import { Session } from "@supabase/auth-helpers-react";
 import { useSWRConfig } from "swr";
 import { useClient } from "../hooks/use-client";
-import { EventMapService } from "../gen/proto/event_map_api/v1/event_map_api_connectweb";
+import { EventMapService } from "../gen/event_map_api/v1/event_map_api_connectweb";
 import { Field, Form, Formik } from "formik";
 import GenerateAuthHeader from "../utils/generate-auth-header";
 import { SwrKeys } from "../constants";
 import { FieldProps } from "formik/dist/Field";
 import TextInput from "./form-inputs/TextInput";
+import Highlight, { defaultProps } from "prism-react-renderer";
+import { clsx } from "clsx";
 
 export enum MapModalMode {
 	CREATE = "create",
 	EDIT = "edit",
 	DELETE = "delete",
+	EMBED = "embed",
 }
 
 function MapModalModeToString(modalMode: MapModalMode) {
@@ -30,6 +33,8 @@ function MapModalModeToString(modalMode: MapModalMode) {
 			return "Edit";
 		case MapModalMode.DELETE:
 			return "Delete";
+		case MapModalMode.EMBED:
+			return "Embed";
 	}
 }
 
@@ -58,7 +63,7 @@ export default function MapModal(props: MapModalProps) {
 		// delay closing further to avoid UI race conditions
 		setTimeout(() => {
 			props.onClose();
-		}, 200);
+		}, 300);
 	}
 
 	return (
@@ -87,8 +92,18 @@ export default function MapModal(props: MapModalProps) {
 							leaveFrom="opacity-100 translate-y-0 sm:scale-100"
 							leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
 						>
-							<Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 w-full sm:max-w-lg sm:p-6">
-								<div className="absolute top-0 right-0 hidden pt-4 pr-4 sm:block">
+							<Dialog.Panel
+								className={clsx(
+									"relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 w-full sm:p-6",
+									{
+										"sm:max-w-lg":
+											props.modalData?.modalMode !== MapModalMode.EMBED,
+										"sm:max-w-3xl":
+											props.modalData?.modalMode === MapModalMode.EMBED,
+									},
+								)}
+							>
+								<div className="absolute top-0 right-0 pt-4 pr-4 block">
 									<button
 										type="button"
 										className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -98,11 +113,17 @@ export default function MapModal(props: MapModalProps) {
 										<XMarkIcon className="h-6 w-6" aria-hidden="true" />
 									</button>
 								</div>
-								<div className="sm:flex flex-col sm:items-start">
+								<div
+									className="sm:flex flex-col sm:items-start"
+									style={{
+										// 90% of the view height minus the vertical padding of the modal
+										maxHeight: "calc(90vh - 48px)",
+									}}
+								>
 									<div className="mt-0 text-center sm:text-left">
 										<Dialog.Title
-											as="h3"
-											className="text-lg font-medium leading-6 text-gray-900"
+											as="h2"
+											className="text-2xl font-medium leading-6 text-gray-900"
 										>
 											{`${
 												props.modalData &&
@@ -111,7 +132,7 @@ export default function MapModal(props: MapModalProps) {
 										</Dialog.Title>
 									</div>
 
-									<div className="mt-2 w-full">
+									<div className="mt-2 w-full overflow-y-auto">
 										{renderModalContent({ ...props, onClose: handleClose })}
 									</div>
 								</div>
@@ -166,6 +187,14 @@ function renderModalContent(props: MapModalProps) {
 					session={props.session}
 					close={props.onClose}
 				/>
+			);
+		case MapModalMode.EMBED:
+			if (!props.modalData.mapData) {
+				throw new Error("error rendering map embed ui, map is null");
+			}
+
+			return (
+				<MapEmbedPrompt map={props.modalData.mapData} close={props.onClose} />
 			);
 	}
 }
@@ -339,6 +368,98 @@ function MapDeletePrompt(props: MapDeletePromptProps) {
 					</button>
 				</div>
 			</div>
+		</div>
+	);
+}
+
+interface MapEmbedPromptProps {
+	map: GetEventMapResponse;
+	close: () => void;
+}
+
+function MapEmbedPrompt(props: MapEmbedPromptProps) {
+	const styleCode = `
+<link 
+	crossorigin=""
+	type="text/css"
+	rel="stylesheet" 
+	href="https://unpkg.com/mapit-embed/dist/index.css" 
+	integrity="sha384-fV3LrW2ZpZwopK5DBFqymSO28cvs7SM6v+KAVtHNBpwx7ya1+koVreq6iaLikDo+"
+/>
+	`;
+	const mapElementCode = `
+<div 
+	id="mapit-embed" 
+	style="width: 600px; height: 400px" 
+/>
+	`;
+	const jsCode = `	
+<script 
+	type="module"
+	id="mapit-script" 
+	crossorigin="anonymous"
+	mapId="${props.map.id}" 
+	src="https://unpkg.com/mapit-embed/dist/index.js" 
+	integrity="sha384-SLUGmUhnMsIjCMK3AM4hQhxuvkSHr0Fs2oK76OMzJRQdTB9itqVXd5RmCu3Zdzkb"
+/>
+	`;
+
+	return (
+		<div>
+			<div className="mt-2 mb-1 flex">
+				{"Insert this anywhere within your"}
+				<div className="font-bold mx-1">{"<head> ... </head>"}</div>
+				{"tags."}
+			</div>
+			<Highlight {...defaultProps} code={styleCode} language="jsx">
+				{({ className, style, tokens, getLineProps, getTokenProps }) => (
+					<pre className={clsx(className, "overflow-x-auto")} style={style}>
+						{tokens.map((line, i) => (
+							<div key={i} {...getLineProps({ line, key: i })}>
+								{line.map((token, key) => (
+									<span key={key} {...getTokenProps({ token, key })} />
+								))}
+							</div>
+						))}
+					</pre>
+				)}
+			</Highlight>
+			<div className="mt-2 mb-1 flex">
+				{"Insert this anywhere within your"}
+				<div className="font-bold mx-1">{"<body> ... </body>"}</div>
+				{"tags."}
+			</div>
+			<Highlight {...defaultProps} code={mapElementCode} language="jsx">
+				{({ className, style, tokens, getLineProps, getTokenProps }) => (
+					<pre className={clsx(className, "overflow-x-auto")} style={style}>
+						{tokens.map((line, i) => (
+							<div key={i} {...getLineProps({ line, key: i })}>
+								{line.map((token, key) => (
+									<span key={key} {...getTokenProps({ token, key })} />
+								))}
+							</div>
+						))}
+					</pre>
+				)}
+			</Highlight>
+			<div className="mt-2 mb-1 flex">
+				{"Insert this after your closed"}
+				<div className="font-bold mx-1">{"</body>"}</div>
+				{"tag."}
+			</div>
+			<Highlight {...defaultProps} code={jsCode} language="jsx">
+				{({ className, style, tokens, getLineProps, getTokenProps }) => (
+					<pre className={clsx(className, "overflow-x-auto")} style={style}>
+						{tokens.map((line, i) => (
+							<div key={i} {...getLineProps({ line, key: i })}>
+								{line.map((token, key) => (
+									<span key={key} {...getTokenProps({ token, key })} />
+								))}
+							</div>
+						))}
+					</pre>
+				)}
+			</Highlight>
 		</div>
 	);
 }

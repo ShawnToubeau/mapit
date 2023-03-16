@@ -655,7 +655,7 @@ type EventMapMutation struct {
 	id            *uuid.UUID
 	owner_id      *uuid.UUID
 	name          *string
-	extent        **pgtype.Box
+	bounding_box  **pgtype.Box
 	clearedFields map[string]struct{}
 	events        map[uuid.UUID]struct{}
 	removedevents map[uuid.UUID]struct{}
@@ -841,53 +841,53 @@ func (m *EventMapMutation) ResetName() {
 	m.name = nil
 }
 
-// SetExtent sets the "extent" field.
-func (m *EventMapMutation) SetExtent(pg *pgtype.Box) {
-	m.extent = &pg
+// SetBoundingBox sets the "bounding_box" field.
+func (m *EventMapMutation) SetBoundingBox(pg *pgtype.Box) {
+	m.bounding_box = &pg
 }
 
-// Extent returns the value of the "extent" field in the mutation.
-func (m *EventMapMutation) Extent() (r *pgtype.Box, exists bool) {
-	v := m.extent
+// BoundingBox returns the value of the "bounding_box" field in the mutation.
+func (m *EventMapMutation) BoundingBox() (r *pgtype.Box, exists bool) {
+	v := m.bounding_box
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldExtent returns the old "extent" field's value of the EventMap entity.
+// OldBoundingBox returns the old "bounding_box" field's value of the EventMap entity.
 // If the EventMap object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *EventMapMutation) OldExtent(ctx context.Context) (v *pgtype.Box, err error) {
+func (m *EventMapMutation) OldBoundingBox(ctx context.Context) (v *pgtype.Box, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldExtent is only allowed on UpdateOne operations")
+		return v, errors.New("OldBoundingBox is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldExtent requires an ID field in the mutation")
+		return v, errors.New("OldBoundingBox requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldExtent: %w", err)
+		return v, fmt.Errorf("querying old value for OldBoundingBox: %w", err)
 	}
-	return oldValue.Extent, nil
+	return oldValue.BoundingBox, nil
 }
 
-// ClearExtent clears the value of the "extent" field.
-func (m *EventMapMutation) ClearExtent() {
-	m.extent = nil
-	m.clearedFields[eventmap.FieldExtent] = struct{}{}
+// ClearBoundingBox clears the value of the "bounding_box" field.
+func (m *EventMapMutation) ClearBoundingBox() {
+	m.bounding_box = nil
+	m.clearedFields[eventmap.FieldBoundingBox] = struct{}{}
 }
 
-// ExtentCleared returns if the "extent" field was cleared in this mutation.
-func (m *EventMapMutation) ExtentCleared() bool {
-	_, ok := m.clearedFields[eventmap.FieldExtent]
+// BoundingBoxCleared returns if the "bounding_box" field was cleared in this mutation.
+func (m *EventMapMutation) BoundingBoxCleared() bool {
+	_, ok := m.clearedFields[eventmap.FieldBoundingBox]
 	return ok
 }
 
-// ResetExtent resets all changes to the "extent" field.
-func (m *EventMapMutation) ResetExtent() {
-	m.extent = nil
-	delete(m.clearedFields, eventmap.FieldExtent)
+// ResetBoundingBox resets all changes to the "bounding_box" field.
+func (m *EventMapMutation) ResetBoundingBox() {
+	m.bounding_box = nil
+	delete(m.clearedFields, eventmap.FieldBoundingBox)
 }
 
 // AddEventIDs adds the "events" edge to the Event entity by ids.
@@ -985,8 +985,8 @@ func (m *EventMapMutation) Fields() []string {
 	if m.name != nil {
 		fields = append(fields, eventmap.FieldName)
 	}
-	if m.extent != nil {
-		fields = append(fields, eventmap.FieldExtent)
+	if m.bounding_box != nil {
+		fields = append(fields, eventmap.FieldBoundingBox)
 	}
 	return fields
 }
@@ -1000,8 +1000,8 @@ func (m *EventMapMutation) Field(name string) (ent.Value, bool) {
 		return m.OwnerID()
 	case eventmap.FieldName:
 		return m.Name()
-	case eventmap.FieldExtent:
-		return m.Extent()
+	case eventmap.FieldBoundingBox:
+		return m.BoundingBox()
 	}
 	return nil, false
 }
@@ -1015,8 +1015,8 @@ func (m *EventMapMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldOwnerID(ctx)
 	case eventmap.FieldName:
 		return m.OldName(ctx)
-	case eventmap.FieldExtent:
-		return m.OldExtent(ctx)
+	case eventmap.FieldBoundingBox:
+		return m.OldBoundingBox(ctx)
 	}
 	return nil, fmt.Errorf("unknown EventMap field %s", name)
 }
@@ -1040,12 +1040,12 @@ func (m *EventMapMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetName(v)
 		return nil
-	case eventmap.FieldExtent:
+	case eventmap.FieldBoundingBox:
 		v, ok := value.(*pgtype.Box)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetExtent(v)
+		m.SetBoundingBox(v)
 		return nil
 	}
 	return fmt.Errorf("unknown EventMap field %s", name)
@@ -1077,8 +1077,8 @@ func (m *EventMapMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *EventMapMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(eventmap.FieldExtent) {
-		fields = append(fields, eventmap.FieldExtent)
+	if m.FieldCleared(eventmap.FieldBoundingBox) {
+		fields = append(fields, eventmap.FieldBoundingBox)
 	}
 	return fields
 }
@@ -1094,8 +1094,8 @@ func (m *EventMapMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *EventMapMutation) ClearField(name string) error {
 	switch name {
-	case eventmap.FieldExtent:
-		m.ClearExtent()
+	case eventmap.FieldBoundingBox:
+		m.ClearBoundingBox()
 		return nil
 	}
 	return fmt.Errorf("unknown EventMap nullable field %s", name)
@@ -1111,8 +1111,8 @@ func (m *EventMapMutation) ResetField(name string) error {
 	case eventmap.FieldName:
 		m.ResetName()
 		return nil
-	case eventmap.FieldExtent:
-		m.ResetExtent()
+	case eventmap.FieldBoundingBox:
+		m.ResetBoundingBox()
 		return nil
 	}
 	return fmt.Errorf("unknown EventMap field %s", name)

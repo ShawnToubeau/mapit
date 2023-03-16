@@ -34,9 +34,9 @@ func (emc *EventMapCreate) SetName(s string) *EventMapCreate {
 	return emc
 }
 
-// SetExtent sets the "extent" field.
-func (emc *EventMapCreate) SetExtent(pg *pgtype.Box) *EventMapCreate {
-	emc.mutation.SetExtent(pg)
+// SetBoundingBox sets the "bounding_box" field.
+func (emc *EventMapCreate) SetBoundingBox(pg *pgtype.Box) *EventMapCreate {
+	emc.mutation.SetBoundingBox(pg)
 	return emc
 }
 
@@ -167,9 +167,9 @@ func (emc *EventMapCreate) createSpec() (*EventMap, *sqlgraph.CreateSpec) {
 		_spec.SetField(eventmap.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := emc.mutation.Extent(); ok {
-		_spec.SetField(eventmap.FieldExtent, field.TypeOther, value)
-		_node.Extent = value
+	if value, ok := emc.mutation.BoundingBox(); ok {
+		_spec.SetField(eventmap.FieldBoundingBox, field.TypeOther, value)
+		_node.BoundingBox = value
 	}
 	if nodes := emc.mutation.EventsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -42,15 +42,15 @@ func (emu *EventMapUpdate) SetName(s string) *EventMapUpdate {
 	return emu
 }
 
-// SetExtent sets the "extent" field.
-func (emu *EventMapUpdate) SetExtent(pg *pgtype.Box) *EventMapUpdate {
-	emu.mutation.SetExtent(pg)
+// SetBoundingBox sets the "bounding_box" field.
+func (emu *EventMapUpdate) SetBoundingBox(pg *pgtype.Box) *EventMapUpdate {
+	emu.mutation.SetBoundingBox(pg)
 	return emu
 }
 
-// ClearExtent clears the value of the "extent" field.
-func (emu *EventMapUpdate) ClearExtent() *EventMapUpdate {
-	emu.mutation.ClearExtent()
+// ClearBoundingBox clears the value of the "bounding_box" field.
+func (emu *EventMapUpdate) ClearBoundingBox() *EventMapUpdate {
+	emu.mutation.ClearBoundingBox()
 	return emu
 }
 
@@ -146,11 +146,11 @@ func (emu *EventMapUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := emu.mutation.Name(); ok {
 		_spec.SetField(eventmap.FieldName, field.TypeString, value)
 	}
-	if value, ok := emu.mutation.Extent(); ok {
-		_spec.SetField(eventmap.FieldExtent, field.TypeOther, value)
+	if value, ok := emu.mutation.BoundingBox(); ok {
+		_spec.SetField(eventmap.FieldBoundingBox, field.TypeOther, value)
 	}
-	if emu.mutation.ExtentCleared() {
-		_spec.ClearField(eventmap.FieldExtent, field.TypeOther)
+	if emu.mutation.BoundingBoxCleared() {
+		_spec.ClearField(eventmap.FieldBoundingBox, field.TypeOther)
 	}
 	if emu.mutation.EventsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -238,15 +238,15 @@ func (emuo *EventMapUpdateOne) SetName(s string) *EventMapUpdateOne {
 	return emuo
 }
 
-// SetExtent sets the "extent" field.
-func (emuo *EventMapUpdateOne) SetExtent(pg *pgtype.Box) *EventMapUpdateOne {
-	emuo.mutation.SetExtent(pg)
+// SetBoundingBox sets the "bounding_box" field.
+func (emuo *EventMapUpdateOne) SetBoundingBox(pg *pgtype.Box) *EventMapUpdateOne {
+	emuo.mutation.SetBoundingBox(pg)
 	return emuo
 }
 
-// ClearExtent clears the value of the "extent" field.
-func (emuo *EventMapUpdateOne) ClearExtent() *EventMapUpdateOne {
-	emuo.mutation.ClearExtent()
+// ClearBoundingBox clears the value of the "bounding_box" field.
+func (emuo *EventMapUpdateOne) ClearBoundingBox() *EventMapUpdateOne {
+	emuo.mutation.ClearBoundingBox()
 	return emuo
 }
 
@@ -366,11 +366,11 @@ func (emuo *EventMapUpdateOne) sqlSave(ctx context.Context) (_node *EventMap, er
 	if value, ok := emuo.mutation.Name(); ok {
 		_spec.SetField(eventmap.FieldName, field.TypeString, value)
 	}
-	if value, ok := emuo.mutation.Extent(); ok {
-		_spec.SetField(eventmap.FieldExtent, field.TypeOther, value)
+	if value, ok := emuo.mutation.BoundingBox(); ok {
+		_spec.SetField(eventmap.FieldBoundingBox, field.TypeOther, value)
 	}
-	if emuo.mutation.ExtentCleared() {
-		_spec.ClearField(eventmap.FieldExtent, field.TypeOther)
+	if emuo.mutation.BoundingBoxCleared() {
+		_spec.ClearField(eventmap.FieldBoundingBox, field.TypeOther)
 	}
 	if emuo.mutation.EventsCleared() {
 		edge := &sqlgraph.EdgeSpec{

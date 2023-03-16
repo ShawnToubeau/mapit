@@ -1,7 +1,7 @@
 import { useClient } from "../hooks/use-client";
-import { EventService } from "../gen/proto/event_api/v1/event_api_connectweb";
+import { EventService } from "../gen/event_api/v1/event_api_connectweb";
 import useSWR from "swr";
-import { GetEventResponse } from "../gen/proto/event_api/v1/event_api_pb";
+import { GetEventResponse } from "../gen/event_api/v1/event_api_pb";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { clsx } from "clsx";
 import FormatDate from "../utils/format-date";

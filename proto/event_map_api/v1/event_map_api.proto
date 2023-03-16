@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "event_api/v1/event_api.proto";
 
 package proto.event_map_api.v1;
 
@@ -14,11 +15,20 @@ message GetEventMapRequest {
   string id = 1;
 }
 
+message MapBoundingBox {
+  double north_east_latitude = 1;
+  double north_east_longitude = 2;
+  double south_west_latitude = 3;
+  double south_west_longitude = 4;
+}
+
 message GetEventMapResponse {
   string id = 1;
   string owner_id = 2;
   string name = 3;
-  int32  num_events = 4;
+  MapBoundingBox bounding_box = 4;
+  int32  num_events = 5;
+  repeated event_api.v1.GetEventResponse events = 6;
 }
 
 message GetAllEventMapsRequest {}

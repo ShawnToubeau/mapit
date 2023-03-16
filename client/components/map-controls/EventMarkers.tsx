@@ -1,11 +1,11 @@
 import { useClient } from "../../hooks/use-client";
-import { EventService } from "../../gen/proto/event_api/v1/event_api_connectweb";
+import { EventService } from "../../gen/event_api/v1/event_api_connectweb";
 import useSWR, { mutate } from "swr";
 import GenerateAuthHeader, {
 	AnonAuthHeader,
 } from "../../utils/generate-auth-header";
 import { Fragment, useEffect, useRef, useState } from "react";
-import { GetEventResponse } from "../../gen/proto/event_api/v1/event_api_pb";
+import { GetEventResponse } from "../../gen/event_api/v1/event_api_pb";
 import { LatLng, Marker as LeafletMarker } from "leaflet";
 import { Marker, Popup, useMap } from "react-leaflet";
 import EventForm from "../EventForm";

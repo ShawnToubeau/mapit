@@ -37,7 +37,7 @@ var (
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "owner_id", Type: field.TypeUUID},
 		{Name: "name", Type: field.TypeString},
-		{Name: "extent", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "box"}},
+		{Name: "bounding_box", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "box"}},
 	}
 	// EventMapsTable holds the schema information for the "event_maps" table.
 	EventMapsTable = &schema.Table{

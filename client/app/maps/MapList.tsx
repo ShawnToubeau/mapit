@@ -1,7 +1,7 @@
 import { useClient } from "../../hooks/use-client";
-import { EventMapService } from "../../gen/proto/event_map_api/v1/event_map_api_connectweb";
+import { EventMapService } from "../../gen/event_map_api/v1/event_map_api_connectweb";
 import useSWR from "swr";
-import { GetEventMapResponse } from "../../gen/proto/event_map_api/v1/event_map_api_pb";
+import { GetEventMapResponse } from "../../gen/event_map_api/v1/event_map_api_pb";
 import { Session } from "@supabase/auth-helpers-react";
 import GenerateAuthHeader from "../../utils/generate-auth-header";
 import { Menu, Transition } from "@headlessui/react";
@@ -131,6 +131,28 @@ function MapCard(props: MapCardProps) {
 													}}
 												>
 													<span>Copy map link</span>
+												</button>
+											)}
+										</Menu.Item>
+										<Menu.Item>
+											{({ active }) => (
+												<button
+													type="button"
+													className={clsx(
+														active
+															? "bg-gray-100 text-gray-900"
+															: "text-gray-700",
+														"flex w-full justify-between px-4 py-2 text-sm hidden md:flex",
+													)}
+													onClick={async (event) => {
+														event.stopPropagation();
+														props.onMapSelect(
+															props.eventMap,
+															MapModalMode.EMBED,
+														);
+													}}
+												>
+													<span>Embed Map</span>
 												</button>
 											)}
 										</Menu.Item>

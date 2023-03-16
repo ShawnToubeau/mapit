@@ -15,8 +15,8 @@ const (
 	FieldOwnerID = "owner_id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// FieldExtent holds the string denoting the extent field in the database.
-	FieldExtent = "extent"
+	// FieldBoundingBox holds the string denoting the bounding_box field in the database.
+	FieldBoundingBox = "bounding_box"
 	// EdgeEvents holds the string denoting the events edge name in mutations.
 	EdgeEvents = "events"
 	// Table holds the table name of the eventmap in the database.
@@ -35,7 +35,7 @@ var Columns = []string{
 	FieldID,
 	FieldOwnerID,
 	FieldName,
-	FieldExtent,
+	FieldBoundingBox,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
