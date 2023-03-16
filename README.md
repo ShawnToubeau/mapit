@@ -28,6 +28,7 @@ The `./client` directory contains a `.env.local` file which holds Supabase conne
 | `migrate create -ext sql -dir db/migrations -seq <MIGRATION_NAME>` | Creates empty up and down migration files  |
 | `go generate ./ent`                                                | Generates DB client and applies migrations |
 | `go run main.go`                                                   | Starts the server on port 8080             |
+| `flyctl launch`                                                    | Deploy the latest code to fly.io           |
 
 ### Client
 
