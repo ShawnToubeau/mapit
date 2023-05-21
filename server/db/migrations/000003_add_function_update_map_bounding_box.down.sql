@@ -1,1 +1,0 @@
-DROP FUNCTION update_map_bounding_box();

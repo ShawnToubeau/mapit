@@ -1,1 +1,0 @@
-DROP TRIGGER update_parent_map_bounding_box ON events;
