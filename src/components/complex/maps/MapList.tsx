@@ -8,11 +8,11 @@ import { type EventMap } from "@prisma/client";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { CheckCircledIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
 import { api } from "@src/utils/api";
-import { type Session } from "next-auth";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { theme } from "stitches.config";
 import { MapModalMode } from "./MapModal";
+import { useUser } from "@clerk/nextjs";
 
 type MapWithCount = EventMap & {
   _count: {
@@ -21,7 +21,6 @@ type MapWithCount = EventMap & {
 };
 
 interface MapListProps {
-  session: Session;
   onMapSelect: (
     eventMap: EventMap,
     action: MapModalMode.UPDATE | MapModalMode.DELETE
@@ -29,8 +28,14 @@ interface MapListProps {
 }
 
 export default function MapList(props: MapListProps) {
+  const { isSignedIn, user } = useUser();
+
+  if (!isSignedIn) {
+    return null;
+  }
+
   const { isLoading, data } = api.mapRouter.getByOwnerId.useQuery({
-    id: props.session.user.id,
+    id: user.id,
   });
 
   if (isLoading) {

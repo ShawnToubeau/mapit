@@ -28,9 +28,9 @@ export const SelectTrigger = styled(Select.SelectTrigger, {
     width: {
       full: {
         width: "100%",
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
 export const SelectIcon = styled(Select.SelectIcon, {

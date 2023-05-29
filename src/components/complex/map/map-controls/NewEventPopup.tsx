@@ -1,9 +1,9 @@
 import { CenterPopup } from "@src/utils/map";
 import { type LatLng, type Popup as LeafletPopup } from "leaflet";
-import { useSession } from "next-auth/react";
 import { useRef, useState } from "react";
 import { Popup, useMap, useMapEvents } from "react-leaflet";
 import EventForm from "../../events/EventForm";
+import { useAuth } from "@clerk/nextjs";
 
 interface NewEventPopupProps {
   mapId: string;
@@ -11,7 +11,7 @@ interface NewEventPopupProps {
 
 export default function NewEventPopup(props: NewEventPopupProps) {
   const map = useMap();
-  const { data: session } = useSession();
+  const { isSignedIn } = useAuth();
   const [position, setPosition] = useState<LatLng | null>(null);
   const popupRef = useRef<LeafletPopup | null>(null);
 
@@ -30,7 +30,7 @@ export default function NewEventPopup(props: NewEventPopupProps) {
     },
   });
 
-  if (!position || !session) {
+  if (!position || !isSignedIn) {
     return null;
   }
 
@@ -38,7 +38,6 @@ export default function NewEventPopup(props: NewEventPopupProps) {
     <Popup ref={popupRef} position={position}>
       <EventForm
         mapId={props.mapId}
-        session={session}
         latLng={position}
         close={() => setPosition(null)}
       />

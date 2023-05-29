@@ -5,47 +5,17 @@ import CreateModal, {
   MapModalMode,
   type ModalData,
 } from "@src/components/complex/maps/MapModal";
-
 import { Button } from "@src/components/simple/Button";
 import { HeaderHeight } from "@src/constants";
-import { getServerAuthSession } from "@src/server/auth";
-import { type GetServerSideProps } from "next";
-import { type Session } from "next-auth";
 import { useState } from "react";
 
-type PageProps = {
-  // can't use the word 'session' - https://stackoverflow.com/a/73391392/7627620
-  userSession: Session;
-};
-
-export const getServerSideProps: GetServerSideProps<PageProps> = async (
-  context
-) => {
-  const session = await getServerAuthSession(context);
-
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {
-      userSession: session,
-    },
-  };
-};
-
-export default function Page(props: PageProps) {
+export default function Page() {
   const [modalData, setModalData] = useState<ModalData>(null);
 
   return (
     <div>
       <div className="border-b border-b-gray-400">
-        <Header session={props.userSession} />
+        <Header />
       </div>
 
       <div
@@ -55,7 +25,6 @@ export default function Page(props: PageProps) {
         }}
       >
         <MapList
-          session={props.userSession}
           onMapSelect={(eventMap, action) => {
             setModalData({
               modalMode: action,

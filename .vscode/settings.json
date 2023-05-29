@@ -1,10 +1,20 @@
 {
   "cSpell.words": [
+    "clsx",
+    "defaulticon",
+    "geosearch",
+    "mapit",
+    "nextjs",
+    "planetscale",
     "postgis",
+    "superjson",
+    "tailwindcss",
+    "tanstack",
     "TRPC",
     "typeshare"
   ],
   "editor.formatOnSave": true,
+  "prettier.configPath": "./prettierrc.config.cjs",
   "editor.codeActionsOnSave": {
     "source.fixAll": true,
     "source.organizeImports": true

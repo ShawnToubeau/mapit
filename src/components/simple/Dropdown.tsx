@@ -78,17 +78,17 @@ export const DropdownMenuItem = styled(DropdownMenu.Item, {
   variants: {
     variant: {
       normal: {
-        height: itemStyles.height
+        height: itemStyles.height,
       },
       tall: {
-        height: 48
-      }
-    }
+        height: 48,
+      },
+    },
   },
 
   defaultVariants: {
-    variant: "normal"
-  }
+    variant: "normal",
+  },
 });
 export const DropdownMenuCheckboxItem = styled(
   DropdownMenu.CheckboxItem,

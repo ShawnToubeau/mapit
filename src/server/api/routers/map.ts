@@ -50,10 +50,10 @@ export const mapRouter = createTRPCRouter({
           include: {
             _count: {
               select: {
-                events: true
-              }
-            }
-          }
+                events: true,
+              },
+            },
+          },
         });
 
         return {
@@ -95,6 +95,7 @@ export const mapRouter = createTRPCRouter({
             data: {
               status: 200,
               message: "successfully fetched map",
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               map: map,
             },
           },

@@ -17,14 +17,14 @@ The `./client` directory contains a `.env.local` file which holds Supabase conne
 ### Root
 
 | Command          | Description                                                 |
-|------------------|-------------------------------------------------------------|
+| ---------------- | ----------------------------------------------------------- |
 | `buf lint`       | Lint all protocol buffer files                              |
 | `yarn gen-proto` | Generate the latest client code based on the protobuf files |
 
 ### Server
 
 | Command                                                            | Description                                |
-|--------------------------------------------------------------------|--------------------------------------------|
+| ------------------------------------------------------------------ | ------------------------------------------ |
 | `migrate create -ext sql -dir db/migrations -seq <MIGRATION_NAME>` | Creates empty up and down migration files  |
 | `go generate ./ent`                                                | Generates DB client and applies migrations |
 | `go run main.go`                                                   | Starts the server on port 8080             |
@@ -33,13 +33,13 @@ The `./client` directory contains a `.env.local` file which holds Supabase conne
 ### Client
 
 | Command                   | Description                         |
-|---------------------------|-------------------------------------|
+| ------------------------- | ----------------------------------- |
 | `yarn dev`                | Starts the client on port 3000      |
 | `ANALYZE=true yarn build` | Build and analyze the client bundle |
 
 ### Embed
 
 | Command        | Description                     |
-|----------------|---------------------------------|
+| -------------- | ------------------------------- |
 | `yarn build`   | Build the mapit-embed package   |
 | `yarn publish` | Publish the latest build to NPM |

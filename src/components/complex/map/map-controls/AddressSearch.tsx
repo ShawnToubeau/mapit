@@ -3,8 +3,6 @@ import { Input } from "@src/components/simple/Form";
 import { api } from "@src/utils/api";
 import { CenterPopup } from "@src/utils/map";
 import { LatLng, type Popup as LeafletPopup } from "leaflet";
-import { type Session } from "next-auth";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Popup, useMap } from "react-leaflet";
@@ -12,6 +10,8 @@ import Control from "react-leaflet-custom-control";
 import { MediumBreakpoint } from "../../../../constants";
 import useWindowWidth from "../../../../hooks/use-window-width";
 import EventForm from "../../events/EventForm";
+import { useUser } from "@clerk/nextjs";
+import { type UserResource } from "@clerk/types/dist";
 
 interface AddressSearchProps {
   mapId: string;
@@ -20,7 +20,7 @@ interface AddressSearchProps {
 export default function AddressSearch(props: AddressSearchProps) {
   const map = useMap();
   const width = useWindowWidth();
-  const { data: session } = useSession();
+  const { user } = useUser();
   // this helps persist the searched term once a user performs the search
   const [persistentSearch, setPersistentSearch] = useState<string>("");
   const [latLng, setLatLng] = useState<LatLng | null>(null);
@@ -34,13 +34,13 @@ export default function AddressSearch(props: AddressSearchProps) {
     }
   }, [popupRef, latLng, map]);
 
-  if (!session) {
+  if (!user) {
     return null;
   }
 
   // the input is within its own function because when wrapped with Control, it
   // loses focus after every keystroke
-  function AddressInput({ search }: { search: string; session: Session }) {
+  function AddressInput({ search }: { search: string; user: UserResource }) {
     // this state must stay in this component to ensure we don't lose focus when it updates
     const [searchTerm, setSearchTerm] = useState<string>(search);
     // we use `useMutation` instead of `useQuery` because query does not have an async call
@@ -114,14 +114,14 @@ export default function AddressSearch(props: AddressSearchProps) {
   return (
     <div>
       <Control position="topleft">
-        <AddressInput search={persistentSearch} session={session} />
+        <AddressInput search={persistentSearch} user={user} />
       </Control>
 
       {latLng && (
         <Popup position={latLng} ref={popupRef}>
           <EventForm
             mapId={props.mapId}
-            session={session}
+            user={user}
             latLng={latLng}
             close={() => setLatLng(null)}
           />

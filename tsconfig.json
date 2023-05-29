@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -26,24 +22,12 @@
       }
     ],
     "paths": {
-      "@/": [
-        "/*"
-      ],
-      "@src/*": [
-        "src/*"
-      ],
-      "@pages/*": [
-        "src/pages/*"
-      ],
-      "@server/*": [
-        "src/server/*"
-      ],
-      "@styles/*": [
-        "src/styles/*"
-      ],
-      "@components/*": [
-        "src/components/*"
-      ]
+      "@/": ["/*"],
+      "@src/*": ["src/*"],
+      "@pages/*": ["src/pages/*"],
+      "@server/*": ["src/server/*"],
+      "@styles/*": ["src/styles/*"],
+      "@components/*": ["src/components/*"]
     }
   },
   "include": [
@@ -55,7 +39,5 @@
     "**/*.mjs",
     "tailwind.config.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

@@ -5,7 +5,6 @@ import { Field, Form, Formik } from "formik";
 import { type FieldProps } from "formik/dist/Field";
 import { type FormikProps } from "formik/dist/types";
 import { type LatLng } from "leaflet";
-import { type Session } from "next-auth";
 import { useEffect, useRef } from "react";
 import { number, object, string } from "yup";
 import DateTimeInput from "../../form-inputs/DateTimeInput";
@@ -35,7 +34,6 @@ const validationSchema = object({
 
 interface EventFormProps {
   mapId: string;
-  session: Session;
   latLng: LatLng;
   close: () => void;
   eventData?: EditData;

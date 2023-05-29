@@ -76,7 +76,7 @@ export const eventRouter = createTRPCRouter({
         });
       }
     }),
-    getByMapId: protectedProcedure
+  getByMapId: protectedProcedure
     .input(
       z.object({
         mapId: z.string(),

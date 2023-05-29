@@ -1,23 +1,19 @@
 import * as Toast from "@radix-ui/react-toast";
-import { type Session } from "next-auth";
-import { SessionProvider } from "next-auth/react";
-import { type AppType } from "next/app";
+import { type AppProps } from "next/app";
 
 import { api } from "@src/utils/api";
 
+import { ClerkProvider } from "@clerk/nextjs";
 import "@src/styles/global.scss";
 
-const MyApp: AppType<{ session: Session | null }> = ({
-  Component,
-  pageProps: { session, ...pageProps },
-}) => {
+function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <SessionProvider session={session}>
+    <ClerkProvider {...pageProps}>
       <Toast.Provider swipeDirection="right">
         <Component {...pageProps} />
       </Toast.Provider>
-    </SessionProvider>
+    </ClerkProvider>
   );
-};
+}
 
 export default api.withTRPC(MyApp);

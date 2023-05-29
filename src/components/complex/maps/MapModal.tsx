@@ -1,3 +1,4 @@
+import { useAuth } from "@clerk/nextjs";
 import { type EventMap } from "@prisma/client";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Cross2Icon } from "@radix-ui/react-icons";
@@ -43,18 +44,32 @@ interface CreateModalProps {
 }
 
 export default function CreateModal(props: CreateModalProps) {
+  const { userId, isSignedIn } = useAuth();
+
   function renderMapForm() {
-    if (!props.data) {
+    if (!props.data || !isSignedIn) {
       return null;
     }
 
     switch (props.data.modalMode) {
       case MapModalMode.CREATE:
-        return <CreateForm onClose={props.onClose} />;
+        return <CreateForm onClose={props.onClose} userId={userId} />;
       case MapModalMode.UPDATE:
-        return <UpdateForm map={props.data.map} onClose={props.onClose} />;
+        return (
+          <UpdateForm
+            map={props.data.map}
+            onClose={props.onClose}
+            userId={userId}
+          />
+        );
       case MapModalMode.DELETE:
-        return <DeleteForm map={props.data.map} onClose={props.onClose} />;
+        return (
+          <DeleteForm
+            map={props.data.map}
+            onClose={props.onClose}
+            userId={userId}
+          />
+        );
     }
   }
 

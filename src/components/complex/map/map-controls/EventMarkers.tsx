@@ -1,8 +1,8 @@
+import { useAuth } from "@clerk/nextjs";
 import { type Event } from "@prisma/client";
 import { api } from "@src/utils/api";
 import { CenterPopup } from "@src/utils/map";
 import { LatLng, type Marker as LeafletMarker } from "leaflet";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Marker, Popup, useMap } from "react-leaflet";
@@ -105,7 +105,7 @@ function EventPopupContent(props: EventPopupProps) {
 }
 
 function ReadEventPopup(props: EventPopupProps) {
-  const { data: session } = useSession();
+  const { isSignedIn } = useAuth();
 
   return (
     <div>
@@ -125,7 +125,7 @@ function ReadEventPopup(props: EventPopupProps) {
           </div>
         </div>
 
-        {session && (
+        {isSignedIn && (
           <div className="mt-2 flex justify-around">
             <Image
               className="icon"
@@ -157,8 +157,8 @@ function ReadEventPopup(props: EventPopupProps) {
 }
 
 function EditEventPopup(props: EventPopupProps) {
-  const { data: session } = useSession();
-  if (!session) {
+  const { isSignedIn } = useAuth();
+  if (!isSignedIn) {
     return null;
   }
 
@@ -166,7 +166,6 @@ function EditEventPopup(props: EventPopupProps) {
     <div>
       <EventForm
         mapId={props.mapId}
-        session={session}
         eventData={{
           eventId: props.event.id,
           initialValues: {
@@ -186,10 +185,10 @@ function EditEventPopup(props: EventPopupProps) {
 }
 
 function DeleteEventPopup(props: EventPopupProps) {
-  const { data: session } = useSession();
+  const { isSignedIn } = useAuth();
   const ctx = api.useContext();
   const deleteMutation = api.eventRouter.deleteById.useMutation();
-  if (!session) {
+  if (!isSignedIn) {
     return null;
   }
 

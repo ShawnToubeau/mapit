@@ -1,13 +1,10 @@
 import Header from "@src/components/complex/Header";
-import { useSession } from "next-auth/react";
 
 export default function Page() {
-  const { data: session } = useSession();
-
   return (
     <div>
       <div className="border-b border-b-gray-400">
-        <Header session={session} />
+        <Header />
       </div>
 
       <div className="flex flex-col items-center justify-center pt-4">

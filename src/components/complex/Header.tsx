@@ -1,4 +1,5 @@
-import { Button } from "@components/simple/Button";
+import { useAuth, useUser } from "@clerk/nextjs";
+import { type UserResource } from "@clerk/types/dist";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -7,17 +8,13 @@ import {
 import { AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { SewingPinIcon } from "@radix-ui/react-icons";
-import { type Session } from "next-auth";
-import { signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AvatarRoot } from "../simple/Avatar";
 
-interface HeaderProps {
-  session: Session | null;
-}
+export default function Header() {
+  const { user, isSignedIn } = useUser();
 
-export default function Header(props: HeaderProps) {
   return (
     <div className="p4 flex items-center justify-between p-4">
       <Link href="/">
@@ -27,29 +24,30 @@ export default function Header(props: HeaderProps) {
         </div>
       </Link>
 
-      {props.session ? (
-        <AccountDropdown session={props.session} />
+      {isSignedIn ? (
+        <AccountDropdown user={user} />
       ) : (
-        <Button onClick={() => void signIn()}>Sign In</Button>
+        <Link href="/auth/sign-in">Sign In</Link>
       )}
     </div>
   );
 }
 
 interface AccountDropdownProps {
-  session: Session;
+  user: UserResource;
 }
 
 function AccountDropdown(props: AccountDropdownProps) {
   const router = useRouter();
+  const { signOut } = useAuth();
 
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <AvatarRoot>
           <AvatarImage
-            src={props.session.user.image || undefined}
-            alt={props.session.user.name || "User Profile"}
+            src={props.user.imageUrl || undefined}
+            alt="User Profile Image"
           />
           <AvatarFallback delayMs={600}>
             {/* TODO make better */}
@@ -62,9 +60,11 @@ function AccountDropdown(props: AccountDropdownProps) {
         <DropdownMenuContent sideOffset={5} align="end">
           <DropdownMenuItem variant="tall">
             <div>
-              <div>{props.session.user.name}</div>
+              <div>{`${props.user.firstName || ""} ${
+                props.user.lastName || ""
+              }`}</div>
               <div className="text-xs leading-loose opacity-75">
-                {props.session.user.email}
+                {props.user.primaryEmailAddressId || ""}
               </div>
             </div>
           </DropdownMenuItem>

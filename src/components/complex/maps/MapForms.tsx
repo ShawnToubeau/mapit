@@ -1,4 +1,6 @@
+import { type EventMap } from "@prisma/client";
 import * as Form from "@radix-ui/react-form";
+import { DialogDescription } from "@src/components/simple/Dialog";
 import {
   Button,
   FormField,
@@ -8,17 +10,14 @@ import {
   Input,
 } from "@src/components/simple/Form";
 import { api } from "@src/utils/api";
-import { useSession } from "next-auth/react";
 import { z } from "zod";
-import { type EventMap } from "@prisma/client";
-import { DialogDescription } from "@src/components/simple/Dialog";
 
 interface MapFormProps {
+  userId: string;
   onClose: () => void;
 }
 
 export function CreateForm(props: MapFormProps) {
-  const { data: session } = useSession();
   const ctx = api.useContext();
   const createMutation = api.mapRouter.create.useMutation();
 
@@ -35,21 +34,16 @@ export function CreateForm(props: MapFormProps) {
             Object.fromEntries(new FormData(event.currentTarget))
           );
 
-          if (!session) {
-            console.error("cannot create map. no user session");
-            return;
-          }
-
           if (res.success) {
             createMutation
               .mutateAsync({
-                ownerId: session.user.id,
+                ownerId: props.userId,
                 name: res.data.name,
               })
               .then(async () => {
                 // re-fetch maps
                 await ctx.mapRouter.getByOwnerId.invalidate({
-                  id: session.user.id,
+                  id: props.userId,
                 });
                 props.onClose();
               })
@@ -82,7 +76,6 @@ export function CreateForm(props: MapFormProps) {
 }
 
 export function UpdateForm(props: MapFormProps & { map: EventMap }) {
-  const { data: session } = useSession();
   const ctx = api.useContext();
   const updateMutation = api.mapRouter.updateById.useMutation();
 
@@ -99,11 +92,6 @@ export function UpdateForm(props: MapFormProps & { map: EventMap }) {
             Object.fromEntries(new FormData(event.currentTarget))
           );
 
-          if (!session) {
-            console.error("cannot create map. no user session");
-            return;
-          }
-
           if (res.success) {
             updateMutation
               .mutateAsync({
@@ -113,7 +101,7 @@ export function UpdateForm(props: MapFormProps & { map: EventMap }) {
               .then(async () => {
                 // re-fetch maps
                 await ctx.mapRouter.getByOwnerId.invalidate({
-                  id: session.user.id,
+                  id: props.userId,
                 });
                 props.onClose();
               })
@@ -146,7 +134,6 @@ export function UpdateForm(props: MapFormProps & { map: EventMap }) {
 }
 
 export function DeleteForm(props: MapFormProps & { map: EventMap }) {
-  const { data: session } = useSession();
   const ctx = api.useContext();
   const deleteMutation = api.mapRouter.deleteById.useMutation();
 
@@ -161,12 +148,6 @@ export function DeleteForm(props: MapFormProps & { map: EventMap }) {
         className="flex w-full"
         onSubmit={(event) => {
           event.preventDefault();
-
-          if (!session) {
-            console.error("cannot create map. no user session");
-            return;
-          }
-
           deleteMutation
             .mutateAsync({
               id: props.map.id,
@@ -174,7 +155,7 @@ export function DeleteForm(props: MapFormProps & { map: EventMap }) {
             .then(async () => {
               // re-fetch maps
               await ctx.mapRouter.getByOwnerId.invalidate({
-                id: session.user.id,
+                id: props.userId,
               });
               props.onClose();
             })
