@@ -50,6 +50,7 @@ export default function DateTimeInput({
           }
         }}
       />
+      {/* @ts-expect-error 'ErrorMessage' cannot be used as a JSX component. Related? https://github.com/vercel/next.js/issues/42292 */}
       <ErrorMessage
         name={field.name}
         render={(errorMessage) => (

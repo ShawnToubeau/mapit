@@ -29,6 +29,7 @@ export default function Page() {
       }}
     >
       <Header />
+      {/* @ts-expect-error 'MyAwesomeMap' cannot be used as a JSX component. Related? https://github.com/vercel/next.js/issues/42292 */}
       <MyAwesomeMap mapId={queryParams.data.mapId} />
     </div>
   );

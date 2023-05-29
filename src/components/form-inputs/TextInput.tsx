@@ -1,7 +1,7 @@
-import { type DetailedHTMLProps, type InputHTMLAttributes } from "react";
-import { type FieldProps } from "formik/dist/Field";
 import { clsx } from "clsx";
 import { ErrorMessage } from "formik";
+import { type FieldProps } from "formik/dist/Field";
+import { type DetailedHTMLProps, type InputHTMLAttributes } from "react";
 import { InputHeight } from "../../constants";
 
 interface TextInputProps extends FieldProps<string> {
@@ -32,6 +32,7 @@ export default function TextInput({ field, form, inputProps }: TextInputProps) {
           }
         )}
       />
+      {/* @ts-expect-error 'ErrorMessage' cannot be used as a JSX component. Related? https://github.com/vercel/next.js/issues/42292 */}
       <ErrorMessage
         name={field.name}
         render={(errorMessage) => (

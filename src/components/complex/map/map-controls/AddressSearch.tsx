@@ -121,7 +121,6 @@ export default function AddressSearch(props: AddressSearchProps) {
         <Popup position={latLng} ref={popupRef}>
           <EventForm
             mapId={props.mapId}
-            user={user}
             latLng={latLng}
             close={() => setLatLng(null)}
           />

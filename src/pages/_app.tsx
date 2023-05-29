@@ -10,6 +10,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ClerkProvider {...pageProps}>
       <Toast.Provider swipeDirection="right">
+        {/* @ts-expect-error 'Component' cannot be used as a JSX component. Related? https://github.com/vercel/next.js/issues/42292 */}
         <Component {...pageProps} />
       </Toast.Provider>
     </ClerkProvider>
